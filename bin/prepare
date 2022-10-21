@@ -1,0 +1,15 @@
+#!/bin/bash
+set -euo pipefail
+trap 'echo "ERROR: line no = $LINENO, exit status = $?" >&2; exit 1' ERR
+
+ROOT="$(cd $(dirname $0)/.. && pwd)"
+CONTESTNAME=$1
+LANGUAGE=$2
+
+mkdir -p "${ROOT}/problems" 
+
+cd "${ROOT}/problems"
+acc new "${CONTESTNAME}"
+
+echo "CONTESTNAME=${CONTESTNAME}" > "${ROOT}/bin/.env"
+echo "LANGUAGE=${LANGUAGE}" >> "${ROOT}/bin/.env"

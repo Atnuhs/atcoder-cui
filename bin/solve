@@ -1,0 +1,13 @@
+#!/bin/bash
+trap 'echo "ERROR: line no = $LINENO, exit status = $?" >&2; exit 1' ERR
+
+ROOT="$(cd $(dirname $0)/.. && pwd)"
+source "${ROOT}/bin/.env"
+
+FILE_SRC="$(find "${ROOT}/templates/${LANGUAGE}/" -type f -name "template.*")"
+
+DIRNAME_DST="${ROOT}/solve"
+FILENAME_DST="main.${FILE_SRC##*.}"
+
+[ -d "${DIRNAME_DST}" ] || mkdir "${DIRNAME_DST}"
+cp "${FILE_SRC}" "${DIRNAME_DST}/${FILENAME_DST}"

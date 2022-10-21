@@ -1,0 +1,12 @@
+#!/bin/bash
+set -euo pipefail
+trap 'echo "ERROR: line no = $LINENO, exit status = $?" >&2; exit 1' ERR
+
+ROOT="$(cd $(dirname $0)/.. && pwd)"
+source "${ROOT}/bin/.env"
+
+PROBLEM=$1
+FILE_SRC="$(find "${ROOT}/solve" -maxdepth 1 -mindepth 1 -type f -name "main.*")"
+cd "${ROOT}/problems/${CONTESTNAME}/${PROBLEM}"
+
+acc submit "${FILE_SRC}" 
