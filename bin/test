@@ -6,6 +6,6 @@ ROOT="$(cd $(dirname $0)/.. && pwd)"
 source "${ROOT}/bin/.env"
 
 PROBLEM=$1
-FILE_SRC="$(find "${ROOT}/solve" -maxdepth 1 -mindepth 1 -type f -name "main.*")"
+FILE_SRC="solve/main.go"
 
-oj t -c "${TESTCOMMAND} ${FILE_SRC}" -d "${ROOT}/problems/${CONTESTNAME}/${PROBLEM}/tests"
+oj t -c "go run ${FILE_SRC}" -d "${ROOT}/problems/${CONTESTNAME}/${PROBLEM}/tests"
