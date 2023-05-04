@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"math"
 	"os"
 	"strconv"
@@ -26,7 +27,51 @@ func readi() int {
 	return ret
 }
 
+func primes(n int) []int {
+	isPrime := make([]bool, n)
+	for i := range isPrime {
+		isPrime[i] = true
+	}
+	isPrime[0] = false
+	isPrime[1] = false
+	for i := range isPrime {
+		if !isPrime[i] {
+			continue
+		}
+
+		for j := 2 * i; j < n; j += i {
+			isPrime[j] = false
+		}
+	}
+
+	primes := make([]int, 0)
+	for i := range isPrime {
+		if isPrime[i] {
+			primes = append(primes, i)
+		}
+	}
+	return primes
+}
+
+func modPow(x, e, mod int) int {
+	i := 1
+	ret := 1
+
+	for i <= e {
+		if i&e > 0 {
+			ret = (ret * x) % mod
+		}
+		i <<= 1
+		x = (x * x) % mod
+		fmt.Fprintln(out, i, x, ret)
+	}
+	return ret
+}
+
+func inv(x, mod int) int {
+	return modPow(x, mod-2, mod)
+}
+
 func main() {
 	defer out.Flush()
-
 }
