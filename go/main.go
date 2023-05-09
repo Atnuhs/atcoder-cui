@@ -72,13 +72,13 @@ func inv(x, mod int) int {
 	return modPow(x, mod-2, mod)
 }
 
-func PopBack(a *[]int) int {
+func popBack(a *[]int) int {
 	ret := (*a)[len(*a)-1]
 	*a = (*a)[:len(*a)-1]
 	return ret
 }
 
-func PopFront(a *[]int) int {
+func popFront(a *[]int) int {
 	ret := (*a)[0]
 	*a = (*a)[1:]
 	return ret
