@@ -26,89 +26,62 @@ func TestInv(t *testing.T) {
 	}
 }
 
-func benchmarkPushBack(n int, b *testing.B) {
-	arr := NewVector(0)
-	b.ResetTimer()
-	for i := 0; i < n; i++ {
-		arr.PushBack(i)
+func TestPopBack(t *testing.T) {
+	testCases := []struct {
+		desc string
+		data []int
+	}{
+		{
+			desc: "[1,2,3,4,5]",
+			data: []int{1, 2, 3, 4, 5},
+		},
 	}
-}
-func BenchmarkPushBack1000(b *testing.B) {
-	benchmarkPushBack(1000, b)
-}
-func BenchmarkPushBack10000(b *testing.B) {
-	benchmarkPushBack(10000, b)
-}
-func BenchmarkPushBack100000(b *testing.B) {
-	benchmarkPushBack(100000, b)
-}
-func BenchmarkPushBack1000000(b *testing.B) {
-	benchmarkPushBack(1000000, b)
-}
+	for _, tc := range testCases {
+		t.Run(tc.desc, func(t *testing.T) {
+			n := len(tc.data)
+			a := make([]int, n)
+			for i := range tc.data {
+				a[i] = tc.data[i]
+			}
 
-func benchmarkPushFront(n int, b *testing.B) {
-	arr := NewVector(0)
-	b.ResetTimer()
-	for i := 0; i < n; i++ {
-		arr.PushFront(i)
-	}
-}
-func BenchmarkPushFront1000(b *testing.B) {
-	benchmarkPushFront(1000, b)
-}
-func BenchmarkPushFront10000(b *testing.B) {
-	benchmarkPushFront(10000, b)
-}
-func BenchmarkPushFront100000(b *testing.B) {
-	benchmarkPushFront(100000, b)
-}
+			for i := n - 1; i >= 0; i-- {
+				actual := PopBack(&a)
+				expected := tc.data[i]
+				if expected != actual {
+					t.Errorf("expected %d, but got %d", expected, actual)
+				}
+			}
 
-func benchmarkPopBack(n int, b *testing.B) {
-	arr := NewVector(n)
-	for i := 0; i < n; i++ {
-		arr.PushBack(i)
-	}
-
-	b.ResetTimer()
-	for arr.Len() > 0 {
-		arr.PopBack()
+		})
 	}
 }
 
-func BenchmarkPopBack1000(b *testing.B) {
-	benchmarkPopBack(1000, b)
-}
-func BenchmarkPopBack10000(b *testing.B) {
-	benchmarkPopBack(10000, b)
-}
-func BenchmarkPopBack100000(b *testing.B) {
-	benchmarkPopBack(100000, b)
-}
-func BenchmarkPopBack1000000(b *testing.B) {
-	benchmarkPopBack(1000000, b)
-}
-
-func benchmarkPopFront(n int, b *testing.B) {
-	arr := NewVector(n)
-	for i := 0; i < n; i++ {
-		arr.PushBack(i)
+func TestPushBack(t *testing.T) {
+	testCases := []struct {
+		desc string
+		data []int
+	}{
+		{
+			desc: "[1,2,3,4,5]",
+			data: []int{1, 2, 3, 4, 5},
+		},
 	}
+	for _, tc := range testCases {
+		t.Run(tc.desc, func(t *testing.T) {
+			n := len(tc.data)
+			a := make([]int, n)
+			for i := range tc.data {
+				a[i] = tc.data[i]
+			}
 
-	b.ResetTimer()
-	for arr.Len() > 0 {
-		arr.PopFront()
+			for i := 0; i < 0; i-- {
+				actual := PopBack(&a)
+				expected := tc.data[i]
+				if expected != actual {
+					t.Errorf("expected %d, but got %d", expected, actual)
+				}
+			}
+
+		})
 	}
-}
-
-func BenchmarkPopFront1000(b *testing.B) {
-	benchmarkPopFront(1000, b)
-}
-func BenchmarkPopFront10000(b *testing.B) {
-	benchmarkPopFront(10000, b)
-}
-func BenchmarkPopFront100000(b *testing.B) {
-	benchmarkPopFront(100000, b)
-}
-func BenchmarkPopFront1000000(b *testing.B) {
-	benchmarkPopFront(1000000, b)
 }
