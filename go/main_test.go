@@ -45,7 +45,7 @@ func TestPopBack(t *testing.T) {
 			}
 
 			for i := n - 1; i >= 0; i-- {
-				actual := PopBack(&a)
+				actual := popBack(&a)
 				expected := tc.data[i]
 				if expected != actual {
 					t.Errorf("expected %d, but got %d", expected, actual)
@@ -75,7 +75,7 @@ func TestPushBack(t *testing.T) {
 			}
 
 			for i := 0; i < 0; i-- {
-				actual := PopBack(&a)
+				actual := popBack(&a)
 				expected := tc.data[i]
 				if expected != actual {
 					t.Errorf("expected %d, but got %d", expected, actual)
