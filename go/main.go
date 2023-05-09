@@ -72,6 +72,45 @@ func inv(x, mod int) int {
 	return modPow(x, mod-2, mod)
 }
 
+type Vector []int
+
+func NewVector(n int) *Vector {
+	v := make(Vector, 0, n)
+	return &v
+}
+
+func (a *Vector) Len() int {
+	return len(*a)
+}
+
+func (a *Vector) ReadBack() {
+	*a = append(*a, readi())
+}
+
+func (a *Vector) ReadFront() {
+	*a = append([]int{readi()}, *a...)
+}
+
+func (a *Vector) PushBack(v int) {
+	*a = append(*a, v)
+}
+
+func (a *Vector) PushFront(v int) {
+	*a = append([]int{v}, *a...)
+}
+
+func (a *Vector) PopBack() int {
+	ret := (*a)[len(*a)-1]
+	*a = (*a)[:len(*a)-1]
+	return ret
+}
+
+func (a *Vector) PopFront() int {
+	ret := (*a)[0]
+	*a = (*a)[1:]
+	return ret
+}
+
 func main() {
 	defer out.Flush()
 }
