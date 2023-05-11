@@ -78,6 +78,13 @@ func popBack(a *[]int) int {
 	return ret
 }
 
+func lcm(a, b int) int {
+	if b == 0 {
+		return a
+	}
+	return lcm(b, a%b)
+}
+
 func popFront(a *[]int) int {
 	ret := (*a)[0]
 	*a = (*a)[1:]
