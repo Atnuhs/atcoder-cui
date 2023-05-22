@@ -170,6 +170,46 @@ func abs(x int) int {
 	return x
 }
 
+func NewUf(n int) []int {
+	uf := make([]int, n)
+	for i := range uf {
+		uf[i] = -1
+	}
+	return uf
+}
+
+func root(uf []int, x int) int {
+	if uf[x] < 0 {
+		return x
+	} else {
+		uf[x] = root(uf, uf[x])
+		return uf[x]
+	}
+}
+
+func family(uf []int, x, y int) bool {
+	return root(uf, x) == root(uf, y)
+}
+
+func size(uf []int, x int) int {
+	return -uf[root(uf, x)]
+}
+
+func unite(uf []int, x, y int) {
+	rx := root(uf, x)
+	ry := root(uf, y)
+	if rx == ry {
+		return
+	}
+	if size(uf, rx) < size(uf, ry) {
+		rx = rx ^ ry
+		ry = rx ^ ry
+		rx = rx ^ ry
+	}
+	uf[rx] += uf[ry]
+	uf[ry] = rx
+}
+
 func main() {
 	defer out.Flush()
 }
