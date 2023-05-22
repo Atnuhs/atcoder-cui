@@ -148,6 +148,21 @@ func max(x, y int) int {
 	return y
 }
 
+func min(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
+}
+
+func sum(a []int) int {
+	sum := 0
+	for _, v := range a {
+		sum += v
+	}
+	return sum
+}
+
 func abs(x int) int {
 	if x < 0 {
 		x = -x
