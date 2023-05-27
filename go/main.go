@@ -210,6 +210,106 @@ func unite(uf []int, x, y int) {
 	uf[ry] = rx
 }
 
+type splay_node struct {
+	l, r, p *splay_node
+	size    int
+	value   int
+}
+
+func (n *splay_node) rotate() {
+	p := n.p
+
+	if pp := p.p; pp != nil {
+		if pp.l == p {
+			pp.l = n
+		} else {
+			pp.r = n
+		}
+		n.p = pp
+	}
+
+	var c *splay_node
+	if p.l == n {
+		c = n.r
+		n.r = p
+		p.l = c
+	} else {
+		c = n.l
+		n.l = p
+		p.r = c
+	}
+
+	if c != nil {
+		c.p = p
+	}
+	p.p = n
+	p.update()
+	n.update()
+}
+
+func (n *splay_node) state() int {
+	if n.p == nil {
+		return 0
+	}
+	if n.p.l == n {
+		return 1
+	}
+	if n.p.r == n {
+		return -1
+	}
+	return 0
+}
+
+func (n *splay_node) splay() {
+	for n.p != nil {
+		// n has parent
+
+		if n.p.state() == 0 {
+			// n.p doesn't have p
+			n.rotate()
+		}
+
+		if n.state() == n.p.state() {
+			n.p.rotate()
+			n.rotate()
+		} else {
+			n.rotate()
+			n.rotate()
+		}
+	}
+}
+
+func (n *splay_node) update() {
+	n.size = 1
+	if n.l != nil {
+		n.size += n.l.size
+	}
+	if n.r != nil {
+		n.size += n.r.size
+	}
+}
+
+func get(ind int, root *splay_node) *splay_node {
+	now := root
+	for {
+		lsize := 0
+		if now.l != nil {
+			lsize = now.l.size
+		}
+		if ind < lsize {
+			now = now.l
+		}
+		if ind == lsize {
+			now.splay()
+			return now
+		}
+		if ind > lsize {
+			now = now.r
+			ind -= lsize + 1
+		}
+	}
+}
+
 func main() {
 	defer out.Flush()
 }
