@@ -102,11 +102,15 @@ func popBack(a *[]int) int {
 	return ret
 }
 
-func lcm(a, b int) int {
+func gcd(a, b int) int {
 	if b == 0 {
 		return a
 	}
-	return lcm(b, a%b)
+	return gcd(b, a%b)
+}
+
+func lcm(a, b int) int {
+	return a / gcd(a, b) * b
 }
 
 func popFront(a *[]int) int {
