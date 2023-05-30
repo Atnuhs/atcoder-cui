@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"fmt"
 	"math"
 	"os"
@@ -312,6 +313,48 @@ func get(ind int, root *splay_node) *splay_node {
 			ind -= lsize + 1
 		}
 	}
+}
+
+type heapImpl []int
+
+func (h heapImpl) Len() int           { return len(h) }
+func (h heapImpl) Less(i, j int) bool { return h[i] < h[j] }
+func (h heapImpl) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+func (h *heapImpl) Push(x interface{}) {
+	*h = append(*h, x.(int))
+}
+func (h *heapImpl) Pop() interface{} {
+	x := (*h)[len(*h)-1]
+	*h = (*h)[:len(*h)-1]
+	return x
+}
+
+type PriorityQueue struct {
+	value heapImpl
+}
+
+func NewPriorityQueue() *PriorityQueue {
+	value := &heapImpl{}
+	heap.Init(value)
+	return &PriorityQueue{}
+}
+
+func (pq *PriorityQueue) Push(x int) {
+	heap.Push(&pq.value, x)
+}
+
+func (pq *PriorityQueue) Pop() int {
+	x := heap.Pop(&pq.value)
+	return x.(int)
+}
+
+func NewGraph(n int) [][]int {
+	g := make([][]int, n)
+	for i := range g {
+		g[i] = make([]int, 0)
+	}
+	return g
 }
 
 func main() {
