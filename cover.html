@@ -55,9 +55,7 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">main/go/main.go (9.9%)</option>
-				
-				<option value="file1">main/go/test.go (0.0%)</option>
+				<option value="file0">main/go/main.go (40.0%)</option>
 				
 				</select>
 			</div>
@@ -76,6 +74,7 @@
 import (
         "bufio"
         "container/heap"
+        "fmt"
         "math"
         "os"
         "strconv"
@@ -83,6 +82,17 @@ import (
 
 var in = bufio.NewScanner(os.Stdin)
 var out = bufio.NewWriter(os.Stdout)
+
+type Pair struct {
+        u, v int
+}
+
+func NewPair(u, v int) *Pair <span class="cov8" title="1">{
+        return &amp;Pair{u, v}
+}</span>
+func (p *Pair) String() string <span class="cov0" title="0">{
+        return fmt.Sprintf("%d %d", p.u, p.v)
+}</span>
 
 func init() <span class="cov8" title="1">{
         in.Split(bufio.ScanWords)
@@ -124,30 +134,136 @@ func readis(n int) []int <span class="cov0" title="0">{
         <span class="cov0" title="0">return ret</span>
 }
 
-func primes(n int) []int <span class="cov0" title="0">{
-        isPrime := make([]bool, n)
-        for i := range isPrime </span><span class="cov0" title="0">{
-                isPrime[i] = true
+func IsPrime(x int) bool <span class="cov8" title="1">{
+        if x == 1 </span><span class="cov8" title="1">{
+                return false
         }</span>
-        <span class="cov0" title="0">isPrime[0] = false
+
+        <span class="cov8" title="1">rx := sqrt(x)
+        for i := 2; i &lt;= rx; i++ </span><span class="cov8" title="1">{
+                if x%i == 0 </span><span class="cov8" title="1">{
+                        return false
+                }</span>
+        }
+        <span class="cov8" title="1">return true</span>
+}
+
+func Factorize(x int) []*Pair <span class="cov8" title="1">{
+        if x == 1 </span><span class="cov8" title="1">{
+                return []*Pair{}
+        }</span>
+
+        <span class="cov8" title="1">rx := sqrt(x)
+        n := x
+        ret := make([]*Pair, 0)
+        for i := 2; i &lt;= rx; i++ </span><span class="cov8" title="1">{
+                if n%i != 0 </span><span class="cov8" title="1">{
+                        continue</span>
+                }
+                <span class="cov8" title="1">exp := 0
+                for n%i == 0 </span><span class="cov8" title="1">{
+                        n /= i
+                        exp++
+                }</span>
+                <span class="cov8" title="1">ret = append(ret, NewPair(i, exp))</span>
+        }
+        <span class="cov8" title="1">if n != 1 </span><span class="cov8" title="1">{
+                ret = append(ret, NewPair(n, 1))
+        }</span>
+        <span class="cov8" title="1">return ret</span>
+}
+
+func Divisors(x int) []int <span class="cov8" title="1">{
+    ret := make([]int, 0)
+
+    rx := sqrt(x)
+    for i := 1; i&lt;= rx; i++ </span><span class="cov8" title="1">{
+        if x % i != 0 </span><span class="cov8" title="1">{
+            continue</span>
+        }
+        <span class="cov8" title="1">ret = append(ret, i)
+        if i != x/i </span><span class="cov8" title="1">{
+            ret = append(ret, x/i)
+        }</span>
+    }
+    <span class="cov8" title="1">return ret</span>
+}
+
+// Eratosthenes sieve
+type EratosthenesSieve struct {
+        isPrime   []bool
+        minFactor []int
+}
+
+func NewSieve(n int) *EratosthenesSieve <span class="cov8" title="1">{
+        isPrime := make([]bool, n+1)
+        minFactor := make([]int, n+1)
+
+        for i := range isPrime </span><span class="cov8" title="1">{
+                isPrime[i] = true
+                minFactor[i] = -1
+        }</span>
+        <span class="cov8" title="1">isPrime[0] = false
         isPrime[1] = false
-        for i := range isPrime </span><span class="cov0" title="0">{
-                if !isPrime[i] </span><span class="cov0" title="0">{
+        minFactor[1] = 1
+
+        // sieve
+        for i := range isPrime </span><span class="cov8" title="1">{
+                if !isPrime[i] </span><span class="cov8" title="1">{
                         continue</span>
                 }
 
-                <span class="cov0" title="0">for j := 2 * i; j &lt; n; j += i </span><span class="cov0" title="0">{
-                        isPrime[j] = false
-                }</span>
-        }
+                <span class="cov8" title="1">minFactor[i] = i
 
-        <span class="cov0" title="0">primes := make([]int, 0)
-        for i := range isPrime </span><span class="cov0" title="0">{
-                if isPrime[i] </span><span class="cov0" title="0">{
-                        primes = append(primes, i)
-                }</span>
+                for j := i * 2; j &lt;= n; j += i </span><span class="cov8" title="1">{
+                        isPrime[j] = false
+
+                        if minFactor[j] == -1 </span><span class="cov8" title="1">{
+                                minFactor[j] = i
+                        }</span>
+                }
         }
-        <span class="cov0" title="0">return primes</span>
+        <span class="cov8" title="1">return &amp;EratosthenesSieve{
+                isPrime:   isPrime,
+                minFactor: minFactor,
+        }</span>
+}
+
+func (sv *EratosthenesSieve) IsPrime(x int) bool <span class="cov8" title="1">{
+        return sv.isPrime[x]
+}</span>
+
+func (sv *EratosthenesSieve) Factorize(x int) []*Pair <span class="cov8" title="1">{
+        ret := make([]*Pair, 0)
+        n := x
+        for n &gt; 1 </span><span class="cov8" title="1">{
+                p := sv.minFactor[n]
+                exp := 0
+
+                for sv.minFactor[n] == p </span><span class="cov8" title="1">{
+                        n /= p
+                        exp++
+                }</span>
+                <span class="cov8" title="1">ret = append(ret, NewPair(p, exp))</span>
+        }
+        <span class="cov8" title="1">return ret</span>
+}
+
+func (sv *EratosthenesSieve) Divisors(x int) []int <span class="cov8" title="1">{
+        ret := []int{1}
+
+    f := sv.Factorize(x)
+        for _, pe := range f </span><span class="cov8" title="1">{
+        n := len(ret)
+                for i := 0; i &lt; n; i++ </span><span class="cov8" title="1">{
+                        v := 1
+                        for j := 0; j &lt; pe.v; j++ </span><span class="cov8" title="1">{
+                                v *= pe.u
+                                ret = append(ret, ret[i]*v)
+                        }</span>
+                }
+        }
+        <span class="cov8" title="1">return ret</span>
 }
 
 func modPow(x, e, mod int) int <span class="cov8" title="1">{
@@ -180,17 +296,20 @@ func popFront(a *[]int) int <span class="cov8" title="1">{
         return ret
 }</span>
 
-func gcd(a, b int) int <span class="cov0" title="0">{
-        if b == 0 </span><span class="cov0" title="0">{
+func gcd(a, b int) int <span class="cov8" title="1">{
+        if b == 0 </span><span class="cov8" title="1">{
                 return a
         }</span>
-        <span class="cov0" title="0">return gcd(b, a%b)</span>
+        <span class="cov8" title="1">return gcd(b, a%b)</span>
 }
 
 func lcm(a, b int) int <span class="cov0" title="0">{
         return a / gcd(a, b) * b
 }</span>
 
+func sqrt(x int) int <span class="cov8" title="1">{
+        return int(math.Sqrt(float64(x)))
+}</span>
 
 func nextPerm(a []int) bool <span class="cov0" title="0">{
         // search i
@@ -431,15 +550,6 @@ func NewGraph(n int) [][]int <span class="cov0" title="0">{
 
 func main() <span class="cov0" title="0">{
         defer out.Flush()
-}</span>
-</pre>
-		
-		<pre class="file" id="file1" style="display: none">package main
-
-import "main/go/lib"
-
-func test() <span class="cov0" title="0">{
-        lib.Greeting()
 }</span>
 </pre>
 		

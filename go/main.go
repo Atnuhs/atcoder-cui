@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"container/heap"
+	"fmt"
 	"math"
 	"os"
 	"strconv"
@@ -10,6 +11,17 @@ import (
 
 var in = bufio.NewScanner(os.Stdin)
 var out = bufio.NewWriter(os.Stdout)
+
+type Pair struct {
+	u, v int
+}
+
+func NewPair(u, v int) *Pair {
+	return &Pair{u, v}
+}
+func (p *Pair) String() string {
+	return fmt.Sprintf("%d %d", p.u, p.v)
+}
 
 func init() {
 	in.Split(bufio.ScanWords)
@@ -51,30 +63,136 @@ func readis(n int) []int {
 	return ret
 }
 
-func primes(n int) []int {
-	isPrime := make([]bool, n)
+func IsPrime(x int) bool {
+	if x == 1 {
+		return false
+	}
+
+	rx := sqrt(x)
+	for i := 2; i <= rx; i++ {
+		if x%i == 0 {
+			return false
+		}
+	}
+	return true
+}
+
+func Factorize(x int) []*Pair {
+	if x == 1 {
+		return []*Pair{}
+	}
+
+	rx := sqrt(x)
+	n := x
+	ret := make([]*Pair, 0)
+	for i := 2; i <= rx; i++ {
+		if n%i != 0 {
+			continue
+		}
+		exp := 0
+		for n%i == 0 {
+			n /= i
+			exp++
+		}
+		ret = append(ret, NewPair(i, exp))
+	}
+	if n != 1 {
+		ret = append(ret, NewPair(n, 1))
+	}
+	return ret
+}
+
+func Divisors(x int) []int {
+    ret := make([]int, 0)
+
+    rx := sqrt(x)
+    for i := 1; i<= rx; i++ {
+        if x % i != 0 {
+            continue
+        }
+        ret = append(ret, i)
+        if i != x/i {
+            ret = append(ret, x/i)
+        }
+    }
+    return ret
+}
+
+// Eratosthenes sieve
+type EratosthenesSieve struct {
+	isPrime   []bool
+	minFactor []int
+}
+
+func NewSieve(n int) *EratosthenesSieve {
+	isPrime := make([]bool, n+1)
+	minFactor := make([]int, n+1)
+
 	for i := range isPrime {
 		isPrime[i] = true
+		minFactor[i] = -1
 	}
 	isPrime[0] = false
 	isPrime[1] = false
+	minFactor[1] = 1
+
+	// sieve
 	for i := range isPrime {
 		if !isPrime[i] {
 			continue
 		}
 
-		for j := 2 * i; j < n; j += i {
-			isPrime[j] = false
-		}
-	}
+		minFactor[i] = i
 
-	primes := make([]int, 0)
-	for i := range isPrime {
-		if isPrime[i] {
-			primes = append(primes, i)
+		for j := i * 2; j <= n; j += i {
+			isPrime[j] = false
+
+			if minFactor[j] == -1 {
+				minFactor[j] = i
+			}
 		}
 	}
-	return primes
+	return &EratosthenesSieve{
+		isPrime:   isPrime,
+		minFactor: minFactor,
+	}
+}
+
+func (sv *EratosthenesSieve) IsPrime(x int) bool {
+	return sv.isPrime[x]
+}
+
+func (sv *EratosthenesSieve) Factorize(x int) []*Pair {
+	ret := make([]*Pair, 0)
+	n := x
+	for n > 1 {
+		p := sv.minFactor[n]
+		exp := 0
+
+		for sv.minFactor[n] == p {
+			n /= p
+			exp++
+		}
+		ret = append(ret, NewPair(p, exp))
+	}
+	return ret
+}
+
+func (sv *EratosthenesSieve) Divisors(x int) []int {
+	ret := []int{1}
+
+    f := sv.Factorize(x)
+	for _, pe := range f {
+        n := len(ret)
+		for i := 0; i < n; i++ {
+			v := 1
+			for j := 0; j < pe.v; j++ {
+				v *= pe.u
+				ret = append(ret, ret[i]*v)
+			}
+		}
+	}
+	return ret
 }
 
 func modPow(x, e, mod int) int {
@@ -118,6 +236,9 @@ func lcm(a, b int) int {
 	return a / gcd(a, b) * b
 }
 
+func sqrt(x int) int {
+	return int(math.Sqrt(float64(x)))
+}
 
 func nextPerm(a []int) bool {
 	// search i
