@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"container/heap"
-	"fmt"
 	"math"
 	"os"
 	"strconv"
@@ -88,7 +87,6 @@ func modPow(x, e, mod int) int {
 		}
 		i <<= 1
 		x = (x * x) % mod
-		fmt.Fprintln(out, i, x, ret)
 	}
 	return ret
 }
@@ -103,6 +101,12 @@ func popBack(a *[]int) int {
 	return ret
 }
 
+func popFront(a *[]int) int {
+	ret := (*a)[0]
+	*a = (*a)[1:]
+	return ret
+}
+
 func gcd(a, b int) int {
 	if b == 0 {
 		return a
@@ -114,11 +118,6 @@ func lcm(a, b int) int {
 	return a / gcd(a, b) * b
 }
 
-func popFront(a *[]int) int {
-	ret := (*a)[0]
-	*a = (*a)[1:]
-	return ret
-}
 
 func nextPerm(a []int) bool {
 	// search i
