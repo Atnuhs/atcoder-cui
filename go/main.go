@@ -118,6 +118,14 @@ func Divisors(x int) []int {
     return ret
 }
 
+func CountDivisors(pairs []*Pair) int {
+    ans := 1
+    for _, pe := range pairs {
+        ans *= (pe.v+1)
+    }
+    return ans
+}
+
 // Eratosthenes sieve
 type EratosthenesSieve struct {
 	isPrime   []bool
@@ -193,6 +201,10 @@ func (sv *EratosthenesSieve) Divisors(x int) []int {
 		}
 	}
 	return ret
+}
+
+func (sv *EratosthenesSieve) CountDivisors(x int) int {
+    return CountDivisors(sv.Factorize(x))
 }
 
 func modPow(x, e, mod int) int {

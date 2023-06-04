@@ -117,3 +117,47 @@ func FuzzEratosthenesSieve_Divisors(f *testing.F) {
 }
 
 
+func FuzzCountDivisors(f *testing.F) {
+	maxX := 3 * 100000
+	sv := NewSieve(maxX)
+	f.Add(0)
+	f.Add(1)
+	f.Add(9)
+	f.Add(123456)
+	f.Add(1000000007)
+	f.Fuzz(func(t *testing.T, a int) {
+		if 1 > a || a > maxX {
+			return
+		}
+        // enumerate divisors counting methods
+        type methodFunc func(x int) int
+        methods := []methodFunc{
+            // get len enumerate divisors 
+            func(x int) int {
+                return len(Divisors(x)) 
+            },
+            // get len enumerate divisors with eratosthenes sieve
+            func(x int) int {
+                return len(sv.Divisors(x))
+            },
+            // get len from Factiroze
+            func(x int) int {
+                return  CountDivisors(Factorize(x))
+            },
+            // get len from Factorize with sieve
+            sv.CountDivisors,
+        }
+
+        for i, method1 := range methods {
+            got1 := method1(a)
+            for j := i+1; j < len(methods); j++ {
+                method2 := methods[j]
+                got2 := method2(a)
+                t.Logf("%d num divisors, method1: %v:%v, but method2 %v:%v", a, method1, got1, method2, got2)
+		        if !reflect.DeepEqual(got1, got2) {
+                    t.Errorf("%d num divisors, method1: %v:%v, but method2 %v:%v", a, method1, got1, method2, got2)
+                }
+            } 
+	    }
+    })
+}

@@ -187,3 +187,32 @@ func TestEratosthenesSieve_Divisors(t *testing.T) {
 	}
 
 }
+
+
+func TestCountDivisors(t *testing.T) {
+	maxX := 3 * 100000
+	testCases := []struct {
+		desc string
+		x    int
+		want int
+	}{
+		{desc: "one", x: 1, want: 1},
+		{desc: "simple prime number", x: 2, want: 2},
+		{desc: "simple composite number", x: 12, want: 6},
+		{desc: "large prime number", x: 104729, want: 2},
+	}
+
+	sv := NewSieve(maxX)
+
+	for _, tc := range testCases {
+		t.Run(tc.desc, func(t *testing.T) {
+            f := sv.Factorize(tc.x)
+            got := CountDivisors(f)
+
+			if tc.want != got {
+				t.Errorf("%d divisors num, expected %d, but got %d", tc.x, tc.want, got)
+			}
+		})
+	}
+
+}
