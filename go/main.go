@@ -28,186 +28,42 @@ func init() {
 	in.Buffer([]byte{}, math.MaxInt64)
 }
 
-func reads() string {
+func Reads() string {
 	in.Scan()
 	return in.Text()
 }
 
-func readss(n int) []string {
+func Readss(n int) []string {
 	ret := make([]string, n)
 	for i := range ret {
-		ret[i] = reads()
+		ret[i] = Reads()
 	}
 	return ret
 }
 
-func readrs(n int) [][]rune {
+func Readrs(n int) [][]rune {
 	ret := make([][]rune, n)
 	for i := range ret {
-		ret[i] = []rune(reads())
+		ret[i] = []rune(Reads())
 	}
 	return ret
 }
 
-func readi() int {
+func Readi() int {
 	in.Scan()
 	ret, _ := strconv.Atoi(in.Text())
 	return ret
 }
 
-func readis(n int) []int {
+func Readis(n int) []int {
 	ret := make([]int, n)
 	for i := range ret {
-		ret[i] = readi()
+		ret[i] = Readi()
 	}
 	return ret
 }
 
-func IsPrime(x int) bool {
-	if x == 1 {
-		return false
-	}
-
-	rx := sqrt(x)
-	for i := 2; i <= rx; i++ {
-		if x%i == 0 {
-			return false
-		}
-	}
-	return true
-}
-
-func Factorize(x int) []*Pair {
-	if x == 1 {
-		return []*Pair{}
-	}
-
-	rx := sqrt(x)
-	n := x
-	ret := make([]*Pair, 0)
-	for i := 2; i <= rx; i++ {
-		if n%i != 0 {
-			continue
-		}
-		exp := 0
-		for n%i == 0 {
-			n /= i
-			exp++
-		}
-		ret = append(ret, NewPair(i, exp))
-	}
-	if n != 1 {
-		ret = append(ret, NewPair(n, 1))
-	}
-	return ret
-}
-
-func Divisors(x int) []int {
-    ret := make([]int, 0)
-
-    rx := sqrt(x)
-    for i := 1; i<= rx; i++ {
-        if x % i != 0 {
-            continue
-        }
-        ret = append(ret, i)
-        if i != x/i {
-            ret = append(ret, x/i)
-        }
-    }
-    return ret
-}
-
-func CountDivisors(pairs []*Pair) int {
-    ans := 1
-    for _, pe := range pairs {
-        ans *= (pe.v+1)
-    }
-    return ans
-}
-
-// Eratosthenes sieve
-type EratosthenesSieve struct {
-	isPrime   []bool
-	minFactor []int
-}
-
-func NewSieve(n int) *EratosthenesSieve {
-	isPrime := make([]bool, n+1)
-	minFactor := make([]int, n+1)
-
-	for i := range isPrime {
-		isPrime[i] = true
-		minFactor[i] = -1
-	}
-	isPrime[0] = false
-	isPrime[1] = false
-	minFactor[1] = 1
-
-	// sieve
-	for i := range isPrime {
-		if !isPrime[i] {
-			continue
-		}
-
-		minFactor[i] = i
-
-		for j := i * 2; j <= n; j += i {
-			isPrime[j] = false
-
-			if minFactor[j] == -1 {
-				minFactor[j] = i
-			}
-		}
-	}
-	return &EratosthenesSieve{
-		isPrime:   isPrime,
-		minFactor: minFactor,
-	}
-}
-
-func (sv *EratosthenesSieve) IsPrime(x int) bool {
-	return sv.isPrime[x]
-}
-
-func (sv *EratosthenesSieve) Factorize(x int) []*Pair {
-	ret := make([]*Pair, 0)
-	n := x
-	for n > 1 {
-		p := sv.minFactor[n]
-		exp := 0
-
-		for sv.minFactor[n] == p {
-			n /= p
-			exp++
-		}
-		ret = append(ret, NewPair(p, exp))
-	}
-	return ret
-}
-
-func (sv *EratosthenesSieve) Divisors(x int) []int {
-	ret := []int{1}
-
-    f := sv.Factorize(x)
-	for _, pe := range f {
-        n := len(ret)
-		for i := 0; i < n; i++ {
-			v := 1
-			for j := 0; j < pe.v; j++ {
-				v *= pe.u
-				ret = append(ret, ret[i]*v)
-			}
-		}
-	}
-	return ret
-}
-
-func (sv *EratosthenesSieve) CountDivisors(x int) int {
-    return CountDivisors(sv.Factorize(x))
-}
-
-func modPow(x, e, mod int) int {
+func ModPow(x, e, mod int) int {
 	i := 1
 	ret := 1
 
@@ -221,38 +77,38 @@ func modPow(x, e, mod int) int {
 	return ret
 }
 
-func inv(x, mod int) int {
-	return modPow(x, mod-2, mod)
+func Inv(x, mod int) int {
+	return ModPow(x, mod-2, mod)
 }
 
-func popBack(a *[]int) int {
+func PopBack(a *[]int) int {
 	ret := (*a)[len(*a)-1]
 	*a = (*a)[:len(*a)-1]
 	return ret
 }
 
-func popFront(a *[]int) int {
+func PopFront(a *[]int) int {
 	ret := (*a)[0]
 	*a = (*a)[1:]
 	return ret
 }
 
-func gcd(a, b int) int {
+func Gcd(a, b int) int {
 	if b == 0 {
 		return a
 	}
-	return gcd(b, a%b)
+	return Gcd(b, a%b)
 }
 
-func lcm(a, b int) int {
-	return a / gcd(a, b) * b
+func Lcm(a, b int) int {
+	return a / Gcd(a, b) * b
 }
 
-func sqrt(x int) int {
+func Sqrt(x int) int {
 	return int(math.Sqrt(float64(x)))
 }
 
-func nextPerm(a []int) bool {
+func NextPerm(a []int) bool {
 	// search i
 	i := len(a) - 2
 	for i >= 0 && a[i] >= a[i+1] {
@@ -278,73 +134,274 @@ func nextPerm(a []int) bool {
 	return true
 }
 
-func max(x, y int) int {
-	if x > y {
-		return x
+func Extrema(vals ...int) (int, int) {
+	mi, ma := vals[0], vals[0]
+	for _, v := range vals {
+		if v < mi {
+			mi = v
+		}
+		if v > ma {
+			ma = v
+		}
 	}
-	return y
+	return mi, ma
 }
 
-func min(x, y int) int {
-	if x < y {
-		return x
-	}
-	return y
+func Max(vals ...int) int {
+	_, ma := Extrema(vals...)
+	return ma
 }
 
-func sum(a []int) int {
+func Min(vals ...int) int {
+	mi, _ := Extrema(vals...)
+	return mi
+}
+
+func Sum(vals ...int) int {
 	sum := 0
-	for _, v := range a {
+	for _, v := range vals {
 		sum += v
 	}
 	return sum
 }
 
-func abs(x int) int {
+func Abs(x int) int {
 	if x < 0 {
 		x = -x
 	}
 	return x
 }
 
-func NewUf(n int) []int {
-	uf := make([]int, n)
-	for i := range uf {
-		uf[i] = -1
+func IsPrime(x int) bool {
+	if x == 1 {
+		return false
 	}
-	return uf
+
+	rx := Sqrt(x)
+	for i := 2; i <= rx; i++ {
+		if x%i == 0 {
+			return false
+		}
+	}
+	return true
 }
 
-func root(uf []int, x int) int {
-	if uf[x] < 0 {
+func Factorize(x int) []*Pair {
+	if x == 1 {
+		return []*Pair{}
+	}
+
+	rx := Sqrt(x)
+	n := x
+	ret := make([]*Pair, 0)
+	for i := 2; i <= rx; i++ {
+		if n%i != 0 {
+			continue
+		}
+		exp := 0
+		for n%i == 0 {
+			n /= i
+			exp++
+		}
+		ret = append(ret, NewPair(i, exp))
+	}
+	if n != 1 {
+		ret = append(ret, NewPair(n, 1))
+	}
+	return ret
+}
+
+func Mobius(x int) int {
+	ret := 1
+
+	rx := Sqrt(x)
+	n := x
+	for i := 2; i <= rx; i++ {
+		if n%i != 0 {
+			continue
+		}
+
+		if (n/i)%i == 0 {
+			return 0
+		}
+		n /= i
+		ret = -ret
+	}
+
+	if n != 1 {
+		ret = -ret
+	}
+	return ret
+}
+
+func Divisors(x int) []int {
+	ret := make([]int, 0)
+
+	rx := Sqrt(x)
+	for i := 1; i <= rx; i++ {
+		if x%i != 0 {
+			continue
+		}
+		ret = append(ret, i)
+		if i != x/i {
+			ret = append(ret, x/i)
+		}
+	}
+	return ret
+}
+
+func CountDivisors(pairs []*Pair) int {
+	ans := 1
+	for _, pe := range pairs {
+		ans *= (pe.v + 1)
+	}
+	return ans
+}
+
+// Eratosthenes sieve
+type EratosthenesSieve struct {
+	isPrime   []bool
+	minFactor []int
+	mobius    []int
+}
+
+func NewSieve(n int) *EratosthenesSieve {
+	isPrime := make([]bool, n+1)
+	minFactor := make([]int, n+1)
+	mobius := make([]int, n+1)
+
+	for i := range isPrime {
+		isPrime[i] = true
+		minFactor[i] = -1
+		mobius[i] = 1
+	}
+
+	isPrime[0] = false
+	isPrime[1] = false
+	minFactor[1] = 1
+
+	// sieve
+	for i := range isPrime {
+		if !isPrime[i] {
+			continue
+		}
+
+		minFactor[i] = i
+		mobius[i] = -1
+
+		for j := i * 2; j <= n; j += i {
+			isPrime[j] = false
+
+			if minFactor[j] == -1 {
+				minFactor[j] = i
+			}
+
+			if (j/i)%i == 0 {
+				mobius[j] = 0
+			} else {
+				mobius[j] = -mobius[j]
+			}
+		}
+	}
+	return &EratosthenesSieve{
+		isPrime:   isPrime,
+		minFactor: minFactor,
+		mobius:    mobius,
+	}
+}
+
+func (sv *EratosthenesSieve) IsPrime(x int) bool {
+	return sv.isPrime[x]
+}
+
+func (sv *EratosthenesSieve) Factorize(x int) []*Pair {
+	ret := make([]*Pair, 0)
+	n := x
+	for n > 1 {
+		p := sv.minFactor[n]
+		exp := 0
+
+		for sv.minFactor[n] == p {
+			n /= p
+			exp++
+		}
+		ret = append(ret, NewPair(p, exp))
+	}
+	return ret
+}
+
+func (sv *EratosthenesSieve) Mobius(x int) int {
+	return sv.mobius[x]
+}
+
+func (sv *EratosthenesSieve) Divisors(x int) []int {
+	ret := []int{1}
+
+	f := sv.Factorize(x)
+	for _, pe := range f {
+		n := len(ret)
+		for i := 0; i < n; i++ {
+			v := 1
+			for j := 0; j < pe.v; j++ {
+				v *= pe.u
+				ret = append(ret, ret[i]*v)
+			}
+		}
+	}
+	return ret
+}
+
+func (sv *EratosthenesSieve) CountDivisors(x int) int {
+	return CountDivisors(sv.Factorize(x))
+}
+
+type UnionFind struct {
+	data []int
+}
+
+func NewUnionFind(n int) *UnionFind {
+	data := make([]int, n)
+	for i := range data {
+		data[i] = -1
+	}
+	return &UnionFind{
+		data: data,
+	}
+}
+
+func (uf *UnionFind) Root(x int) int {
+	if uf.data[x] < 0 {
 		return x
 	} else {
-		uf[x] = root(uf, uf[x])
-		return uf[x]
+		uf.data[x] = uf.Root(uf.data[x])
+		return uf.data[x]
 	}
 }
 
-func family(uf []int, x, y int) bool {
-	return root(uf, x) == root(uf, y)
+func (uf *UnionFind) Family(x, y int) bool {
+	return uf.Root(x) == uf.Root(y)
 }
 
-func size(uf []int, x int) int {
-	return -uf[root(uf, x)]
+func (uf *UnionFind) Size(x int) int {
+	return -uf.data[uf.Root(x)]
 }
 
-func unite(uf []int, x, y int) {
-	rx := root(uf, x)
-	ry := root(uf, y)
+func (uf *UnionFind) Union(x, y int) {
+	rx := uf.Root(x)
+	ry := uf.Root(y)
+
 	if rx == ry {
 		return
 	}
-	if size(uf, rx) < size(uf, ry) {
+
+	if uf.Size(rx) < uf.Size(ry) {
 		rx = rx ^ ry
 		ry = rx ^ ry
 		rx = rx ^ ry
 	}
-	uf[rx] += uf[ry]
-	uf[ry] = rx
+
+	uf.data[rx] += uf.data[ry]
+	uf.data[ry] = rx
 }
 
 type splay_node struct {

@@ -18,14 +18,13 @@ func TestInv(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			invX := inv(tc.x, tc.p)
+			invX := Inv(tc.x, tc.p)
 
 			// x * invX = should be 1
 			got := (tc.x * invX) % tc.p
 			if got != 1 {
 				t.Errorf("actual should be 1 but got %d, invX: %d", got, invX)
 			}
-
 		})
 	}
 }
@@ -47,7 +46,7 @@ func TestPopBack(t *testing.T) {
 			copy(a, tc.data)
 
 			for i := n - 1; i >= 0; i-- {
-				got := popBack(&a)
+				got := PopBack(&a)
 				want := tc.data[i]
 				if want != got {
 					t.Errorf("index: %d, expected %d, but got %d", i, want, got)
@@ -74,13 +73,12 @@ func TestPopFront(t *testing.T) {
 			copy(a, tc.data)
 
 			for i := 0; i < n; i++ {
-				got := popFront(&a)
+				got := PopFront(&a)
 				want := tc.data[i]
 				if want != got {
 					t.Errorf("index: %d, expected %d, but got %d", i, want, got)
 				}
 			}
-
 		})
 	}
 }
@@ -98,7 +96,7 @@ func TestGcd(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			got := gcd(tc.x, tc.y)
+			got := Gcd(tc.x, tc.y)
 			if tc.want != got {
 				t.Errorf("expected %d but got %d", tc.want, got)
 			}
@@ -130,7 +128,6 @@ func TestEratosthenesSieve_IsPrime(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 func TestEratosthenesSieve_Factorize(t *testing.T) {
@@ -157,7 +154,6 @@ func TestEratosthenesSieve_Factorize(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 func TestEratosthenesSieve_Divisors(t *testing.T) {
@@ -177,17 +173,44 @@ func TestEratosthenesSieve_Divisors(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-            got := sv.Divisors(tc.x)
-            sort.Ints(got)
-            sort.Ints(tc.want)
+			got := sv.Divisors(tc.x)
+			sort.Ints(got)
+			sort.Ints(tc.want)
 			if !reflect.DeepEqual(tc.want, got) {
 				t.Errorf("factorize %d result, expected %v, but got %v", tc.x, tc.want, got)
 			}
 		})
 	}
-
 }
 
+func TestEratosthenesSieve_Mebius(t *testing.T) {
+	maxX := 3 * 100000
+	testCases := []struct {
+		desc string
+		x    int
+		want int
+	}{
+		{desc: "one", x: 1, want: 1},
+		{desc: "simple prime number", x: 2, want: -1},
+		{desc: "simple composite number", x: 6, want: 1},
+		{desc: "simple composite number", x: 30, want: -1},
+		{desc: "simple composite number", x: 4, want: 0},
+		{desc: "simple composite number", x: 12, want: 0},
+		{desc: "large prime number", x: 104729, want: -1},
+	}
+
+	sv := NewSieve(maxX)
+
+	for _, tc := range testCases {
+		t.Run(tc.desc, func(t *testing.T) {
+			got := sv.Mobius(tc.x)
+
+			if tc.want != got {
+				t.Errorf("%d Mebius function, expected %d, but got %d", tc.x, tc.want, got)
+			}
+		})
+	}
+}
 
 func TestCountDivisors(t *testing.T) {
 	maxX := 3 * 100000
@@ -206,13 +229,12 @@ func TestCountDivisors(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-            f := sv.Factorize(tc.x)
-            got := CountDivisors(f)
+			f := sv.Factorize(tc.x)
+			got := CountDivisors(f)
 
 			if tc.want != got {
 				t.Errorf("%d divisors num, expected %d, but got %d", tc.x, tc.want, got)
 			}
 		})
 	}
-
 }
