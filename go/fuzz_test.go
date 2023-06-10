@@ -26,7 +26,6 @@ func FuzzInv(f *testing.F) {
 	f.Add(4, 1)
 	f.Add(4, -11)
 	f.Fuzz(func(f *testing.T, x, mod int) {
-
 		if !IsPrime(mod) || mod <= 1 {
 			return
 		}
@@ -175,9 +174,23 @@ func FuzzCountDivisors(f *testing.F) {
 			for j := i + 1; j < len(methods); j++ {
 				method2 := methods[j]
 				got2 := method2(a)
-				t.Logf("%d num divisors, method1: %v:%v, but method2 %v:%v", a, method1, got1, method2, got2)
+				t.Logf(
+					"%d num divisors, method1: %v:%v, but method2 %v:%v",
+					a,
+					method1,
+					got1,
+					method2,
+					got2,
+				)
 				if !reflect.DeepEqual(got1, got2) {
-					t.Errorf("%d num divisors, method1: %v:%v, but method2 %v:%v", a, method1, got1, method2, got2)
+					t.Errorf(
+						"%d num divisors, method1: %v:%v, but method2 %v:%v",
+						a,
+						method1,
+						got1,
+						method2,
+						got2,
+					)
 				}
 			}
 		}

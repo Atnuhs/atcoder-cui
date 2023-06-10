@@ -55,7 +55,7 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">main/go/main.go (45.0%)</option>
+				<option value="file0">main/go/main.go (73.1%)</option>
 				
 				</select>
 			</div>
@@ -78,10 +78,25 @@ import (
         "math"
         "os"
         "strconv"
+        "strings"
 )
 
-var in = bufio.NewScanner(os.Stdin)
-var out = bufio.NewWriter(os.Stdout)
+var (
+        in  = bufio.NewScanner(os.Stdin)
+        out = bufio.NewWriter(os.Stdout)
+)
+
+const (
+        MOD1 = 1000000007
+        MOD2 = 998244353
+        // INF is 10^18
+        INF = 1000000000000000000
+)
+
+func init() <span class="cov8" title="1">{
+        in.Split(bufio.ScanWords)
+        in.Buffer([]byte{}, math.MaxInt64)
+}</span>
 
 type Pair struct {
         u, v int
@@ -90,13 +105,10 @@ type Pair struct {
 func NewPair(u, v int) *Pair <span class="cov8" title="1">{
         return &amp;Pair{u, v}
 }</span>
+
+// String return 'p.u p.v'
 func (p *Pair) String() string <span class="cov0" title="0">{
         return fmt.Sprintf("%d %d", p.u, p.v)
-}</span>
-
-func init() <span class="cov8" title="1">{
-        in.Split(bufio.ScanWords)
-        in.Buffer([]byte{}, math.MaxInt64)
 }</span>
 
 func Reads() string <span class="cov0" title="0">{
@@ -134,6 +146,7 @@ func Readis(n int) []int <span class="cov0" title="0">{
         <span class="cov0" title="0">return ret</span>
 }
 
+// ModPow return x^e % mod
 func ModPow(x, e, mod int) int <span class="cov8" title="1">{
         i := 1
         ret := 1
@@ -152,12 +165,14 @@ func Inv(x, mod int) int <span class="cov8" title="1">{
         return ModPow(x, mod-2, mod)
 }</span>
 
+// PopBack is O(1)
 func PopBack(a *[]int) int <span class="cov8" title="1">{
         ret := (*a)[len(*a)-1]
         *a = (*a)[:len(*a)-1]
         return ret
 }</span>
 
+// PopFront is O(1)
 func PopFront(a *[]int) int <span class="cov8" title="1">{
         ret := (*a)[0]
         *a = (*a)[1:]
@@ -179,6 +194,7 @@ func Sqrt(x int) int <span class="cov8" title="1">{
         return int(math.Sqrt(float64(x)))
 }</span>
 
+// NextPerm returns [1,2,3,4] =&gt; [1,2,4,3] ... [4,3,2,1]
 func NextPerm(a []int) bool <span class="cov0" title="0">{
         // search i
         i := len(a) - 2
@@ -205,25 +221,26 @@ func NextPerm(a []int) bool <span class="cov0" title="0">{
         <span class="cov0" title="0">return true</span>
 }
 
-func Extrema(vals ...int) (int, int) <span class="cov0" title="0">{
+// Extrema returns min, max
+func Extrema(vals ...int) (int, int) <span class="cov8" title="1">{
         mi, ma := vals[0], vals[0]
-        for _, v := range vals </span><span class="cov0" title="0">{
-                if v &lt; mi </span><span class="cov0" title="0">{
+        for _, v := range vals </span><span class="cov8" title="1">{
+                if v &lt; mi </span><span class="cov8" title="1">{
                         mi = v
                 }</span>
-                <span class="cov0" title="0">if v &gt; ma </span><span class="cov0" title="0">{
+                <span class="cov8" title="1">if v &gt; ma </span><span class="cov8" title="1">{
                         ma = v
                 }</span>
         }
-        <span class="cov0" title="0">return mi, ma</span>
+        <span class="cov8" title="1">return mi, ma</span>
 }
 
-func Max(vals ...int) int <span class="cov0" title="0">{
+func Max(vals ...int) int <span class="cov8" title="1">{
         _, ma := Extrema(vals...)
         return ma
 }</span>
 
-func Min(vals ...int) int <span class="cov0" title="0">{
+func Min(vals ...int) int <span class="cov8" title="1">{
         mi, _ := Extrema(vals...)
         return mi
 }</span>
@@ -243,6 +260,7 @@ func Abs(x int) int <span class="cov0" title="0">{
         <span class="cov0" title="0">return x</span>
 }
 
+// IsPrime is O(Sqrt(N))
 func IsPrime(x int) bool <span class="cov8" title="1">{
         if x == 1 </span><span class="cov8" title="1">{
                 return false
@@ -257,6 +275,9 @@ func IsPrime(x int) bool <span class="cov8" title="1">{
         <span class="cov8" title="1">return true</span>
 }
 
+// Factorize is O(Sqrt(N))
+// got, ret
+// 6, []Pair{{2,1}, {3.1}}
 func Factorize(x int) []*Pair <span class="cov8" title="1">{
         if x == 1 </span><span class="cov8" title="1">{
                 return []*Pair{}
@@ -282,6 +303,10 @@ func Factorize(x int) []*Pair <span class="cov8" title="1">{
         <span class="cov8" title="1">return ret</span>
 }
 
+// Mobius is O(sqrt(n)) returns
+// 0 &lt;= 4, 12, 18, 50
+// 1 &lt;= 1, 6, 210
+// -1 &lt;= 2, 30, 140729
 func Mobius(x int) int <span class="cov8" title="1">{
         ret := 1
 
@@ -305,6 +330,9 @@ func Mobius(x int) int <span class="cov8" title="1">{
         <span class="cov8" title="1">return ret</span>
 }
 
+// Divisors is O(sqrt(n)) returns
+// 2 =&gt; 1, 2
+// 10 =&gt; 1, 2, 5, 10
 func Divisors(x int) []int <span class="cov8" title="1">{
         ret := make([]int, 0)
 
@@ -321,6 +349,10 @@ func Divisors(x int) []int <span class="cov8" title="1">{
         <span class="cov8" title="1">return ret</span>
 }
 
+// CountDivisors is O(sqrt(n)) returns
+// 1 =&gt; 1
+// 2 =&gt; 2
+// 10 =&gt; 4
 func CountDivisors(pairs []*Pair) int <span class="cov8" title="1">{
         ans := 1
         for _, pe := range pairs </span><span class="cov8" title="1">{
@@ -336,6 +368,7 @@ type EratosthenesSieve struct {
         mobius    []int
 }
 
+// NewSieve is O(N loglog N)
 func NewSieve(n int) *EratosthenesSieve <span class="cov8" title="1">{
         isPrime := make([]bool, n+1)
         minFactor := make([]int, n+1)
@@ -381,10 +414,14 @@ func NewSieve(n int) *EratosthenesSieve <span class="cov8" title="1">{
         }</span>
 }
 
+// IsPrime is O(1)
 func (sv *EratosthenesSieve) IsPrime(x int) bool <span class="cov8" title="1">{
         return sv.isPrime[x]
 }</span>
 
+// Factorize is O(Sqrt(1))
+// got, ret
+// 6, []Pair{{2,1}, {3.1}}
 func (sv *EratosthenesSieve) Factorize(x int) []*Pair <span class="cov8" title="1">{
         ret := make([]*Pair, 0)
         n := x
@@ -401,10 +438,17 @@ func (sv *EratosthenesSieve) Factorize(x int) []*Pair <span class="cov8" title="
         <span class="cov8" title="1">return ret</span>
 }
 
+// Mobius is O(1) returns
+// 0 &lt;= 4, 12, 18, 50
+// 1 &lt;= 1, 6, 210
+// -1 &lt;= 2, 30, 140729
 func (sv *EratosthenesSieve) Mobius(x int) int <span class="cov8" title="1">{
         return sv.mobius[x]
 }</span>
 
+// Divisors is O(sqrt(n)) returns
+// 2 =&gt; 1, 2
+// 10 =&gt; 1, 2, 5, 10
 func (sv *EratosthenesSieve) Divisors(x int) []int <span class="cov8" title="1">{
         ret := []int{1}
 
@@ -422,6 +466,10 @@ func (sv *EratosthenesSieve) Divisors(x int) []int <span class="cov8" title="1">
         <span class="cov8" title="1">return ret</span>
 }
 
+// CountDivisors is O(1) returns len(sv.Divisors(x))
+// 1 =&gt; 1
+// 2 =&gt; 2
+// 10 =&gt; 4
 func (sv *EratosthenesSieve) CountDivisors(x int) int <span class="cov8" title="1">{
         return CountDivisors(sv.Factorize(x))
 }</span>
@@ -475,105 +523,215 @@ func (uf *UnionFind) Union(x, y int) <span class="cov0" title="0">{
         uf.data[ry] = rx</span>
 }
 
-type splay_node struct {
-        l, r, p *splay_node
-        size    int
-        value   int
+type SplayNode struct {
+        l, r, p         *SplayNode
+        size            int
+        key             int
+        value, min, max int
 }
 
-func (n *splay_node) rotate() <span class="cov0" title="0">{
-        p := n.p
-
-        if pp := p.p; pp != nil </span><span class="cov0" title="0">{
-                if pp.l == p </span><span class="cov0" title="0">{
-                        pp.l = n
-                }</span> else<span class="cov0" title="0"> {
-                        pp.r = n
-                }</span>
-                <span class="cov0" title="0">n.p = pp</span>
+func NewSplayNode(key, value int) *SplayNode <span class="cov8" title="1">{
+        ret := &amp;SplayNode{
+                l:     nil,
+                r:     nil,
+                p:     nil,
+                key:   key,
+                value: value,
         }
+        ret.update()
+        return ret
+}</span>
 
-        <span class="cov0" title="0">var c *splay_node
-        if p.l == n </span><span class="cov0" title="0">{
-                c = n.r
-                n.r = p
-                p.l = c
-        }</span> else<span class="cov0" title="0"> {
-                c = n.l
-                n.l = p
-                p.r = c
-        }</span>
+func (sn *SplayNode) update() <span class="cov8" title="1">{
+        sn.size = 1
+        sn.min = sn.value
+        sn.max = sn.value
 
-        <span class="cov0" title="0">if c != nil </span><span class="cov0" title="0">{
-                c.p = p
+        if sn.l != nil </span><span class="cov8" title="1">{
+                sn.size += sn.l.size
+                sn.min = Min(sn.min, sn.l.min)
+                sn.max = Max(sn.max, sn.l.max)
         }</span>
-        <span class="cov0" title="0">p.p = n
-        p.update()
-        n.update()</span>
+        <span class="cov8" title="1">if sn.r != nil </span><span class="cov8" title="1">{
+                sn.size += sn.r.size
+                sn.min = Min(sn.min, sn.r.min)
+                sn.max = Max(sn.max, sn.r.max)
+        }</span>
 }
 
-func (n *splay_node) state() int <span class="cov0" title="0">{
-        if n.p == nil </span><span class="cov0" title="0">{
+func (sn *SplayNode) state() int <span class="cov8" title="1">{
+        if sn.p == nil </span><span class="cov8" title="1">{
                 return 0
         }</span>
-        <span class="cov0" title="0">if n.p.l == n </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if sn.p.l == sn </span><span class="cov8" title="1">{
                 return 1
         }</span>
-        <span class="cov0" title="0">if n.p.r == n </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if sn.p.r == sn </span><span class="cov8" title="1">{
                 return -1
         }</span>
         <span class="cov0" title="0">return 0</span>
 }
 
-func (n *splay_node) splay() <span class="cov0" title="0">{
-        for n.p != nil </span><span class="cov0" title="0">{
-                // n has parent
-
-                if n.p.state() == 0 </span><span class="cov0" title="0">{
-                        // n.p doesn't have p
-                        n.rotate()
-                }</span>
-
-                <span class="cov0" title="0">if n.state() == n.p.state() </span><span class="cov0" title="0">{
-                        n.p.rotate()
-                        n.rotate()
-                }</span> else<span class="cov0" title="0"> {
-                        n.rotate()
-                        n.rotate()
-                }</span>
-        }
-}
-
-func (n *splay_node) update() <span class="cov0" title="0">{
-        n.size = 1
-        if n.l != nil </span><span class="cov0" title="0">{
-                n.size += n.l.size
+func (sn *SplayNode) rotate() <span class="cov8" title="1">{
+        ns := sn.state()
+        if ns == 0 </span><span class="cov0" title="0">{
+                return
         }</span>
-        <span class="cov0" title="0">if n.r != nil </span><span class="cov0" title="0">{
-                n.size += n.r.size
+
+        <span class="cov8" title="1">p := sn.p
+        ps := p.state()
+
+        // edge 1
+        pp := p.p
+        switch ps </span>{
+        case 1:<span class="cov8" title="1">
+                pp.l = sn</span>
+        case -1:<span class="cov8" title="1">
+                pp.r = sn</span>
+        }
+        <span class="cov8" title="1">sn.p = pp
+
+        // edge 2, 3
+        var c *SplayNode
+        switch ns </span>{
+        case 1:<span class="cov8" title="1">
+                c = sn.r
+                sn.r = p
+                p.l = c</span>
+        case -1:<span class="cov8" title="1">
+                c = sn.l
+                sn.l = p
+                p.r = c</span>
+        }
+
+        <span class="cov8" title="1">p.p = sn
+        if c != nil </span><span class="cov8" title="1">{
+                c.p = p
+        }</span>
+        <span class="cov8" title="1">p.update()
+        sn.update()</span>
+}
+
+func (sn *SplayNode) splay() <span class="cov8" title="1">{
+        for sn.state() == 0 </span><span class="cov8" title="1">{
+                // sn is root
+                return
+        }</span>
+
+        <span class="cov8" title="1">if sn.p.state() == 0 </span><span class="cov8" title="1">{
+                // sn.p is root
+                sn.rotate()
+                return
+        }</span>
+
+        <span class="cov8" title="1">if sn.state() == sn.p.state() </span><span class="cov8" title="1">{
+                sn.p.rotate()
+                sn.rotate()
+        }</span> else<span class="cov8" title="1"> {
+                sn.rotate()
+                sn.rotate()
         }</span>
 }
 
-func get(ind int, root *splay_node) *splay_node <span class="cov0" title="0">{
-        now := root
-        for </span><span class="cov0" title="0">{
-                lsize := 0
-                if now.l != nil </span><span class="cov0" title="0">{
-                        lsize = now.l.size
-                }</span>
-                <span class="cov0" title="0">if ind &lt; lsize </span><span class="cov0" title="0">{
-                        now = now.l
-                }</span>
-                <span class="cov0" title="0">if ind == lsize </span><span class="cov0" title="0">{
-                        now.splay()
-                        return now
-                }</span>
-                <span class="cov0" title="0">if ind &gt; lsize </span><span class="cov0" title="0">{
-                        now = now.r
-                        ind -= lsize + 1
-                }</span>
-        }
+func (sn *SplayNode) describe(rank int) string <span class="cov8" title="1">{
+        ret := ""
+        if sn.r != nil </span><span class="cov8" title="1">{
+                ret += sn.r.describe(rank + 1)
+        }</span>
+        <span class="cov8" title="1">ret += fmt.Sprintf(
+                strings.Repeat("    ", rank)+"-[k:%d, v:%d, sz: %d]\n",
+                sn.key,
+                sn.value,
+                sn.size,
+        )
+
+        if sn.l != nil </span><span class="cov8" title="1">{
+                ret += sn.l.describe(rank + 1)
+        }</span>
+        <span class="cov8" title="1">return ret</span>
 }
+
+func get_subSN(ind int, node *SplayNode) (int, *SplayNode) <span class="cov8" title="1">{
+        if node == nil </span><span class="cov8" title="1">{
+                return -1, nil
+        }</span>
+        <span class="cov8" title="1">ls := 0
+        if node.l != nil </span><span class="cov8" title="1">{
+                ls = node.l.size
+        }</span>
+
+        <span class="cov8" title="1">switch </span>{
+        case ind &lt; ls:<span class="cov8" title="1">
+                return ind, node.l</span>
+        case ind == ls:<span class="cov8" title="1">
+                return -1, node</span>
+        case ind &gt; ls:<span class="cov8" title="1">
+                return ind - (ls + 1), node.r</span>
+        }
+        <span class="cov0" title="0">return -1, nil</span>
+}
+
+func GetSN(ind int, node *SplayNode) *SplayNode <span class="cov8" title="1">{
+        for ind != -1 </span><span class="cov8" title="1">{
+                ind, node = get_subSN(ind, node)
+        }</span>
+        // node found
+        <span class="cov8" title="1">if node != nil </span><span class="cov8" title="1">{
+                node.splay()
+        }</span>
+        <span class="cov8" title="1">return node</span>
+}
+
+func MergeSN(lroot, rroot *SplayNode) *SplayNode <span class="cov8" title="1">{
+        if lroot == nil </span><span class="cov8" title="1">{
+                return rroot
+        }</span>
+        <span class="cov8" title="1">if rroot == nil </span><span class="cov8" title="1">{
+                return lroot
+        }</span>
+        <span class="cov8" title="1">lroot = GetSN(lroot.size-1, lroot) // always found
+        lroot.r = rroot
+        rroot.p = lroot
+        lroot.update()
+        return lroot</span>
+}
+
+func SplitSN(ind int, root *SplayNode) (*SplayNode, *SplayNode) <span class="cov8" title="1">{
+        if root == nil </span><span class="cov0" title="0">{
+                return nil, nil
+        }</span>
+        <span class="cov8" title="1">if ind == root.size </span><span class="cov8" title="1">{
+                return root, nil
+        }</span>
+
+        <span class="cov8" title="1">rroot := GetSN(ind, root)
+        if rroot == nil </span><span class="cov8" title="1">{
+                // rroot not found
+                return nil, nil
+        }</span>
+
+        <span class="cov8" title="1">lroot := rroot.l
+        if lroot != nil </span><span class="cov8" title="1">{
+                lroot.p = nil
+        }</span>
+        <span class="cov8" title="1">rroot.l = nil
+
+        rroot.update()
+        // lroot not need to update()
+        return lroot, rroot</span>
+}
+
+func InsertSN(ind int, root *SplayNode, node *SplayNode) *SplayNode <span class="cov8" title="1">{
+        lroot, rroot := SplitSN(ind, root)
+        return MergeSN(MergeSN(lroot, node), rroot)
+}</span>
+
+func DeleteSN(ind int, root *SplayNode) (*SplayNode, *SplayNode) <span class="cov8" title="1">{
+        lroot, rroot := SplitSN(ind, root)
+        del, rroot := SplitSN(1, rroot)
+        root = MergeSN(lroot, rroot)
+        return root, del
+}</span>
 
 type heapImpl []int
 
@@ -584,6 +742,7 @@ func (h heapImpl) Swap(i, j int)      <span class="cov0" title="0">{ h[i], h[j] 
 func (h *heapImpl) Push(x interface{}) <span class="cov0" title="0">{
         *h = append(*h, x.(int))
 }</span>
+
 func (h *heapImpl) Pop() interface{} <span class="cov0" title="0">{
         x := (*h)[len(*h)-1]
         *h = (*h)[:len(*h)-1]

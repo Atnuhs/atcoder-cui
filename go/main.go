@@ -7,10 +7,25 @@ import (
 	"math"
 	"os"
 	"strconv"
+	"strings"
 )
 
-var in = bufio.NewScanner(os.Stdin)
-var out = bufio.NewWriter(os.Stdout)
+var (
+	in  = bufio.NewScanner(os.Stdin)
+	out = bufio.NewWriter(os.Stdout)
+)
+
+const (
+	MOD1 = 1000000007
+	MOD2 = 998244353
+	// INF is 10^18
+	INF = 1000000000000000000
+)
+
+func init() {
+	in.Split(bufio.ScanWords)
+	in.Buffer([]byte{}, math.MaxInt64)
+}
 
 type Pair struct {
 	u, v int
@@ -19,13 +34,10 @@ type Pair struct {
 func NewPair(u, v int) *Pair {
 	return &Pair{u, v}
 }
+
+// String return 'p.u p.v'
 func (p *Pair) String() string {
 	return fmt.Sprintf("%d %d", p.u, p.v)
-}
-
-func init() {
-	in.Split(bufio.ScanWords)
-	in.Buffer([]byte{}, math.MaxInt64)
 }
 
 func Reads() string {
@@ -63,6 +75,7 @@ func Readis(n int) []int {
 	return ret
 }
 
+// ModPow return x^e % mod
 func ModPow(x, e, mod int) int {
 	i := 1
 	ret := 1
@@ -81,12 +94,14 @@ func Inv(x, mod int) int {
 	return ModPow(x, mod-2, mod)
 }
 
+// PopBack is O(1)
 func PopBack(a *[]int) int {
 	ret := (*a)[len(*a)-1]
 	*a = (*a)[:len(*a)-1]
 	return ret
 }
 
+// PopFront is O(1)
 func PopFront(a *[]int) int {
 	ret := (*a)[0]
 	*a = (*a)[1:]
@@ -108,6 +123,7 @@ func Sqrt(x int) int {
 	return int(math.Sqrt(float64(x)))
 }
 
+// NextPerm returns [1,2,3,4] => [1,2,4,3] ... [4,3,2,1]
 func NextPerm(a []int) bool {
 	// search i
 	i := len(a) - 2
@@ -134,6 +150,7 @@ func NextPerm(a []int) bool {
 	return true
 }
 
+// Extrema returns min, max
 func Extrema(vals ...int) (int, int) {
 	mi, ma := vals[0], vals[0]
 	for _, v := range vals {
@@ -172,6 +189,7 @@ func Abs(x int) int {
 	return x
 }
 
+// IsPrime is O(Sqrt(N))
 func IsPrime(x int) bool {
 	if x == 1 {
 		return false
@@ -186,6 +204,9 @@ func IsPrime(x int) bool {
 	return true
 }
 
+// Factorize is O(Sqrt(N))
+// got, ret
+// 6, []Pair{{2,1}, {3.1}}
 func Factorize(x int) []*Pair {
 	if x == 1 {
 		return []*Pair{}
@@ -211,6 +232,10 @@ func Factorize(x int) []*Pair {
 	return ret
 }
 
+// Mobius is O(sqrt(n)) returns
+// 0 <= 4, 12, 18, 50
+// 1 <= 1, 6, 210
+// -1 <= 2, 30, 140729
 func Mobius(x int) int {
 	ret := 1
 
@@ -234,6 +259,9 @@ func Mobius(x int) int {
 	return ret
 }
 
+// Divisors is O(sqrt(n)) returns
+// 2 => 1, 2
+// 10 => 1, 2, 5, 10
 func Divisors(x int) []int {
 	ret := make([]int, 0)
 
@@ -250,6 +278,10 @@ func Divisors(x int) []int {
 	return ret
 }
 
+// CountDivisors is O(sqrt(n)) returns
+// 1 => 1
+// 2 => 2
+// 10 => 4
 func CountDivisors(pairs []*Pair) int {
 	ans := 1
 	for _, pe := range pairs {
@@ -265,6 +297,7 @@ type EratosthenesSieve struct {
 	mobius    []int
 }
 
+// NewSieve is O(N loglog N)
 func NewSieve(n int) *EratosthenesSieve {
 	isPrime := make([]bool, n+1)
 	minFactor := make([]int, n+1)
@@ -310,10 +343,14 @@ func NewSieve(n int) *EratosthenesSieve {
 	}
 }
 
+// IsPrime is O(1)
 func (sv *EratosthenesSieve) IsPrime(x int) bool {
 	return sv.isPrime[x]
 }
 
+// Factorize is O(Sqrt(1))
+// got, ret
+// 6, []Pair{{2,1}, {3.1}}
 func (sv *EratosthenesSieve) Factorize(x int) []*Pair {
 	ret := make([]*Pair, 0)
 	n := x
@@ -330,10 +367,17 @@ func (sv *EratosthenesSieve) Factorize(x int) []*Pair {
 	return ret
 }
 
+// Mobius is O(1) returns
+// 0 <= 4, 12, 18, 50
+// 1 <= 1, 6, 210
+// -1 <= 2, 30, 140729
 func (sv *EratosthenesSieve) Mobius(x int) int {
 	return sv.mobius[x]
 }
 
+// Divisors is O(sqrt(n)) returns
+// 2 => 1, 2
+// 10 => 1, 2, 5, 10
 func (sv *EratosthenesSieve) Divisors(x int) []int {
 	ret := []int{1}
 
@@ -351,6 +395,10 @@ func (sv *EratosthenesSieve) Divisors(x int) []int {
 	return ret
 }
 
+// CountDivisors is O(1) returns len(sv.Divisors(x))
+// 1 => 1
+// 2 => 2
+// 10 => 4
 func (sv *EratosthenesSieve) CountDivisors(x int) int {
 	return CountDivisors(sv.Factorize(x))
 }
@@ -404,104 +452,214 @@ func (uf *UnionFind) Union(x, y int) {
 	uf.data[ry] = rx
 }
 
-type splay_node struct {
-	l, r, p *splay_node
-	size    int
-	value   int
+type SplayNode struct {
+	l, r, p         *SplayNode
+	size            int
+	key             int
+	value, min, max int
 }
 
-func (n *splay_node) rotate() {
-	p := n.p
-
-	if pp := p.p; pp != nil {
-		if pp.l == p {
-			pp.l = n
-		} else {
-			pp.r = n
-		}
-		n.p = pp
+func NewSplayNode(key, value int) *SplayNode {
+	ret := &SplayNode{
+		l:     nil,
+		r:     nil,
+		p:     nil,
+		key:   key,
+		value: value,
 	}
-
-	var c *splay_node
-	if p.l == n {
-		c = n.r
-		n.r = p
-		p.l = c
-	} else {
-		c = n.l
-		n.l = p
-		p.r = c
-	}
-
-	if c != nil {
-		c.p = p
-	}
-	p.p = n
-	p.update()
-	n.update()
+	ret.update()
+	return ret
 }
 
-func (n *splay_node) state() int {
-	if n.p == nil {
+func (sn *SplayNode) update() {
+	sn.size = 1
+	sn.min = sn.value
+	sn.max = sn.value
+
+	if sn.l != nil {
+		sn.size += sn.l.size
+		sn.min = Min(sn.min, sn.l.min)
+		sn.max = Max(sn.max, sn.l.max)
+	}
+	if sn.r != nil {
+		sn.size += sn.r.size
+		sn.min = Min(sn.min, sn.r.min)
+		sn.max = Max(sn.max, sn.r.max)
+	}
+}
+
+func (sn *SplayNode) state() int {
+	if sn.p == nil {
 		return 0
 	}
-	if n.p.l == n {
+	if sn.p.l == sn {
 		return 1
 	}
-	if n.p.r == n {
+	if sn.p.r == sn {
 		return -1
 	}
 	return 0
 }
 
-func (n *splay_node) splay() {
-	for n.p != nil {
-		// n has parent
+func (sn *SplayNode) rotate() {
+	ns := sn.state()
+	if ns == 0 {
+		return
+	}
 
-		if n.p.state() == 0 {
-			// n.p doesn't have p
-			n.rotate()
-		}
+	p := sn.p
+	ps := p.state()
 
-		if n.state() == n.p.state() {
-			n.p.rotate()
-			n.rotate()
-		} else {
-			n.rotate()
-			n.rotate()
-		}
+	// edge 1
+	pp := p.p
+	switch ps {
+	case 1:
+		pp.l = sn
+	case -1:
+		pp.r = sn
+	}
+	sn.p = pp
+
+	// edge 2, 3
+	var c *SplayNode
+	switch ns {
+	case 1:
+		c = sn.r
+		sn.r = p
+		p.l = c
+	case -1:
+		c = sn.l
+		sn.l = p
+		p.r = c
+	}
+
+	p.p = sn
+	if c != nil {
+		c.p = p
+	}
+	p.update()
+	sn.update()
+}
+
+func (sn *SplayNode) splay() {
+	for sn.state() == 0 {
+		// sn is root
+		return
+	}
+
+	if sn.p.state() == 0 {
+		// sn.p is root
+		sn.rotate()
+		return
+	}
+
+	if sn.state() == sn.p.state() {
+		sn.p.rotate()
+		sn.rotate()
+	} else {
+		sn.rotate()
+		sn.rotate()
 	}
 }
 
-func (n *splay_node) update() {
-	n.size = 1
-	if n.l != nil {
-		n.size += n.l.size
+func (sn *SplayNode) describe(rank int) string {
+	ret := ""
+	if sn.r != nil {
+		ret += sn.r.describe(rank + 1)
 	}
-	if n.r != nil {
-		n.size += n.r.size
+	ret += fmt.Sprintf(
+		strings.Repeat("    ", rank)+"-[k:%d, v:%d, sz: %d]\n",
+		sn.key,
+		sn.value,
+		sn.size,
+	)
+
+	if sn.l != nil {
+		ret += sn.l.describe(rank + 1)
 	}
+	return ret
 }
 
-func get(ind int, root *splay_node) *splay_node {
-	now := root
-	for {
-		lsize := 0
-		if now.l != nil {
-			lsize = now.l.size
-		}
-		if ind < lsize {
-			now = now.l
-		}
-		if ind == lsize {
-			now.splay()
-			return now
-		}
-		if ind > lsize {
-			now = now.r
-			ind -= lsize + 1
-		}
+func get_subSN(ind int, node *SplayNode) (int, *SplayNode) {
+	if node == nil {
+		return -1, nil
 	}
+	ls := 0
+	if node.l != nil {
+		ls = node.l.size
+	}
+
+	switch {
+	case ind < ls:
+		return ind, node.l
+	case ind == ls:
+		return -1, node
+	case ind > ls:
+		return ind - (ls + 1), node.r
+	}
+	return -1, nil
+}
+
+func GetSN(ind int, node *SplayNode) *SplayNode {
+	for ind != -1 {
+		ind, node = get_subSN(ind, node)
+	}
+	// node found
+	if node != nil {
+		node.splay()
+	}
+	return node
+}
+
+func MergeSN(lroot, rroot *SplayNode) *SplayNode {
+	if lroot == nil {
+		return rroot
+	}
+	if rroot == nil {
+		return lroot
+	}
+	lroot = GetSN(lroot.size-1, lroot) // always found
+	lroot.r = rroot
+	rroot.p = lroot
+	lroot.update()
+	return lroot
+}
+
+func SplitSN(ind int, root *SplayNode) (*SplayNode, *SplayNode) {
+	if root == nil {
+		return nil, nil
+	}
+	if ind == root.size {
+		return root, nil
+	}
+
+	rroot := GetSN(ind, root)
+	if rroot == nil {
+		// rroot not found
+		return nil, nil
+	}
+
+	lroot := rroot.l
+	if lroot != nil {
+		lroot.p = nil
+	}
+	rroot.l = nil
+
+	rroot.update()
+	// lroot not need to update()
+	return lroot, rroot
+}
+
+func InsertSN(ind int, root *SplayNode, node *SplayNode) *SplayNode {
+	lroot, rroot := SplitSN(ind, root)
+	return MergeSN(MergeSN(lroot, node), rroot)
+}
+
+func DeleteSN(ind int, root *SplayNode) (*SplayNode, *SplayNode) {
+	lroot, rroot := SplitSN(ind, root)
+	del, rroot := SplitSN(1, rroot)
+	root = MergeSN(lroot, rroot)
+	return root, del
 }
 
 type heapImpl []int
@@ -513,6 +671,7 @@ func (h heapImpl) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
 func (h *heapImpl) Push(x interface{}) {
 	*h = append(*h, x.(int))
 }
+
 func (h *heapImpl) Pop() interface{} {
 	x := (*h)[len(*h)-1]
 	*h = (*h)[:len(*h)-1]
