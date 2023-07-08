@@ -40,25 +40,37 @@ func (p *Pair) String() string {
 	return fmt.Sprintf("%d %d", p.u, p.v)
 }
 
+func Newss(n int, f func(i int) string) []string {
+    ret := make([]string, n)
+    for i := range ret {
+        ret[i] = f(i)
+    }
+    return ret
+}
+
+func Newrs(n int, f func(i int) []rune) [][]rune {
+    ret := make([][]rune, n)
+    for i := range ret {
+        ret[i] = f(i)
+    }
+    return ret
+}
+
+func Newis(n int, f func(i int) int) []int {
+    ret := make([]int, n)
+    for i := range ret {
+        ret[i] = f(i)
+    }
+    return ret
+}
+
 func Reads() string {
 	in.Scan()
 	return in.Text()
 }
 
-func Readss(n int) []string {
-	ret := make([]string, n)
-	for i := range ret {
-		ret[i] = Reads()
-	}
-	return ret
-}
-
-func Readrs(n int) [][]rune {
-	ret := make([][]rune, n)
-	for i := range ret {
-		ret[i] = []rune(Reads())
-	}
-	return ret
+func Readr() []rune {
+    return []rune(Reads())
 }
 
 func Readi() int {
@@ -67,12 +79,18 @@ func Readi() int {
 	return ret
 }
 
+func Readss(n int) []string {
+    return Newss(n, func(i int) string {return Reads()})
+}
+
+
+func Readrs(n int) [][]rune {
+    return Newrs(n, func(i int) []rune {return Readr()})
+}
+
+
 func Readis(n int) []int {
-	ret := make([]int, n)
-	for i := range ret {
-		ret[i] = Readi()
-	}
-	return ret
+    return Newis(n, func(i int) int {return Readi()})
 }
 
 // ModPow return x^e % mod
