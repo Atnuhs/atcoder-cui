@@ -1,0 +1,15 @@
+#!/bin/bash
+set -euo pipefail
+trap 'echo "ERROR: line no = $LINENO, exit status = $?" >&2; exit 1' ERR
+
+ROOT="$(cd $(dirname $0)/.. && pwd)"
+source "${ROOT}/bin/.env"
+
+PROBLEM=$1
+
+mkdir -p "${PWD}/submit"
+gottani "${PWD}/solve" > "${PWD}/submit/main.go" 
+FILE_SRC="${PWD}/submit/main.go"
+
+cd "${ROOT}/problems/${CONTESTNAME}/${PROBLEM}"
+acc submit "${FILE_SRC}" 

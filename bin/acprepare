@@ -5,10 +5,10 @@ trap 'echo "ERROR: line no = $LINENO, exit status = $?" >&2; exit 1' ERR
 ROOT="$(cd $(dirname $0)/.. && pwd)"
 CONTESTNAME=$1
 
-mkdir -p "${ROOT}/problems" 
+mkdir -p "${PWD}/problems" 
 
-cd "${ROOT}/problems"
-acc new "${CONTESTNAME}"
+cd "${PWD}/problems"
+acc new "${CONTESTNAME}" --choice all
 
 {
     echo "CONTESTNAME=${CONTESTNAME}" 

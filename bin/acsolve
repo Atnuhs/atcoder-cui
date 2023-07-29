@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 trap 'echo "ERROR: line no = $LINENO, exit status = $?" >&2; exit 1' ERR
 
 ROOT="$(cd $(dirname $0)/.. && pwd)"
@@ -7,5 +8,6 @@ source "${ROOT}/bin/.env"
 DIRNAME_DST="${ROOT}/solve"
 DIRNAME_SRC="${ROOT}/go"
 
+rm -r "${DIRNAME_DST}"
 [ -d "${DIRNAME_DST}" ] || mkdir "${DIRNAME_DST}"
-cp "${DIRNAME_SRC}/main.go" "${DIRNAME_DST}/main.go"
+cp -r "${DIRNAME_SRC}/"** "${DIRNAME_DST}"
