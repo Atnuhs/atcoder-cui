@@ -7,6 +7,9 @@ import (
 	"math"
 	"os"
 	"strconv"
+	"strings"
+
+	"golang.org/x/exp/constraints"
 )
 
 var (
@@ -26,42 +29,31 @@ func init() {
 	in.Buffer([]byte{}, math.MaxInt64)
 }
 
-type Pair struct {
-	u, v int
+type Ordered interface {
+    constraints.Ordered
 }
 
-func NewPair(u, v int) *Pair {
-	return &Pair{u, v}
+type Pair[T any] struct {
+	u, v T
+}
+
+func NewPair[T any](u, v T) *Pair[T] {
+	return &Pair[T]{u, v}
 }
 
 // String return 'p.u p.v'
-func (p *Pair) String() string {
-	return fmt.Sprintf("%d %d", p.u, p.v)
+func (p *Pair[T]) String() string {
+	return fmt.Sprintf("%v %v", p.u, p.v)
 }
 
-func Newss(n int, f func(i int) string) []string {
-    ret := make([]string, n)
+func NewArr[T any](n int, f func(i int) T) []T {
+    ret := make([]T, n)
     for i := range ret {
         ret[i] = f(i)
     }
     return ret
 }
 
-func Newrs(n int, f func(i int) []rune) [][]rune {
-    ret := make([][]rune, n)
-    for i := range ret {
-        ret[i] = f(i)
-    }
-    return ret
-}
-
-func Newis(n int, f func(i int) int) []int {
-    ret := make([]int, n)
-    for i := range ret {
-        ret[i] = f(i)
-    }
-    return ret
-}
 
 func Reads() string {
 	in.Scan()
@@ -79,68 +71,71 @@ func Readi() int {
 }
 
 func Readss(n int) []string {
-    return Newss(n, func(i int) string {return Reads()})
+    return NewArr(n, func(i int) string {return Reads()})
 }
 
 
 func Readrs(n int) [][]rune {
-    return Newrs(n, func(i int) []rune {return Readr()})
+    return NewArr(n, func(i int) []rune {return Readr()})
 }
 
 
 func Readis(n int) []int {
-    return Newis(n, func(i int) int {return Readi()})
+    return NewArr(n, func(i int) int {return Readi()})
 }
 
 
 // PopBack is O(1)
-func PopBack(a *[]int) int {
+func PopBack[T any](a *[]T) T {
 	ret := (*a)[len(*a)-1]
 	*a = (*a)[:len(*a)-1]
 	return ret
 }
 
 // PopFront is O(1)
-func PopFront(a *[]int) int {
+func PopFront[T any](a *[]T) T {
 	ret := (*a)[0]
 	*a = (*a)[1:]
 	return ret
 }
 
 
-type heapImpl []int
+type heapImpl[T Ordered] []T
 
-func (h heapImpl) Len() int           { return len(h) }
-func (h heapImpl) Less(i, j int) bool { return h[i] < h[j] }
-func (h heapImpl) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+func (h heapImpl[T]) Len() int           { return len(h) }
+func (h heapImpl[T]) Less(i, j int) bool { 
+    hi, hj := h[i], h[j]
+    return hi < hj
+}
+func (h heapImpl[T]) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
 
-func (h *heapImpl) Push(x interface{}) {
-	*h = append(*h, x.(int))
+func (h *heapImpl[T]) Push(x any) {
+	*h = append(*h, x.(T))
 }
 
-func (h *heapImpl) Pop() interface{} {
+func (h *heapImpl[T]) Pop() any {
 	x := (*h)[len(*h)-1]
 	*h = (*h)[:len(*h)-1]
 	return x
 }
 
-type PriorityQueue struct {
-	value heapImpl
+type PriorityQueue[T Ordered] struct {
+	value heapImpl[T]
 }
 
-func NewPriorityQueue() *PriorityQueue {
-	value := &heapImpl{}
+func NewPriorityQueue[T Ordered]() *PriorityQueue[T] {
+	value := &heapImpl[T]{}
 	heap.Init(value)
-	return &PriorityQueue{}
+	return &PriorityQueue[T]{}
 }
 
-func (pq *PriorityQueue) Push(x int) {
+func (pq *PriorityQueue[T]) Push(x T) {
 	heap.Push(&pq.value, x)
 }
 
-func (pq *PriorityQueue) Pop() int {
+func (pq *PriorityQueue[T]) Pop() T {
 	x := heap.Pop(&pq.value)
-	return x.(int)
+	return x.(T)
 }
 
 func NewGraph(n int) [][]int {
@@ -151,7 +146,7 @@ func NewGraph(n int) [][]int {
 	return g
 }
 
-func All(vals []int, f func(i, v int) bool) bool {
+func All[T any](vals []T, f func(i int, v T) bool) bool {
     ret := true 
     for i, v := range vals {
         ret = ret && f(i, v)
@@ -159,7 +154,7 @@ func All(vals []int, f func(i, v int) bool) bool {
     return ret
 }
 
-func Any(vals []int, f func(i, v int) bool) bool {
+func Any[T any](vals []T, f func(i int, v T) bool) bool {
     for i, v := range vals {
         if f(i, v) {
             return true
@@ -168,8 +163,8 @@ func Any(vals []int, f func(i, v int) bool) bool {
     return false
 }
 
-func Ans(a ...interface{}) {
-    fmt.Fprintln(out, a...)
+func Ans[T any](a ...T) {
+    fmt.Fprintln(out, strings.Trim(fmt.Sprint(a), "[]"))
 }
 
 func Yes() {

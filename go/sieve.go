@@ -61,8 +61,8 @@ func (sv *EratosthenesSieve) IsPrime(x int) bool {
 // Factorize is O(Sqrt(1))
 // got, ret
 // 6, []Pair{{2,1}, {3.1}}
-func (sv *EratosthenesSieve) Factorize(x int) []*Pair {
-	ret := make([]*Pair, 0)
+func (sv *EratosthenesSieve) Factorize(x int) []*Pair[int] {
+	ret := make([]*Pair[int], 0)
 	n := x
 	for n > 1 {
 		p := sv.minFactor[n]

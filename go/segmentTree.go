@@ -1,19 +1,19 @@
 package main
 
 
-type SegmentTree struct {
-    data []int
+type SegmentTree[T any] struct {
+    data []T
     n int
-    mo *Monoid
+    mo *Monoid[T]
 }
 
-func NewSegmentTree(arr []int, mo *Monoid) *SegmentTree {
+func NewSegmentTree[T any](arr []T, mo *Monoid[T]) *SegmentTree[T] {
     n := 1
     for n < len(arr) {
         n *= 2
     }
 
-    data := Newis(2*n-1, func(i int) int {return mo.E})
+    data := NewArr(2*n-1, func(i int) T {return mo.E})
     for i := range arr {
         j := i+n-1
         data[j] = arr[i]
@@ -25,14 +25,14 @@ func NewSegmentTree(arr []int, mo *Monoid) *SegmentTree {
         data[i] = mo.Op(data[c1], data[c2])
     }
 
-    return &SegmentTree{
+    return &SegmentTree[T]{
         data: data,
         n: n,
         mo: mo,
     }
 }
 
-func (st *SegmentTree) Update(i, x int) {
+func (st *SegmentTree[T]) Update(i int, x T) {
     i += st.n -1
     st.data[i] = x
     for i > 0 {
@@ -41,15 +41,15 @@ func (st *SegmentTree) Update(i, x int) {
     }
 }
 
-func (st *SegmentTree) At(i int) int {
+func (st *SegmentTree[T]) At(i int) T {
     return st.Query(i, i+1)
 }
 
-func (st *SegmentTree) Query(a, b int) int {
+func (st *SegmentTree[T]) Query(a, b int) T {
     return st.querySub(a, b, 0, 0, st.n) 
 }
 
-func (st *SegmentTree) querySub(a,b,n,l,r int) int {
+func (st *SegmentTree[T]) querySub(a,b,n,l,r int) T {
     if r <= a || b <= l {
         return st.mo.E
     }

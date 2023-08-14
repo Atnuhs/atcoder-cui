@@ -1,6 +1,8 @@
 package main
 
-import "math"
+import (
+	"math"
+)
 
 // ModPow return x^e % mod
 func ModPow(x, e, mod int) int {
@@ -64,7 +66,7 @@ func NextPerm(a []int) bool {
 }
 
 // Extrema returns min, max
-func Extrema(vals ...int) (int, int) {
+func Extrema[T Ordered](vals ...T) (T, T) {
 	mi, ma := vals[0], vals[0]
 	for _, v := range vals {
 		if v < mi {
@@ -77,18 +79,18 @@ func Extrema(vals ...int) (int, int) {
 	return mi, ma
 }
 
-func Max(vals ...int) int {
+func Max[T Ordered](vals ...T) T {
 	_, ma := Extrema(vals...)
 	return ma
 }
 
-func Min(vals ...int) int {
+func Min[T Ordered](vals ...T) T {
 	mi, _ := Extrema(vals...)
 	return mi
 }
 
-func Sum(vals ...int) int {
-	sum := 0
+func Sum[T Ordered](vals ...T) T {
+	var sum T
 	for _, v := range vals {
 		sum += v
 	}
@@ -120,14 +122,14 @@ func IsPrime(x int) bool {
 // Factorize is O(Sqrt(N))
 // got, ret
 // 6, []Pair{{2,1}, {3.1}}
-func Factorize(x int) []*Pair {
+func Factorize(x int) []*Pair[int] {
 	if x == 1 {
-		return []*Pair{}
+		return []*Pair[int]{}
 	}
 
 	rx := Sqrt(x)
 	n := x
-	ret := make([]*Pair, 0)
+	ret := make([]*Pair[int], 0)
 	for i := 2; i <= rx; i++ {
 		if n%i != 0 {
 			continue
@@ -195,7 +197,7 @@ func Divisors(x int) []int {
 // 1 => 1
 // 2 => 2
 // 10 => 4
-func CountDivisors(pairs []*Pair) int {
+func CountDivisors(pairs []*Pair[int]) int {
 	ans := 1
 	for _, pe := range pairs {
 		ans *= (pe.v + 1)

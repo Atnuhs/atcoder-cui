@@ -1,14 +1,13 @@
 package main
 
-type Operator func(x1, x2 int) int
-type E int
-type Monoid struct {
-    Op Operator
-    E int
+type Operator[T any] func(x1, x2 T) T
+type Monoid[T any] struct {
+    Op Operator[T]
+    E T
 }
 
-func MoMax() *Monoid {
-    return &Monoid{
+func MoMax() *Monoid[int] {
+    return &Monoid[int]{
         Op: func(x1, x2 int) int {
             return Max(x1, x2)
         },
@@ -16,8 +15,8 @@ func MoMax() *Monoid {
     }
 }
 
-func MoMin() *Monoid {
-    return &Monoid{
+func MoMin() *Monoid[int] {
+    return &Monoid[int]{
         Op: func(x1, x2 int) int {
             return Min(x1, x2)
         },
@@ -25,17 +24,17 @@ func MoMin() *Monoid {
     }
 }
 
-func MoSum() *Monoid {
-    return &Monoid{
-        Op: func(x1, x2 int) int {
+func MoSum[T int | float64]() *Monoid[T] {
+    return &Monoid[T]{
+        Op: func(x1, x2 T) T {
             return x1+x2
         },
         E: 0,
     }
 }
 
-func MoXOR() *Monoid {
-    return &Monoid{
+func MoXOR() *Monoid[int] {
+    return &Monoid[int]{
         Op: func(x1, x2 int) int {
             return x1 ^ x2
         },
@@ -43,8 +42,8 @@ func MoXOR() *Monoid {
     }
 }
 
-func MoMODMul(mod int) *Monoid {
-    return &Monoid{
+func MoMODMul(mod int) *Monoid[int] {
+    return &Monoid[int]{
         Op: func(x1, x2 int) int {
             return (x1*x2) % mod
         },
