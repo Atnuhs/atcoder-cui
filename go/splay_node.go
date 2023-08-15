@@ -51,7 +51,7 @@ func (sn *SplayNode) state() int {
 	if sn.p.r == sn {
 		return -1
 	}
-	return 0
+	return INF
 }
 
 func (sn *SplayNode) rotate() {
@@ -95,24 +95,35 @@ func (sn *SplayNode) rotate() {
 }
 
 func (sn *SplayNode) splay() {
-	for sn.state() == 0 {
-		// sn is root
-		return
-	}
+	for sn.p != nil {
+		// sn is not root
 
-	if sn.p.state() == 0 {
-		// sn.p is root
-		sn.rotate()
-		return
-	}
+		if sn.p.state() == 0 {
+			// sn.p is root
+			sn.rotate()
+			continue
+		}
 
-	if sn.state() == sn.p.state() {
-		sn.p.rotate()
-		sn.rotate()
-	} else {
-		sn.rotate()
-		sn.rotate()
+		if sn.state() == sn.p.state() {
+			sn.p.rotate()
+			sn.rotate()
+		} else {
+			sn.rotate()
+			sn.rotate()
+		}
 	}
+}
+
+func (sn *SplayNode) values() []int {
+	ret := make([]int, 0)
+	if sn.l != nil {
+		ret = append(ret, sn.l.values()...)
+	}
+	ret = append(ret, sn.key)
+	if sn.r != nil {
+		ret = append(ret, sn.r.values()...)
+	}
+	return ret
 }
 
 func (sn *SplayNode) describe(rank int) string {
@@ -153,15 +164,15 @@ func get_subSN(ind int, node *SplayNode) (int, *SplayNode) {
 	return -1, nil
 }
 
-func GetSN(ind int, node *SplayNode) *SplayNode {
+func (sn *SplayNode) Get(ind int) *SplayNode {
 	for ind != -1 {
-		ind, node = get_subSN(ind, node)
+		ind, sn = get_subSN(ind, sn)
 	}
 	// node found
-	if node != nil {
-		node.splay()
+	if sn != nil {
+		sn.splay()
 	}
-	return node
+	return sn
 }
 
 func MergeSN(lroot, rroot *SplayNode) *SplayNode {
@@ -171,7 +182,7 @@ func MergeSN(lroot, rroot *SplayNode) *SplayNode {
 	if rroot == nil {
 		return lroot
 	}
-	lroot = GetSN(lroot.size-1, lroot) // always found
+	lroot = lroot.Get(lroot.size - 1) // always found
 	lroot.r = rroot
 	rroot.p = lroot
 	lroot.update()
@@ -186,7 +197,7 @@ func SplitSN(ind int, root *SplayNode) (*SplayNode, *SplayNode) {
 		return root, nil
 	}
 
-	rroot := GetSN(ind, root)
+	rroot := root.Get(ind)
 	if rroot == nil {
 		// rroot not found
 		return nil, nil

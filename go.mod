@@ -2,6 +2,8 @@ module main
 
 go 1.20
 
+require github.com/google/go-cmp v0.5.9
+
 require (
 	git.sr.ht/~sbinet/gg v0.5.0 // indirect
 	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b // indirect

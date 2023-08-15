@@ -3,7 +3,6 @@ package main
 import (
 	"reflect"
 	"sort"
-	"strings"
 	"testing"
 )
 
@@ -241,65 +240,5 @@ func TestCountDivisors(t *testing.T) {
 				t.Errorf("%d divisors num, expected %d, but got %d", tc.x, tc.want, got)
 			}
 		})
-	}
-}
-
-func TestSplayNode(t *testing.T) {
-	n := 5
-	values := make([]SplayNode, n)
-	for i := range values {
-		values[i] = SplayNode{
-			key: i,
-		}
-		if i-1 >= 0 {
-			values[i-1].p = &values[i]
-			values[i].l = &values[i-1]
-			values[i-1].update()
-		}
-	}
-	root := &values[len(values)-1]
-	t.Logf("Initial State:\n" + root.describe(0))
-	for i := range values {
-		header := strings.Repeat("#", 20)
-		get := GetSN(i, root)
-		if get != nil {
-			root = get
-		}
-		t.Logf("Iteration: %d/%d: %s", i, len(values), header)
-		t.Logf("RootNode: %#v", root)
-		t.Logf("Describe: \n%s", root.describe(0))
-	}
-}
-
-func TestSplay_Insert_Delete(t *testing.T) {
-	n := 10
-	var root *SplayNode = nil
-
-	for i := 0; i < n; i++ {
-		root = MergeSN(root, NewSplayNode(-1, i))
-		t.Logf("\nInsert: %d/%d\n%s", i, n, root.describe(0))
-	}
-
-	t.Log(root.describe(0))
-
-	for i := 0; i < n; i++ {
-		root = GetSN(i, root)
-		t.Logf("\nGet: %d/%d\n%s", i, n, root.describe(0))
-	}
-
-	for i := 0; i < n; i++ {
-		root = InsertSN(i*2, root, NewSplayNode(1, -i))
-		t.Logf("\nAdd oddIndex:%d/%d\n%s", i, n, root.describe(0))
-	}
-
-	for {
-		t.Logf("##POP %d", root.size/2)
-		left, del := DeleteSN(root.size/2, root)
-		root = left
-		if root == nil {
-			break
-		}
-		t.Logf("\nDelete: %d\n%s", root.size, root.describe(0))
-		t.Logf("\nPoped: %d\n%s", del.size, del.describe(0))
 	}
 }
