@@ -139,10 +139,11 @@ func (sn *SplayNode) describe(rank int) string {
 		ret += sn.r.describe(rank + 1)
 	}
 	ret += fmt.Sprintf(
-		strings.Repeat("    ", rank)+"-[k:%d, v:%d, sz: %d]\n",
+		strings.Repeat("    ", rank)+"-[k:%d, v:%d, sz: %d, rank: %d]\n",
 		sn.key,
 		sn.value,
 		sn.size,
+		rank,
 	)
 
 	if sn.l != nil {
@@ -151,7 +152,18 @@ func (sn *SplayNode) describe(rank int) string {
 	return ret
 }
 
-func (sn *SplayNode) Get(idx int) *SplayNode {
+func (sn *SplayNode) maxRank(rank int) int {
+	ret := rank
+	if sn.r != nil {
+		ret = Max(ret, sn.r.maxRank(rank+1))
+	}
+	if sn.l != nil {
+		ret = Max(ret, sn.l.maxRank(rank+1))
+	}
+	return ret
+}
+
+func (sn *SplayNode) FindAt(idx int) *SplayNode {
 	if idx < 0 || sn.size <= idx {
 		return nil
 	}
@@ -169,6 +181,22 @@ func (sn *SplayNode) Get(idx int) *SplayNode {
 	return sn
 }
 
+func (sn *SplayNode) Ge(val int) int {
+	now := sn
+	ret := sn.size
+	i := 0
+	for now != nil {
+		if now.key >= val {
+			ret = Min(ret, i+now.index())
+			now = now.l
+		} else {
+			i += now.index() + 1
+			now = now.r
+		}
+	}
+	return ret
+}
+
 func (sn *SplayNode) MergeR(rroot *SplayNode) *SplayNode {
 	if rroot == nil {
 		return sn
@@ -176,7 +204,7 @@ func (sn *SplayNode) MergeR(rroot *SplayNode) *SplayNode {
 	if sn == nil {
 		panic("sn is nil")
 	}
-	sn = sn.Get(sn.size - 1) // always found
+	sn = sn.FindAt(sn.size - 1) // always found
 	sn.r = rroot
 	rroot.p = sn
 	sn.update()
@@ -188,7 +216,7 @@ func (sn *SplayNode) Split(idx int) (*SplayNode, *SplayNode) {
 		return sn, nil
 	}
 
-	rroot := sn.Get(idx)
+	rroot := sn.FindAt(idx)
 	if rroot == nil {
 		// idx is out of index
 		return nil, nil
@@ -205,7 +233,7 @@ func (sn *SplayNode) Split(idx int) (*SplayNode, *SplayNode) {
 	return lroot, rroot
 }
 
-func (sn *SplayNode) Insert(idx int, node *SplayNode) *SplayNode {
+func (sn *SplayNode) InsertAt(idx int, node *SplayNode) *SplayNode {
 	lroot, rroot := sn.Split(idx)
 	if lroot == nil {
 		return node.MergeR(rroot)
@@ -214,7 +242,7 @@ func (sn *SplayNode) Insert(idx int, node *SplayNode) *SplayNode {
 	}
 }
 
-func (sn *SplayNode) Delete(idx int) (root *SplayNode, dropped *SplayNode) {
+func (sn *SplayNode) DeleteAt(idx int) (root *SplayNode, dropped *SplayNode) {
 	lroot, rroot := sn.Split(idx)
 	if rroot == nil {
 		return lroot, nil

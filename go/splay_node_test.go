@@ -2,13 +2,14 @@ package main
 
 import (
 	"math/rand"
+	"sort"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
-const N = 10
+const N = 100
 
 func generate(n int) (expected []int, actual []*SplayNode) {
 	actual = make([]*SplayNode, n)
@@ -83,13 +84,13 @@ func TestSplayNode_values(t *testing.T) {
 	}
 }
 
-func TestSplayNode_Get(t *testing.T) {
+func TestSplayNode_FindAt(t *testing.T) {
 	n := N
 	expected, actual := generate(n)
 
 	root := actual[n-1]
 	for i := range actual {
-		root = root.Get(i)
+		root = root.FindAt(i)
 
 		if root == nil {
 			t.Fatalf("root should not be nil in safe index access %d: %d", i, len(actual))
@@ -122,7 +123,7 @@ func generate2(t *testing.T, n int) (expected []int, actual *SplayNode) {
 			expected = append(expected, i)
 		} else {
 			j := rand.Intn(actual.size + 1)
-			actual = actual.Insert(j, nn)
+			actual = actual.InsertAt(j, nn)
 			expected = insert(j, i, expected)
 		}
 		assertValues(t, actual, expected)
@@ -131,12 +132,12 @@ func generate2(t *testing.T, n int) (expected []int, actual *SplayNode) {
 	return expected, actual
 }
 
-func TestSplayNode_Insert(t *testing.T) {
+func TestSplayNode_InsertAt(t *testing.T) {
 	n := N
 	expected, root := generate2(t, n)
 
 	for i := 0; i < n; i++ {
-		root = root.Get(i)
+		root = root.FindAt(i)
 		assertValues(t, root, expected)
 	}
 }
@@ -150,14 +151,79 @@ func delete(i int, arr []int) []int {
 	return append(l, r...)
 }
 
-func TestSplayNode_Delete(t *testing.T) {
+func TestSplayNode_DeleteAt(t *testing.T) {
 	n := N
 	expected, root := generate2(t, n)
 
 	for i := 0; i < n; i++ {
 		j := rand.Intn(root.size)
-		root, _ = root.Delete(j)
+		root, _ = root.DeleteAt(j)
 		expected = delete(j, expected)
 		assertValues(t, root, expected)
+	}
+}
+
+func TestSplayNode_maxRank(t *testing.T) {
+	n := 20
+	m := 20
+	result := make([][]int, n+1)
+	for in := 0; in <= n; in++ {
+		nn := 1 << in
+		result[in] = make([]int, m+1)
+		for im := 0; im <= m; im++ {
+			t.Log(in, im)
+			mm := 1 << im
+			root := NewSplayNode(0, -1)
+			for i := 1; i < nn; i++ {
+				root = root.InsertAt(root.size, NewSplayNode(i, -1))
+			}
+
+			for i := 0; i < mm; i++ {
+				root = root.FindAt(rand.Intn(root.size))
+			}
+
+			result[in][im] = root.maxRank(0)
+		}
+	}
+
+	for i := range result {
+		t.Log(result[i])
+	}
+}
+
+func TestSplayNode_Ge(t *testing.T) {
+	n := N
+	m := N * 100
+	expected := make([]int, n)
+	for i := range expected {
+		expected[i] = rand.Intn(n)
+	}
+	sort.Ints(expected)
+
+	root := NewSplayNode(expected[0], -1)
+	for i := 1; i < n; i++ {
+		root = root.InsertAt(root.size, NewSplayNode(expected[i], -1))
+	}
+
+	for i := 0; i < m; i++ {
+		j := rand.Intn(root.size)
+		root = root.FindAt(j)
+		if i&(i-1) == 0 {
+			t.Logf("i: %d, rank: %d", i, root.maxRank(0))
+		}
+
+	}
+	// t.Logf("\n%s", root.describe(0))
+
+	assertValues(t, root, expected)
+	for i := 0; i < m; i++ {
+		x := rand.Intn(n)
+		expectedI := sort.Search(n, func(i int) bool { return expected[i] >= x })
+		actualI := root.Ge(x)
+		if expectedI != actualI {
+			t.Log(expected)
+			t.Log(root.values())
+			t.Errorf("expected: %d but got %d at %d", expectedI, actualI, x)
+		}
 	}
 }
