@@ -24,6 +24,13 @@ func NewSplayNode(key, value int) *SplayNode {
 	return ret
 }
 
+func (sn *SplayNode) index() int {
+	if sn.l != nil {
+		return sn.l.size
+	}
+	return 0
+}
+
 func (sn *SplayNode) update() {
 	sn.size = 1
 	sn.min = sn.value
@@ -144,62 +151,46 @@ func (sn *SplayNode) describe(rank int) string {
 	return ret
 }
 
-func get_subSN(ind int, node *SplayNode) (int, *SplayNode) {
-	if node == nil {
-		return -1, nil
+func (sn *SplayNode) Get(idx int) *SplayNode {
+	if idx < 0 || sn.size <= idx {
+		return nil
 	}
-	ls := 0
-	if node.l != nil {
-		ls = node.l.size
+	// n include [0, n)
+	for sn.index() != idx {
+		switch {
+		case idx < sn.index():
+			sn = sn.l
+		case idx > sn.index():
+			idx -= sn.index() + 1
+			sn = sn.r
+		}
 	}
-
-	switch {
-	case ind < ls:
-		return ind, node.l
-	case ind == ls:
-		return -1, node
-	case ind > ls:
-		return ind - (ls + 1), node.r
-	}
-	return -1, nil
-}
-
-func (sn *SplayNode) Get(ind int) *SplayNode {
-	for ind != -1 {
-		ind, sn = get_subSN(ind, sn)
-	}
-	// node found
-	if sn != nil {
-		sn.splay()
-	}
+	sn.splay()
 	return sn
 }
 
-func MergeSN(lroot, rroot *SplayNode) *SplayNode {
-	if lroot == nil {
-		return rroot
-	}
+func (sn *SplayNode) MergeR(rroot *SplayNode) *SplayNode {
 	if rroot == nil {
-		return lroot
+		return sn
 	}
-	lroot = lroot.Get(lroot.size - 1) // always found
-	lroot.r = rroot
-	rroot.p = lroot
-	lroot.update()
-	return lroot
+	if sn == nil {
+		panic("sn is nil")
+	}
+	sn = sn.Get(sn.size - 1) // always found
+	sn.r = rroot
+	rroot.p = sn
+	sn.update()
+	return sn
 }
 
-func SplitSN(ind int, root *SplayNode) (*SplayNode, *SplayNode) {
-	if root == nil {
-		return nil, nil
-	}
-	if ind == root.size {
-		return root, nil
+func (sn *SplayNode) Split(idx int) (*SplayNode, *SplayNode) {
+	if idx == sn.size {
+		return sn, nil
 	}
 
-	rroot := root.Get(ind)
+	rroot := sn.Get(idx)
 	if rroot == nil {
-		// rroot not found
+		// idx is out of index
 		return nil, nil
 	}
 
@@ -214,14 +205,25 @@ func SplitSN(ind int, root *SplayNode) (*SplayNode, *SplayNode) {
 	return lroot, rroot
 }
 
-func InsertSN(ind int, root *SplayNode, node *SplayNode) *SplayNode {
-	lroot, rroot := SplitSN(ind, root)
-	return MergeSN(MergeSN(lroot, node), rroot)
+func (sn *SplayNode) Insert(idx int, node *SplayNode) *SplayNode {
+	lroot, rroot := sn.Split(idx)
+	if lroot == nil {
+		return node.MergeR(rroot)
+	} else {
+		return lroot.MergeR(node).MergeR(rroot)
+	}
 }
 
-func DeleteSN(ind int, root *SplayNode) (*SplayNode, *SplayNode) {
-	lroot, rroot := SplitSN(ind, root)
-	del, rroot := SplitSN(1, rroot)
-	root = MergeSN(lroot, rroot)
-	return root, del
+func (sn *SplayNode) Delete(idx int) (root *SplayNode, dropped *SplayNode) {
+	lroot, rroot := sn.Split(idx)
+	if rroot == nil {
+		return lroot, nil
+	}
+	del, rroot := rroot.Split(1)
+	if lroot == nil {
+		return rroot, del
+	} else {
+		root = lroot.MergeR(rroot)
+		return root, del
+	}
 }
