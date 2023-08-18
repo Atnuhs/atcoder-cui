@@ -10,45 +10,38 @@ func NewSplaySet() *SplaySet {
 	}
 }
 
-func (ss *SplaySet) Le(value int) (int, bool) {
-	if ss.root == nil {
-		return -1, false
-	}
-
-	ok, ng := -1, ss.root.size
-	now := ss.root
-	for Abs(ok-ng) > 1 {
-		m := (ok + ng) / 2
-		now = now.Get(m)
-		if now.key <= value {
-			ok = m
-		} else {
-			ng = m
-		}
-	}
-	ss.root = now
-	return ok, true
+func NewSplaySetNode(value int) *SplayNode {
+	return NewSplayNode(value, -1)
 }
 
-func (ss *SplaySet) Has(value int) bool {
-	_, ok := ss.Le(value)
-	if !ok {
-		return false
-	}
-	return ss.root.key == value
+func (ss *SplaySet) Push(value int) {
+	ss.root = ss.root.Insert(NewSplaySetNode(value))
 }
 
-func (ss *SplaySet) Add(value int) {
-	if ss.Has(value) {
-		return
-	}
+func (ss *SplaySet) Remove(value int) {
+	ss.root, _ = ss.root.Delete(NewSplaySetNode(value))
+}
 
-	nn := NewSplayNode(value, -1)
+func (ss *SplaySet) Values() (arr []int) {
+	return ss.root.values()
+}
 
-	if i, ok := ss.Le(value); ok {
-		l, r := SplitSN(i, ss.root)
-		ss.root = MergeSN(MergeSN(l, nn), r)
-	} else {
-		ss.root = nn
-	}
+func (ss *SplaySet) Size() int {
+	return ss.root.size
+}
+
+func (ss *SplaySet) Ge(value int) int {
+	return ss.root.Ge(value)
+}
+
+func (ss *SplaySet) Gt(value int) int {
+	return ss.root.Ge(value + 1)
+}
+
+func (ss *SplaySet) Le(value int) int {
+	return ss.root.Ge(value+1) - 1
+}
+
+func (ss *SplaySet) Lt(value int) int {
+	return ss.root.Ge(value) - 1
 }
