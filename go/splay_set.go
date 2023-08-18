@@ -30,6 +30,10 @@ func (ss *SplaySet) Size() int {
 	return ss.root.size
 }
 
+func (ss *SplaySet) IsEmpty() bool {
+	return ss.root == nil
+}
+
 func (ss *SplaySet) Ge(value int) int {
 	return ss.root.Ge(value)
 }
