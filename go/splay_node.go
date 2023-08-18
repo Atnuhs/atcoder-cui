@@ -133,6 +133,20 @@ func (sn *SplayNode) values() []int {
 	return ret
 }
 
+func (sn *SplayNode) String() string {
+	ret := strings.Builder{}
+	ret.WriteString("(")
+	if sn.l != nil {
+		ret.WriteString(fmt.Sprintf("%s ", sn.l.String()))
+	}
+	ret.WriteString(fmt.Sprint(sn.key))
+	if sn.r != nil {
+		ret.WriteString(fmt.Sprintf(" %s", sn.r.String()))
+	}
+	ret.WriteString(")")
+	return ret.String()
+}
+
 func (sn *SplayNode) describe(rank int) string {
 	ret := ""
 	if sn.r != nil {
@@ -254,4 +268,27 @@ func (sn *SplayNode) DeleteAt(idx int) (root *SplayNode, dropped *SplayNode) {
 		root = lroot.MergeR(rroot)
 		return root, del
 	}
+}
+
+func (sn *SplayNode) Insert(node *SplayNode) *SplayNode {
+	idx := sn.Ge(node.key)
+	root := sn.FindAt(idx)
+	if root == nil {
+		root = sn.InsertAt(idx, node)
+	} else if root.key != node.key {
+		root = root.InsertAt(idx, node)
+	}
+	return root
+}
+
+func (sn *SplayNode) Delete(node *SplayNode) (root *SplayNode, dropped *SplayNode) {
+	idx := sn.Ge(node.key)
+	root = sn.FindAt(idx)
+	if root == nil {
+		return sn, nil
+	}
+	if root.key == node.key {
+		root, dropped = root.DeleteAt(idx)
+	}
+	return root, dropped
 }
