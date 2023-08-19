@@ -22,6 +22,10 @@ func (ss *SplaySet) Remove(value int) {
 	ss.root, _ = ss.root.Delete(NewSplaySetNode(value))
 }
 
+func (ss *SplaySet) Has(value int) bool {
+	return ss.root.Has(value)
+}
+
 func (ss *SplaySet) Values() (arr []int) {
 	return ss.root.values()
 }
@@ -35,17 +39,19 @@ func (ss *SplaySet) IsEmpty() bool {
 }
 
 func (ss *SplaySet) Ge(value int) int {
-	return ss.root.Ge(value)
+	idx := ss.root.Ge(value)
+	ss.root = ss.root.FindAt(idx)
+	return ss.root.key
 }
 
 func (ss *SplaySet) Gt(value int) int {
-	return ss.root.Ge(value + 1)
+	return ss.Ge(value + 1)
 }
 
 func (ss *SplaySet) Le(value int) int {
-	return ss.root.Ge(value+1) - 1
+	return ss.Ge(value+1) - 1
 }
 
 func (ss *SplaySet) Lt(value int) int {
-	return ss.root.Ge(value) - 1
+	return ss.Ge(value) - 1
 }

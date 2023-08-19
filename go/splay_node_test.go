@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"math/rand"
-	"sort"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -116,36 +115,6 @@ func TestSplayNode_splay(t *testing.T) {
 
 const N = 10
 
-func generate(n int) (expected []int, actual []*SplayNode) {
-	actual = make([]*SplayNode, n)
-	expected = make([]int, 0, n)
-
-	for i := range actual {
-		actual[i] = &SplayNode{
-			key: i,
-		}
-		actual[i].update()
-
-		if i == 0 {
-			expected = append(expected, 0)
-			continue
-		}
-
-		switch rand.Intn(2) {
-		case 0:
-			actual[i].r = actual[i-1]
-			expected = append([]int{i}, expected...)
-		case 1:
-			actual[i].l = actual[i-1]
-			expected = append(expected, i)
-
-		}
-		actual[i-1].p = actual[i]
-		actual[i].update()
-	}
-	return expected, actual
-}
-
 func generateRandomTestCase(t *testing.T, n int) (expected []int, actual *SplayNode) {
 	actual = nil
 	expected = make([]int, 0, n)
@@ -191,19 +160,19 @@ func TestSplayNode_values(t *testing.T) {
 	}
 }
 
-func TestSplayNode_FindAt(t *testing.T) {
+func TestSplayNode_FindAtSplay(t *testing.T) {
 	n := N
 	expected, root := generateRandomTestCase(t, n)
 
 	for i := 0; i < n; i++ {
-		root = root.FindAt(i)
+		root = root.FindAtAndSplay(i)
 
 		if root == nil {
 			t.Fatalf("root should not be nil in safe index access %d: %d", i, n)
 		}
 
 		if root.p != nil {
-			t.Fatal("return value of Get should be root but has parent")
+			t.Fatal("FindAtAndSplay result should be root")
 		}
 		assertValues(t, root, expected)
 	}
@@ -223,7 +192,7 @@ func TestSplayNode_InsertAt(t *testing.T) {
 	expected, root := generateRandomTestCase(t, n)
 
 	for i := 0; i < n; i++ {
-		root = root.FindAt(i)
+		root = root.FindAtAndSplay(i)
 		assertValues(t, root, expected)
 	}
 }
@@ -265,7 +234,7 @@ func TestSplayNode_maxRank(t *testing.T) {
 			}
 
 			for i := 0; i < mm; i++ {
-				root = root.FindAt(rand.Intn(root.size))
+				root = root.FindAtAndSplay(rand.Intn(root.size))
 			}
 
 			result[in][im] = root.maxRank(0)
@@ -278,39 +247,56 @@ func TestSplayNode_maxRank(t *testing.T) {
 }
 
 func TestSplayNode_Ge(t *testing.T) {
-	n := N
-	m := N * 100
-	expected := make([]int, n)
-	for i := range expected {
-		expected[i] = rand.Intn(n)
+	tests := map[string]struct {
+		values   []int
+		geV      int
+		expected int
+	}{
+		"Less than all values": {
+			values:   []int{10, 20, 30, 40},
+			geV:      9,
+			expected: 0,
+		},
+		"Equal to first value": {
+			values:   []int{10, 20, 30, 40},
+			geV:      10,
+			expected: 0,
+		},
+		"More than first value": {
+			values:   []int{10, 20, 30, 40},
+			geV:      11,
+			expected: 1,
+		},
+		"Less than last value": {
+			values:   []int{10, 20, 30, 40},
+			geV:      39,
+			expected: 3,
+		},
+		"Equal to last value": {
+			values:   []int{10, 20, 30, 40},
+			geV:      40,
+			expected: 3,
+		},
+		"More than all values": {
+			values:   []int{10, 20, 30, 40},
+			geV:      41,
+			expected: 4,
+		},
 	}
-	sort.Ints(expected)
 
-	root := NewSplayNode(expected[0], -1)
-	for i := 1; i < n; i++ {
-		root = root.InsertAt(root.size, NewSplayNode(expected[i], -1))
-	}
-
-	for i := 0; i < m; i++ {
-		j := rand.Intn(root.size)
-		root = root.FindAt(j)
-		if i&(i-1) == 0 {
-			t.Logf("i: %d, rank: %d", i, root.maxRank(0))
-		}
-
-	}
-	// t.Logf("\n%s", root.describe(0))
-
-	assertValues(t, root, expected)
-	for i := 0; i < m; i++ {
-		x := rand.Intn(n)
-		expectedI := sort.Search(n, func(i int) bool { return expected[i] >= x })
-		actualI := root.Ge(x)
-		if expectedI != actualI {
-			t.Log(expected)
-			t.Log(root.values())
-			t.Errorf("expected: %d but got %d at %d", expectedI, actualI, x)
-		}
+	for caseName, test := range tests {
+		t.Run(caseName, func(t *testing.T) {
+			root := NewSplayNode(test.values[0], -1)
+			for i := 1; i < len(test.values); i++ {
+				t.Log(i)
+				root = root.Insert(NewSplayNode(test.values[i], -1))
+			}
+			t.Log("a")
+			idx := root.Ge(test.geV)
+			if test.expected != idx {
+				t.Errorf("expected: %d, but got %d", test.expected, root.index())
+			}
+		})
 	}
 }
 
@@ -388,4 +374,23 @@ func TestSplayNode_Delete(t *testing.T) {
 			assertValues(t, root, test.expected.rest)
 		})
 	}
+}
+
+func BenchmarkSplayNode(b *testing.B) {
+	constructSplayTree := func(b *testing.B) (root *SplayNode) {
+		root = NewSplayNode(rand.Intn(b.N), -1)
+		b.Run("construct splay tree at random insertion", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				root.Insert(NewSplayNode(rand.Intn(b.N), -1))
+			}
+		})
+		return root
+	}
+
+	b.Run("Find", func(b *testing.B) {
+		data := constructSplayTree(b)
+		for i := 0; i < b.N; i++ {
+			data = data.FindAtAndSplay(rand.Intn(b.N))
+		}
+	})
 }

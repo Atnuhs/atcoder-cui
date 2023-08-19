@@ -102,6 +102,9 @@ func (sn *SplayNode) rotate() {
 }
 
 func (sn *SplayNode) splay() {
+	if sn == nil {
+		return
+	}
 	for sn.p != nil {
 		// sn is not root
 
@@ -177,38 +180,75 @@ func (sn *SplayNode) maxRank(rank int) int {
 	return ret
 }
 
-func (sn *SplayNode) FindAt(idx int) *SplayNode {
+func (sn *SplayNode) FindAt(idx int) (found *SplayNode) {
 	if idx < 0 || sn.size <= idx {
 		return nil
 	}
 	// n include [0, n)
-	for sn.index() != idx {
+	now := sn
+	for now != nil {
 		switch {
-		case idx < sn.index():
-			sn = sn.l
-		case idx > sn.index():
-			idx -= sn.index() + 1
-			sn = sn.r
+		case idx == now.index():
+			return now
+		case idx < now.index():
+			now = now.l
+		case idx > now.index():
+			idx -= now.index() + 1
+			now = now.r
 		}
 	}
-	sn.splay()
-	return sn
+	panic("must not reach this code")
 }
 
-func (sn *SplayNode) Ge(val int) int {
+func (sn *SplayNode) FindAtAndSplay(idx int) *SplayNode {
+	node := sn.FindAt(idx)
+	node.splay()
+	return node
+}
+
+func (sn *SplayNode) Find(key int) (found *SplayNode) {
 	now := sn
-	ret := sn.size
+	for now != nil {
+		switch {
+		case now.key == key:
+			return now
+		case now.key > key:
+			now = now.l
+		case now.key < key:
+			now = now.r
+		}
+	}
+	return nil
+}
+
+func (sn *SplayNode) FindAndSplay(key int) (found *SplayNode) {
+	found = sn.Find(key)
+	found.splay()
+	return found
+}
+
+func (sn *SplayNode) Has(key int) bool {
+	found := sn.Find(key)
+	if found == nil {
+		return false
+	}
+	return found.key == key
+}
+
+func (sn *SplayNode) Ge(key int) (idx int) {
+	now := sn
+	idx = sn.size
 	i := 0
 	for now != nil {
-		if now.key >= val {
-			ret = Min(ret, i+now.index())
+		if now.key >= key {
+			idx = Min(idx, i+now.index())
 			now = now.l
 		} else {
 			i += now.index() + 1
 			now = now.r
 		}
 	}
-	return ret
+	return idx
 }
 
 func (sn *SplayNode) MergeR(rroot *SplayNode) *SplayNode {
@@ -216,9 +256,9 @@ func (sn *SplayNode) MergeR(rroot *SplayNode) *SplayNode {
 		return sn
 	}
 	if sn == nil {
-		panic("sn is nil")
+		return rroot
 	}
-	sn = sn.FindAt(sn.size - 1) // always found
+	sn = sn.FindAtAndSplay(sn.size - 1) // always found
 	sn.r = rroot
 	rroot.p = sn
 	sn.update()
@@ -230,7 +270,7 @@ func (sn *SplayNode) Split(idx int) (*SplayNode, *SplayNode) {
 		return sn, nil
 	}
 
-	rroot := sn.FindAt(idx)
+	rroot := sn.FindAtAndSplay(idx)
 	if rroot == nil {
 		// idx is out of index
 		return nil, nil
@@ -272,23 +312,24 @@ func (sn *SplayNode) DeleteAt(idx int) (root *SplayNode, dropped *SplayNode) {
 
 func (sn *SplayNode) Insert(node *SplayNode) *SplayNode {
 	idx := sn.Ge(node.key)
-	root := sn.FindAt(idx)
-	if root == nil {
-		root = sn.InsertAt(idx, node)
-	} else if root.key != node.key {
-		root = root.InsertAt(idx, node)
+	if found := sn.FindAt(idx); found != nil {
+		if found.key == node.key {
+			return sn
+		}
 	}
-	return root
+	return sn.InsertAt(idx, node)
 }
 
-func (sn *SplayNode) Delete(node *SplayNode) (root *SplayNode, dropped *SplayNode) {
-	idx := sn.Ge(node.key)
-	root = sn.FindAt(idx)
+func (sn *SplayNode) Delete(node *SplayNode) (root *SplayNode, removed *SplayNode) {
+	root = sn.FindAndSplay(node.key)
 	if root == nil {
+		// target not found
 		return sn, nil
 	}
 	if root.key == node.key {
-		root, dropped = root.DeleteAt(idx)
+		// target found
+		root, removed = root.DeleteAt(root.index())
 	}
-	return root, dropped
+	// target not found
+	return root, removed
 }
