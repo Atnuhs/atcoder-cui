@@ -1,4 +1,4 @@
-package main
+package splay
 
 type SplayMap struct {
 	root *SplayNode

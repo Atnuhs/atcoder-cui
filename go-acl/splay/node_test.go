@@ -1,4 +1,4 @@
-package main
+package splay
 
 import (
 	"fmt"
@@ -377,20 +377,40 @@ func TestSplayNode_Delete(t *testing.T) {
 }
 
 func BenchmarkSplayNode(b *testing.B) {
-	constructSplayTree := func(b *testing.B) (root *SplayNode) {
-		root = NewSplayNode(rand.Intn(b.N), -1)
-		b.Run("construct splay tree at random insertion", func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
-				root.Insert(NewSplayNode(rand.Intn(b.N), -1))
-			}
-		})
+	n := 10000
+	constructSplayTree := func() (root *SplayNode) {
+		root = NewSplayNode(rand.Intn(n), -1)
+		for i := 0; i < n; i++ {
+			root.Insert(NewSplayNode(rand.Intn(n), -1))
+		}
 		return root
 	}
 
 	b.Run("Find", func(b *testing.B) {
-		data := constructSplayTree(b)
+		data := constructSplayTree()
+		b.ResetTimer()
+		for i := 0; i < 100; i++ {
+			_ = data.FindAt(rand.Intn(b.N))
+		}
+	})
+	b.Run("FindAtAndSplay", func(b *testing.B) {
+		data := constructSplayTree()
+		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			data = data.FindAtAndSplay(rand.Intn(b.N))
+		}
+	})
+
+	b.Run("Insert Delete", func(b *testing.B) {
+		data := constructSplayTree()
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			switch rand.Intn(2) {
+			case 0: // insert
+				data = data.Insert(NewSplayNode(rand.Intn(b.N), -1))
+			case 1:
+				data, _ = data.Delete(NewSplayNode(rand.Intn(b.N), -1))
+			}
 		}
 	})
 }

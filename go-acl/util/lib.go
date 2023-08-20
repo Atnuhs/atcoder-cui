@@ -1,4 +1,4 @@
-package main
+package util
 
 import (
 	"bufio"
@@ -13,8 +13,8 @@ import (
 )
 
 var (
-	in  = bufio.NewScanner(os.Stdin)
-	out = bufio.NewWriter(os.Stdout)
+	In  = bufio.NewScanner(os.Stdin)
+	Out = bufio.NewWriter(os.Stdout)
 )
 
 const (
@@ -25,12 +25,12 @@ const (
 )
 
 func init() {
-	in.Split(bufio.ScanWords)
-	in.Buffer([]byte{}, math.MaxInt64)
+	In.Split(bufio.ScanWords)
+	In.Buffer([]byte{}, math.MaxInt64)
 }
 
 type Ordered interface {
-    constraints.Ordered
+	constraints.Ordered
 }
 
 type Pair[T any] struct {
@@ -47,43 +47,39 @@ func (p *Pair[T]) String() string {
 }
 
 func NewArr[T any](n int, f func(i int) T) []T {
-    ret := make([]T, n)
-    for i := range ret {
-        ret[i] = f(i)
-    }
-    return ret
+	ret := make([]T, n)
+	for i := range ret {
+		ret[i] = f(i)
+	}
+	return ret
 }
 
-
 func Reads() string {
-	in.Scan()
-	return in.Text()
+	In.Scan()
+	return In.Text()
 }
 
 func Readr() []rune {
-    return []rune(Reads())
+	return []rune(Reads())
 }
 
 func Readi() int {
-	in.Scan()
-	ret, _ := strconv.Atoi(in.Text())
+	In.Scan()
+	ret, _ := strconv.Atoi(In.Text())
 	return ret
 }
 
 func Readss(n int) []string {
-    return NewArr(n, func(i int) string {return Reads()})
+	return NewArr(n, func(i int) string { return Reads() })
 }
-
 
 func Readrs(n int) [][]rune {
-    return NewArr(n, func(i int) []rune {return Readr()})
+	return NewArr(n, func(i int) []rune { return Readr() })
 }
-
 
 func Readis(n int) []int {
-    return NewArr(n, func(i int) int {return Readi()})
+	return NewArr(n, func(i int) int { return Readi() })
 }
-
 
 // PopBack is O(1)
 func PopBack[T any](a *[]T) T {
@@ -99,15 +95,14 @@ func PopFront[T any](a *[]T) T {
 	return ret
 }
 
-
 type heapImpl[T Ordered] []T
 
-func (h heapImpl[T]) Len() int           { return len(h) }
-func (h heapImpl[T]) Less(i, j int) bool { 
-    hi, hj := h[i], h[j]
-    return hi < hj
+func (h heapImpl[T]) Len() int { return len(h) }
+func (h heapImpl[T]) Less(i, j int) bool {
+	hi, hj := h[i], h[j]
+	return hi < hj
 }
-func (h heapImpl[T]) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+func (h heapImpl[T]) Swap(i, j int) { h[i], h[j] = h[j], h[i] }
 
 func (h *heapImpl[T]) Push(x any) {
 	*h = append(*h, x.(T))
@@ -147,38 +142,38 @@ func NewGraph(n int) [][]int {
 }
 
 func All[T any](vals []T, f func(i int, v T) bool) bool {
-    ret := true 
-    for i, v := range vals {
-        ret = ret && f(i, v)
-    }
-    return ret
+	ret := true
+	for i, v := range vals {
+		ret = ret && f(i, v)
+	}
+	return ret
 }
 
 func Any[T any](vals []T, f func(i int, v T) bool) bool {
-    for i, v := range vals {
-        if f(i, v) {
-            return true
-        }
-    }
-    return false
+	for i, v := range vals {
+		if f(i, v) {
+			return true
+		}
+	}
+	return false
 }
 
 func Ans[T any](a ...T) {
-    fmt.Fprintln(out, strings.Trim(fmt.Sprint(a), "[]"))
+	fmt.Fprintln(Out, strings.Trim(fmt.Sprint(a), "[]"))
 }
 
 func Yes() {
-    Ans("Yes")
+	Ans("Yes")
 }
 
 func No() {
-    Ans("No")
+	Ans("No")
 }
 
-func YesNo(f func()bool) {
-    if f() {
-        Yes()
-    } else {
-        No()
-    }
+func YesNo(f func() bool) {
+	if f() {
+		Yes()
+	} else {
+		No()
+	}
 }

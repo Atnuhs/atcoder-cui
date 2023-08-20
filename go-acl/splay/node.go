@@ -1,8 +1,10 @@
-package main
+package splay
 
 import (
 	"fmt"
 	"strings"
+
+	"github.com/Atnuhs/atcoder-cui/go-acl/util"
 )
 
 type SplayNode struct {
@@ -25,6 +27,9 @@ func NewSplayNode(key, value int) *SplayNode {
 }
 
 func (sn *SplayNode) index() int {
+	if sn == nil {
+		return -1
+	}
 	if sn.l != nil {
 		return sn.l.size
 	}
@@ -32,19 +37,22 @@ func (sn *SplayNode) index() int {
 }
 
 func (sn *SplayNode) update() {
+	if sn == nil {
+		return
+	}
 	sn.size = 1
 	sn.min = sn.value
 	sn.max = sn.value
 
 	if sn.l != nil {
 		sn.size += sn.l.size
-		sn.min = Min(sn.min, sn.l.min)
-		sn.max = Max(sn.max, sn.l.max)
+		sn.min = util.Min(sn.min, sn.l.min)
+		sn.max = util.Max(sn.max, sn.l.max)
 	}
 	if sn.r != nil {
 		sn.size += sn.r.size
-		sn.min = Min(sn.min, sn.r.min)
-		sn.max = Max(sn.max, sn.r.max)
+		sn.min = util.Min(sn.min, sn.r.min)
+		sn.max = util.Max(sn.max, sn.r.max)
 	}
 }
 
@@ -58,10 +66,13 @@ func (sn *SplayNode) state() int {
 	if sn.p.r == sn {
 		return -1
 	}
-	return INF
+	return util.INF
 }
 
 func (sn *SplayNode) rotate() {
+	if sn == nil {
+		return
+	}
 	ns := sn.state()
 	if ns == 0 {
 		return
@@ -172,15 +183,18 @@ func (sn *SplayNode) describe(rank int) string {
 func (sn *SplayNode) maxRank(rank int) int {
 	ret := rank
 	if sn.r != nil {
-		ret = Max(ret, sn.r.maxRank(rank+1))
+		ret = util.Max(ret, sn.r.maxRank(rank+1))
 	}
 	if sn.l != nil {
-		ret = Max(ret, sn.l.maxRank(rank+1))
+		ret = util.Max(ret, sn.l.maxRank(rank+1))
 	}
 	return ret
 }
 
 func (sn *SplayNode) FindAt(idx int) (found *SplayNode) {
+	if sn == nil {
+		return nil
+	}
 	if idx < 0 || sn.size <= idx {
 		return nil
 	}
@@ -209,12 +223,13 @@ func (sn *SplayNode) FindAtAndSplay(idx int) *SplayNode {
 func (sn *SplayNode) Find(key int) (found *SplayNode) {
 	now := sn
 	for now != nil {
-		switch {
-		case now.key == key:
+		if now.key == key {
 			return now
-		case now.key > key:
+		}
+
+		if now.key > key {
 			now = now.l
-		case now.key < key:
+		} else {
 			now = now.r
 		}
 	}
@@ -241,7 +256,7 @@ func (sn *SplayNode) Ge(key int) (idx int) {
 	i := 0
 	for now != nil {
 		if now.key >= key {
-			idx = Min(idx, i+now.index())
+			idx = util.Min(idx, i+now.index())
 			now = now.l
 		} else {
 			i += now.index() + 1

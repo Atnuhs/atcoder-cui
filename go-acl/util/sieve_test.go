@@ -1,108 +1,10 @@
-package main
+package util
 
 import (
 	"reflect"
 	"sort"
 	"testing"
 )
-
-func TestInv(t *testing.T) {
-	testCases := []struct {
-		desc string
-		x    int
-		p    int
-	}{
-		{desc: "x:20, p:7", x: 20, p: 7},
-		{desc: "x:1234567, p:10^9+7", x: 1234567, p: 1000000007},
-		{desc: "x:1234567, p:998244353", x: 1234567, p: 998244353},
-	}
-	for _, tc := range testCases {
-		t.Run(tc.desc, func(t *testing.T) {
-			invX := Inv(tc.x, tc.p)
-
-			// x * invX = should be 1
-			got := (tc.x * invX) % tc.p
-			if got != 1 {
-				t.Errorf("actual should be 1 but got %d, invX: %d", got, invX)
-			}
-		})
-	}
-}
-
-func TestPopBack(t *testing.T) {
-	testCases := []struct {
-		desc string
-		data []int
-	}{
-		{
-			desc: "[1,2,3,4,5]",
-			data: []int{1, 2, 3, 4, 5},
-		},
-	}
-	for _, tc := range testCases {
-		t.Run(tc.desc, func(t *testing.T) {
-			n := len(tc.data)
-			a := make([]int, n)
-			copy(a, tc.data)
-
-			for i := n - 1; i >= 0; i-- {
-				got := PopBack(&a)
-				want := tc.data[i]
-				if want != got {
-					t.Errorf("index: %d, expected %d, but got %d", i, want, got)
-				}
-			}
-		})
-	}
-}
-
-func TestPopFront(t *testing.T) {
-	testCases := []struct {
-		desc string
-		data []int
-	}{
-		{
-			desc: "[1,2,3,4,5]",
-			data: []int{1, 2, 3, 4, 5},
-		},
-	}
-	for _, tc := range testCases {
-		t.Run(tc.desc, func(t *testing.T) {
-			n := len(tc.data)
-			a := make([]int, n)
-			copy(a, tc.data)
-
-			for i := 0; i < n; i++ {
-				got := PopFront(&a)
-				want := tc.data[i]
-				if want != got {
-					t.Errorf("index: %d, expected %d, but got %d", i, want, got)
-				}
-			}
-		})
-	}
-}
-
-func TestGcd(t *testing.T) {
-	testCases := []struct {
-		desc       string
-		x, y, want int
-	}{
-		{desc: "gcd(2, 2) => 2", x: 2, y: 2, want: 2},
-		{desc: "gcd(4, 2) => 2", x: 4, y: 2, want: 2},
-		{desc: "gcd(4, 6) => 2", x: 4, y: 6, want: 2},
-		{desc: "gcd(11, 13) => 1", x: 11, y: 13, want: 1},
-		{desc: "gcd(11, 13) => 1", x: 11, y: 13, want: 1},
-	}
-	for _, tc := range testCases {
-		t.Run(tc.desc, func(t *testing.T) {
-			got := Gcd(tc.x, tc.y)
-			if tc.want != got {
-				t.Errorf("expected %d but got %d", tc.want, got)
-			}
-		})
-	}
-}
 
 func TestEratosthenesSieve_IsPrime(t *testing.T) {
 	maxX := 3 * 100000
@@ -128,6 +30,30 @@ func TestEratosthenesSieve_IsPrime(t *testing.T) {
 			}
 		})
 	}
+}
+
+func FuzzEratosthenesSieve_IsPrime(f *testing.F) {
+	maxX := 3 * 100000
+	sv := NewSieve(maxX)
+	f.Add(0)
+	f.Add(1)
+	f.Add(9)
+	f.Add(123456)
+	f.Add(1000000007)
+	f.Fuzz(func(t *testing.T, a int) {
+		if 1 > a || a > maxX {
+			return
+		}
+
+		// Perform prime number determination in two different ways
+		// method1 O(sqrt(N))
+		ret1 := IsPrime(a)
+		// method2 EratosthenesSieve
+		ret2 := sv.IsPrime(a)
+		if ret1 != ret2 {
+			t.Errorf("%d is Prime?, method1: %t, but method2 %t", a, ret1, ret2)
+		}
+	})
 }
 
 func TestEratosthenesSieve_Factorize(t *testing.T) {
@@ -160,6 +86,29 @@ func TestEratosthenesSieve_Factorize(t *testing.T) {
 	}
 }
 
+func FuzzEratosthenesSieve_Factorize(f *testing.F) {
+	maxX := 3 * 100000
+	sv := NewSieve(maxX)
+	f.Add(0)
+	f.Add(1)
+	f.Add(9)
+	f.Add(123456)
+	f.Add(1000000007)
+	f.Fuzz(func(t *testing.T, a int) {
+		if 1 > a || a > maxX {
+			return
+		}
+		// Perform Factorization in two different ways
+		// method1 O(sqrt(N))
+		ret1 := Factorize(a)
+		// method2 EratosthenesSieve
+		ret2 := sv.Factorize(a)
+		if !reflect.DeepEqual(ret1, ret2) {
+			t.Errorf("factorize %d, method1: %v, but method2 %v", a, ret1, ret2)
+		}
+	})
+}
+
 func TestEratosthenesSieve_Divisors(t *testing.T) {
 	maxX := 3 * 100000
 	testCases := []struct {
@@ -185,6 +134,31 @@ func TestEratosthenesSieve_Divisors(t *testing.T) {
 			}
 		})
 	}
+}
+
+func FuzzEratosthenesSieve_Divisors(f *testing.F) {
+	maxX := 3 * 100000
+	sv := NewSieve(maxX)
+	f.Add(0)
+	f.Add(1)
+	f.Add(9)
+	f.Add(123456)
+	f.Add(1000000007)
+	f.Fuzz(func(t *testing.T, a int) {
+		if 1 > a || a > maxX {
+			return
+		}
+		// Enumerate divisors in two different ways
+		// method1 O(sqrt(N))
+		ret1 := Divisors(a)
+		// method2 EratosthenesSieve
+		ret2 := sv.Divisors(a)
+		sort.Ints(ret1)
+		sort.Ints(ret2)
+		if !reflect.DeepEqual(ret1, ret2) {
+			t.Errorf("enumerate %d divisors, method1: %v, but method2 %v", a, ret1, ret2)
+		}
+	})
 }
 
 func TestEratosthenesSieve_Mobius(t *testing.T) {
@@ -216,6 +190,29 @@ func TestEratosthenesSieve_Mobius(t *testing.T) {
 	}
 }
 
+func FuzzEratosthenesSieve_Mobius(f *testing.F) {
+	maxX := 3 * 100000
+	sv := NewSieve(maxX)
+	f.Add(0)
+	f.Add(1)
+	f.Add(9)
+	f.Add(123456)
+	f.Add(1000000007)
+	f.Fuzz(func(t *testing.T, a int) {
+		if 1 > a || a > maxX {
+			return
+		}
+		// Mobius function in two different ways
+		// method1 O(sqrt(N))
+		ret1 := Mobius(a)
+		// method2 EratosthenesSieve
+		ret2 := sv.Mobius(a)
+		if ret1 != ret2 {
+			t.Errorf("%d mobius function, method1: %v, but method2 %v", a, ret1, ret2)
+		}
+	})
+}
+
 func TestCountDivisors(t *testing.T) {
 	maxX := 3 * 100000
 	testCases := []struct {
@@ -241,4 +238,63 @@ func TestCountDivisors(t *testing.T) {
 			}
 		})
 	}
+}
+
+func FuzzCountDivisors(f *testing.F) {
+	maxX := 3 * 100000
+	sv := NewSieve(maxX)
+	f.Add(0)
+	f.Add(1)
+	f.Add(9)
+	f.Add(123456)
+	f.Add(1000000007)
+	f.Fuzz(func(t *testing.T, a int) {
+		if 1 > a || a > maxX {
+			return
+		}
+		// enumerate divisors counting methods
+		type methodFunc func(x int) int
+		methods := []methodFunc{
+			// get len enumerate divisors
+			func(x int) int {
+				return len(Divisors(x))
+			},
+			// get len enumerate divisors with eratosthenes sieve
+			func(x int) int {
+				return len(sv.Divisors(x))
+			},
+			// get len from Factiroze
+			func(x int) int {
+				return CountDivisors(Factorize(x))
+			},
+			// get len from Factorize with sieve
+			sv.CountDivisors,
+		}
+
+		for i, method1 := range methods {
+			got1 := method1(a)
+			for j := i + 1; j < len(methods); j++ {
+				method2 := methods[j]
+				got2 := method2(a)
+				t.Logf(
+					"%d num divisors, method1: %v:%v, but method2 %v:%v",
+					a,
+					method1,
+					got1,
+					method2,
+					got2,
+				)
+				if !reflect.DeepEqual(got1, got2) {
+					t.Errorf(
+						"%d num divisors, method1: %v:%v, but method2 %v:%v",
+						a,
+						method1,
+						got1,
+						method2,
+						got2,
+					)
+				}
+			}
+		}
+	})
 }
