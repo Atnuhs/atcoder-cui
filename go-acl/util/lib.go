@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -158,8 +159,18 @@ func Any[T any](vals []T, f func(i int, v T) bool) bool {
 	return false
 }
 
-func Ans[T any](a ...T) {
-	fmt.Fprintln(Out, strings.Trim(fmt.Sprint(a), "[]"))
+func Ans(args ...interface{}) {
+	for i, arg := range args {
+		if reflect.TypeOf(arg).Kind() == reflect.Slice {
+			fmt.Fprint(Out, strings.Trim(fmt.Sprint(arg), "[]"))
+		} else {
+			fmt.Fprint(Out, arg)
+		}
+		if i < len(args)-1 {
+			fmt.Fprint(Out, " ")
+		}
+	}
+	fmt.Fprintln(Out)
 }
 
 func Yes() {

@@ -1,6 +1,10 @@
 package util
 
-import "testing"
+import (
+	"bufio"
+	"bytes"
+	"testing"
+)
 
 func TestPopBack(t *testing.T) {
 	testCases := []struct {
@@ -51,6 +55,32 @@ func TestPopFront(t *testing.T) {
 				if want != got {
 					t.Errorf("index: %d, expected %d, but got %d", i, want, got)
 				}
+			}
+		})
+	}
+}
+
+func TestAns(t *testing.T) {
+	testOut := new(bytes.Buffer)
+	Out = bufio.NewWriter(testOut)
+	testCases := map[string]struct {
+		data     []interface{}
+		expected string
+	}{
+		"only int":    {data: []interface{}{1, 2, 3}, expected: "1 2 3\n"},
+		"only string": {data: []interface{}{"a", "b", "c"}, expected: "a b c\n"},
+		"only []int":  {data: []interface{}{[]int{1, 2, 3}}, expected: "1 2 3\n"},
+		"combined":    {data: []interface{}{1, 2, 3, "4", "a", []int{5, 6, 7}}, expected: "1 2 3 4 a 5 6 7\n"},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			testOut.Reset()
+			Ans(tc.data...)
+			Out.Flush()
+			actual := testOut.String()
+			if tc.expected != actual {
+				t.Errorf("expected: %q, but got: %q", tc.expected, actual)
 			}
 		})
 	}
