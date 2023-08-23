@@ -20,8 +20,6 @@ jobs:
     - name: Install dependencies
       run: pip3 install -U online-judge-verify-helper
 
-
-
     # required only if you want to verify Go code
     - name: Install dependencies (Go)
       uses: actions/setup-go@v4
