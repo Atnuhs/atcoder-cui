@@ -6,7 +6,7 @@ ROOT="$(cd $(dirname $0)/.. && pwd)"
 source "${ROOT}/bin/.env"
 
 DIRNAME_DST="${ROOT}/solve"
-DIRNAME_SRC="${ROOT}/src"
+DIRNAME_SRC="${ROOT}/go-acl"
 
 rm -r "${DIRNAME_DST}"
 [ -d "${DIRNAME_DST}" ] || mkdir "${DIRNAME_DST}"

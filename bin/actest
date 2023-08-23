@@ -7,7 +7,12 @@ source "${ROOT}/bin/.env"
 
 PROBLEM=$1
 mkdir -p "${PWD}/submit"
-gottani "${PWD}/solve" > "${PWD}/submit/main.go" 
 
-oj t -c "go run ${PWD}/submit/main.go" -d "${PWD}/problems/${CONTESTNAME}/${PROBLEM}/tests" -S
+(
+    cd "${PWD}/solve"
+    gottani . 
+) > "${PWD}/submit/main.go"
+
+
+oj t -c "go run ${PWD}/submit/main.go" -d ${PWD}/problems/${CONTESTNAME}/${PROBLEM}/tests -S
 
