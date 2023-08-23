@@ -8,5 +8,6 @@ import (
 func main() {
 	defer util.Out.Flush()
 	a, b := util.Readi(), util.Readi()
+
 	util.Ans(a + b)
 }
