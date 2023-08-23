@@ -1,4 +1,4 @@
-module github.com/Atnuhs/atcoder-cui/go-acl
+module go-acl
 
 go 1.20
 
