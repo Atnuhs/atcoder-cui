@@ -51,6 +51,16 @@ func TestSplaySet_Remove(t *testing.T) {
 			deleteValues: []int{10},
 			want:         []int{},
 		},
+		"multi push single delete": {
+			pushValues:   []int{20, 10, 30},
+			deleteValues: []int{10},
+			want:         []int{20, 30},
+		},
+		"multi push multi delete": {
+			pushValues:   []int{20, 10, 30},
+			deleteValues: []int{30, 20},
+			want:         []int{10},
+		},
 	}
 
 	for name, tc := range tests {
