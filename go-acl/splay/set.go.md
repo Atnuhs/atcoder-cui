@@ -14,6 +14,12 @@ data:
     path: go-acl/splay/node_test.go
     title: go-acl/splay/node_test.go
   - icon: ':heavy_check_mark:'
+    path: go-acl/splay/set_test.go
+    title: go-acl/splay/set_test.go
+  - icon: ':heavy_check_mark:'
+    path: go-acl/testlib/assert.go
+    title: go-acl/testlib/assert.go
+  - icon: ':heavy_check_mark:'
     path: go-acl/util/lib.go
     title: go-acl/util/lib.go
   - icon: ':heavy_check_mark:'
@@ -63,6 +69,12 @@ data:
     path: go-acl/splay/node_test.go
     title: go-acl/splay/node_test.go
   - icon: ':heavy_check_mark:'
+    path: go-acl/splay/set_test.go
+    title: go-acl/splay/set_test.go
+  - icon: ':heavy_check_mark:'
+    path: go-acl/testlib/assert.go
+    title: go-acl/testlib/assert.go
+  - icon: ':heavy_check_mark:'
     path: go-acl/util/lib.go
     title: go-acl/util/lib.go
   - icon: ':heavy_check_mark:'
@@ -109,26 +121,29 @@ data:
     , line 68, in bundle\n    raise RuntimeError('bundler is not specified: {}'.format(str(path)))\n\
     RuntimeError: bundler is not specified: go-acl/splay/set.go\n"
   code: "package splay\n\ntype SplaySet struct {\n\troot *SplayNode\n}\n\nfunc NewSplaySet()\
-    \ *SplaySet {\n\treturn &SplaySet{\n\t\troot: nil,\n\t}\n}\n\nfunc NewSplaySetNode(value\
-    \ int) *SplayNode {\n\treturn NewSplayNode(value, -1)\n}\n\nfunc (ss *SplaySet)\
-    \ Push(value int) {\n\tss.root = ss.root.Insert(NewSplaySetNode(value))\n}\n\n\
-    func (ss *SplaySet) Remove(value int) {\n\tss.root, _ = ss.root.Delete(NewSplaySetNode(value))\n\
-    }\n\nfunc (ss *SplaySet) Has(value int) bool {\n\treturn ss.root.Has(value)\n\
-    }\n\nfunc (ss *SplaySet) Values() (arr []int) {\n\treturn ss.root.values()\n}\n\
-    \nfunc (ss *SplaySet) Size() int {\n\treturn ss.root.size\n}\n\nfunc (ss *SplaySet)\
-    \ IsEmpty() bool {\n\treturn ss.root == nil\n}\n\nfunc (ss *SplaySet) Ge(value\
-    \ int) int {\n\tidx := ss.root.Ge(value)\n\tss.root = ss.root.FindAt(idx)\n\t\
-    return ss.root.key\n}\n\nfunc (ss *SplaySet) Gt(value int) int {\n\treturn ss.Ge(value\
-    \ + 1)\n}\n\nfunc (ss *SplaySet) Le(value int) int {\n\treturn ss.Ge(value+1)\
-    \ - 1\n}\n\nfunc (ss *SplaySet) Lt(value int) int {\n\treturn ss.Ge(value) - 1\n\
-    }\n"
+    \ *SplaySet {\n\treturn &SplaySet{\n\t\troot: nil,\n\t}\n}\n\nfunc NewSplayNodeFromSlice(values\
+    \ []int) *SplaySet {\n\ts := NewSplaySet()\n\tfor _, v := range values {\n\t\t\
+    s.Push(v)\n\t}\n\treturn s\n}\n\nfunc NewSplaySetNode(value int) *SplayNode {\n\
+    \treturn NewSplayNode(value, -1)\n}\n\nfunc (ss *SplaySet) Push(value int) {\n\
+    \tss.root = ss.root.Insert(NewSplaySetNode(value))\n}\n\nfunc (ss *SplaySet) Remove(value\
+    \ int) {\n\tss.root, _ = ss.root.Delete(NewSplaySetNode(value))\n}\n\nfunc (ss\
+    \ *SplaySet) Has(value int) bool {\n\treturn ss.root.Has(value)\n}\n\nfunc (ss\
+    \ *SplaySet) Values() (arr []int) {\n\treturn ss.root.values()\n}\n\nfunc (ss\
+    \ *SplaySet) Size() int {\n\treturn ss.root.size\n}\n\nfunc (ss *SplaySet) IsEmpty()\
+    \ bool {\n\treturn ss.root == nil\n}\n\nfunc (ss *SplaySet) Ge(value int) int\
+    \ {\n\tidx := ss.root.Ge(value)\n\tss.root = ss.root.FindAt(idx)\n\treturn ss.root.key\n\
+    }\n\nfunc (ss *SplaySet) Gt(value int) int {\n\treturn ss.Ge(value + 1)\n}\n\n\
+    func (ss *SplaySet) Le(value int) int {\n\treturn ss.Ge(value+1) - 1\n}\n\nfunc\
+    \ (ss *SplaySet) Lt(value int) int {\n\treturn ss.Ge(value) - 1\n}\n"
   dependsOn:
   - go-acl/splay/node.go
+  - go-acl/splay/set_test.go
   - go-acl/splay/node_test.go
   - go-acl/splay/map.go
   - go-acl/verify/aplusb/verify.test.go
   - go-acl/verify/associative_array/verify.test.go
   - go-acl/verify/many_aplusb/verify.test.go
+  - go-acl/testlib/assert.go
   - go-acl/util/unionfind.go
   - go-acl/util/sieve.go
   - go-acl/util/math_test.go
@@ -143,8 +158,10 @@ data:
   path: go-acl/splay/set.go
   requiredBy:
   - go-acl/splay/node.go
+  - go-acl/splay/set_test.go
   - go-acl/splay/node_test.go
   - go-acl/splay/map.go
+  - go-acl/testlib/assert.go
   - go-acl/util/unionfind.go
   - go-acl/util/sieve.go
   - go-acl/util/math_test.go
@@ -155,7 +172,7 @@ data:
   - go-acl/util/sieve_test.go
   - go-acl/util/monoid.go
   - go-acl/main.go
-  timestamp: '2023-08-24 01:49:17+09:00'
+  timestamp: '2023-08-25 01:19:20+09:00'
   verificationStatus: LIBRARY_ALL_AC
   verifiedWith:
   - go-acl/verify/aplusb/verify.test.go

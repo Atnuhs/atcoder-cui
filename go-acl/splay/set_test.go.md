@@ -5,6 +5,9 @@ data:
     path: go-acl/main.go
     title: go-acl/main.go
   - icon: ':heavy_check_mark:'
+    path: go-acl/splay/map.go
+    title: go-acl/splay/map.go
+  - icon: ':heavy_check_mark:'
     path: go-acl/splay/node.go
     title: go-acl/splay/node.go
   - icon: ':heavy_check_mark:'
@@ -13,9 +16,6 @@ data:
   - icon: ':heavy_check_mark:'
     path: go-acl/splay/set.go
     title: go-acl/splay/set.go
-  - icon: ':heavy_check_mark:'
-    path: go-acl/splay/set_test.go
-    title: go-acl/splay/set_test.go
   - icon: ':heavy_check_mark:'
     path: go-acl/testlib/assert.go
     title: go-acl/testlib/assert.go
@@ -60,6 +60,9 @@ data:
     path: go-acl/main.go
     title: go-acl/main.go
   - icon: ':heavy_check_mark:'
+    path: go-acl/splay/map.go
+    title: go-acl/splay/map.go
+  - icon: ':heavy_check_mark:'
     path: go-acl/splay/node.go
     title: go-acl/splay/node.go
   - icon: ':heavy_check_mark:'
@@ -68,9 +71,6 @@ data:
   - icon: ':heavy_check_mark:'
     path: go-acl/splay/set.go
     title: go-acl/splay/set.go
-  - icon: ':heavy_check_mark:'
-    path: go-acl/splay/set_test.go
-    title: go-acl/splay/set_test.go
   - icon: ':heavy_check_mark:'
     path: go-acl/testlib/assert.go
     title: go-acl/testlib/assert.go
@@ -119,32 +119,34 @@ data:
     , line 71, in _render_source_code_stat\n    bundled_code = language.bundle(stat.path,\
     \ basedir=basedir, options={'include_paths': [basedir]}).decode()\n  File \"/home/runner/.local/lib/python3.10/site-packages/onlinejudge_verify/languages/user_defined.py\"\
     , line 68, in bundle\n    raise RuntimeError('bundler is not specified: {}'.format(str(path)))\n\
-    RuntimeError: bundler is not specified: go-acl/splay/map.go\n"
-  code: "package splay\n\ntype SplayMap struct {\n\troot *SplayNode\n}\n\nfunc NewSplayMap()\
-    \ *SplayMap {\n\treturn &SplayMap{\n\t\troot: nil,\n\t}\n}\n\nfunc NewSplayMapNode(key\
-    \ int, value int) *SplayNode {\n\treturn NewSplayNode(key, value)\n}\n\nfunc (ss\
-    \ *SplayMap) Push(key int, value int) {\n\tnode := NewSplayMapNode(key, value)\n\
-    \tif ss.root == nil {\n\t\tss.root = node\n\t}\n\tss.root = ss.root.Insert(node)\n\
-    }\n\nfunc (ss *SplayMap) Remove(key int) int {\n\tvar removed *SplayNode\n\tss.root,\
-    \ removed = ss.root.Delete(NewSplayMapNode(key, -1))\n\tif removed != nil {\n\t\
-    \treturn removed.value\n\t}\n\treturn 0\n}\n\nfunc (ss *SplayMap) Has(key int)\
-    \ bool {\n\treturn ss.root.Has(key)\n}\n\nfunc (ss *SplayMap) Values() (arr []int)\
-    \ {\n\treturn ss.root.values()\n}\n\nfunc (ss *SplayMap) Size() int {\n\treturn\
-    \ ss.root.size\n}\n\nfunc (ss *SplayMap) IsEmpty() bool {\n\treturn ss.root ==\
-    \ nil\n}\n\nfunc (ss *SplayMap) At(key int) int {\n\tfound := ss.root.FindAndSplay(key)\n\
-    \tif found == nil {\n\t\treturn 0\n\t}\n\tss.root = found\n\treturn ss.root.value\n\
-    }\n\nfunc (ss *SplayMap) String() string {\n\tif ss.root == nil {\n\t\treturn\
-    \ \"\"\n\t}\n\treturn ss.root.String()\n}\n\nfunc (ss *SplayMap) Ge(value int)\
-    \ int {\n\tidx := ss.root.Ge(value)\n\tss.root = ss.root.FindAt(idx)\n\treturn\
-    \ ss.root.key\n}\n\nfunc (ss *SplayMap) Gt(value int) int {\n\treturn ss.Ge(value\
-    \ + 1)\n}\n\nfunc (ss *SplayMap) Le(value int) int {\n\treturn ss.Ge(value+1)\
-    \ - 1\n}\n\nfunc (ss *SplayMap) Lt(value int) int {\n\treturn ss.Ge(value) - 1\n\
-    }\n"
+    RuntimeError: bundler is not specified: go-acl/splay/set_test.go\n"
+  code: "package splay\n\nimport (\n\t\"testing\"\n\n\t\"go-acl/testlib\"\n)\n\nfunc\
+    \ TestSplaySet_Push(t *testing.T) {\n\ttests := map[string]struct {\n\t\tpushValues\
+    \ []int\n\t\twant       []int\n\t}{\n\t\t\"single value\": {\n\t\t\tpushValues:\
+    \ []int{10},\n\t\t\twant:       []int{10},\n\t\t},\n\n\t\t\"sorted values\": {\n\
+    \t\t\tpushValues: []int{10, 20, 30},\n\t\t\twant:       []int{10, 20, 30},\n\t\
+    \t},\n\t\t\"unsorted values\": {\n\t\t\tpushValues: []int{30, 10, 20},\n\t\t\t\
+    want:       []int{10, 20, 30},\n\t\t},\n\t\t\"unsorted minus values\": {\n\t\t\
+    \tpushValues: []int{-30, -10, -20},\n\t\t\twant:       []int{-30, -20, -10},\n\
+    \t\t},\n\t}\n\n\tfor name, tc := range tests {\n\t\tt.Run(name, func(t *testing.T)\
+    \ {\n\t\t\ts := NewSplayNodeFromSlice(tc.pushValues)\n\n\t\t\tgot := s.Values()\n\
+    \t\t\ttestlib.AclAssert(t, tc.want, got)\n\t\t})\n\t}\n}\n\nfunc TestSplaySet_Remove(t\
+    \ *testing.T) {\n\ttests := map[string]struct {\n\t\tpushValues   []int\n\t\t\
+    deleteValues []int\n\t\twant         []int\n\t}{\n\t\t\"single push single delete\"\
+    : {\n\t\t\tpushValues:   []int{10},\n\t\t\tdeleteValues: []int{10},\n\t\t\twant:\
+    \         []int{},\n\t\t},\n\t\t\"multi push single delete\": {\n\t\t\tpushValues:\
+    \   []int{20, 10, 30},\n\t\t\tdeleteValues: []int{10},\n\t\t\twant:         []int{20,\
+    \ 30},\n\t\t},\n\t\t\"multi push multi delete\": {\n\t\t\tpushValues:   []int{20,\
+    \ 10, 30},\n\t\t\tdeleteValues: []int{30, 20},\n\t\t\twant:         []int{10},\n\
+    \t\t},\n\t}\n\n\tfor name, tc := range tests {\n\t\tt.Run(name, func(t *testing.T)\
+    \ {\n\t\t\ts := NewSplayNodeFromSlice(tc.pushValues)\n\n\t\t\tfor _, v := range\
+    \ tc.deleteValues {\n\t\t\t\ts.Remove(v)\n\t\t\t}\n\n\t\t\tgot := s.Values()\n\
+    \t\t\ttestlib.AclAssert(t, tc.want, got)\n\t\t})\n\t}\n}\n"
   dependsOn:
   - go-acl/splay/node.go
-  - go-acl/splay/set_test.go
   - go-acl/splay/node_test.go
   - go-acl/splay/set.go
+  - go-acl/splay/map.go
   - go-acl/verify/aplusb/verify.test.go
   - go-acl/verify/associative_array/verify.test.go
   - go-acl/verify/many_aplusb/verify.test.go
@@ -160,12 +162,12 @@ data:
   - go-acl/util/monoid.go
   - go-acl/main.go
   isVerificationFile: false
-  path: go-acl/splay/map.go
+  path: go-acl/splay/set_test.go
   requiredBy:
   - go-acl/splay/node.go
-  - go-acl/splay/set_test.go
   - go-acl/splay/node_test.go
   - go-acl/splay/set.go
+  - go-acl/splay/map.go
   - go-acl/testlib/assert.go
   - go-acl/util/unionfind.go
   - go-acl/util/sieve.go
@@ -183,10 +185,10 @@ data:
   - go-acl/verify/aplusb/verify.test.go
   - go-acl/verify/associative_array/verify.test.go
   - go-acl/verify/many_aplusb/verify.test.go
-documentation_of: go-acl/splay/map.go
+documentation_of: go-acl/splay/set_test.go
 layout: document
 redirect_from:
-- /library/go-acl/splay/map.go
-- /library/go-acl/splay/map.go.html
-title: go-acl/splay/map.go
+- /library/go-acl/splay/set_test.go
+- /library/go-acl/splay/set_test.go.html
+title: go-acl/splay/set_test.go
 ---

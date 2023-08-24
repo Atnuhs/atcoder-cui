@@ -20,6 +20,14 @@ data:
     - icon: ':heavy_check_mark:'
       path: go-acl/splay/set.go
       title: go-acl/splay/set.go
+    - icon: ':heavy_check_mark:'
+      path: go-acl/splay/set_test.go
+      title: go-acl/splay/set_test.go
+  - name: go-acl/testlib
+    pages:
+    - icon: ':heavy_check_mark:'
+      path: go-acl/testlib/assert.go
+      title: go-acl/testlib/assert.go
   - name: go-acl/util
     pages:
     - icon: ':heavy_check_mark:'

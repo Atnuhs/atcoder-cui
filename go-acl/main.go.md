@@ -14,6 +14,12 @@ data:
     path: go-acl/splay/set.go
     title: go-acl/splay/set.go
   - icon: ':heavy_check_mark:'
+    path: go-acl/splay/set_test.go
+    title: go-acl/splay/set_test.go
+  - icon: ':heavy_check_mark:'
+    path: go-acl/testlib/assert.go
+    title: go-acl/testlib/assert.go
+  - icon: ':heavy_check_mark:'
     path: go-acl/util/lib.go
     title: go-acl/util/lib.go
   - icon: ':heavy_check_mark:'
@@ -63,6 +69,12 @@ data:
     path: go-acl/splay/set.go
     title: go-acl/splay/set.go
   - icon: ':heavy_check_mark:'
+    path: go-acl/splay/set_test.go
+    title: go-acl/splay/set_test.go
+  - icon: ':heavy_check_mark:'
+    path: go-acl/testlib/assert.go
+    title: go-acl/testlib/assert.go
+  - icon: ':heavy_check_mark:'
     path: go-acl/util/lib.go
     title: go-acl/util/lib.go
   - icon: ':heavy_check_mark:'
@@ -108,16 +120,18 @@ data:
     \ basedir=basedir, options={'include_paths': [basedir]}).decode()\n  File \"/home/runner/.local/lib/python3.10/site-packages/onlinejudge_verify/languages/user_defined.py\"\
     , line 68, in bundle\n    raise RuntimeError('bundler is not specified: {}'.format(str(path)))\n\
     RuntimeError: bundler is not specified: go-acl/main.go\n"
-  code: "package main\n\nimport \"go-acl/util\"\n\nfunc main() {\n\tdefer util.Out.Flush()\n\
+  code: "package main\n\nimport . \"go-acl/util\"\n\nfunc main() {\n\tdefer Out.Flush()\n\
     }\n"
   dependsOn:
   - go-acl/splay/node.go
+  - go-acl/splay/set_test.go
   - go-acl/splay/node_test.go
   - go-acl/splay/set.go
   - go-acl/splay/map.go
   - go-acl/verify/aplusb/verify.test.go
   - go-acl/verify/associative_array/verify.test.go
   - go-acl/verify/many_aplusb/verify.test.go
+  - go-acl/testlib/assert.go
   - go-acl/util/unionfind.go
   - go-acl/util/sieve.go
   - go-acl/util/math_test.go
@@ -131,9 +145,11 @@ data:
   path: go-acl/main.go
   requiredBy:
   - go-acl/splay/node.go
+  - go-acl/splay/set_test.go
   - go-acl/splay/node_test.go
   - go-acl/splay/set.go
   - go-acl/splay/map.go
+  - go-acl/testlib/assert.go
   - go-acl/util/unionfind.go
   - go-acl/util/sieve.go
   - go-acl/util/math_test.go
@@ -143,7 +159,7 @@ data:
   - go-acl/util/math.go
   - go-acl/util/sieve_test.go
   - go-acl/util/monoid.go
-  timestamp: '2023-08-24 01:49:17+09:00'
+  timestamp: '2023-08-25 01:19:20+09:00'
   verificationStatus: LIBRARY_ALL_AC
   verifiedWith:
   - go-acl/verify/aplusb/verify.test.go
