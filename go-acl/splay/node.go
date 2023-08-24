@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Atnuhs/atcoder-cui/go-acl/util"
+	. "go-acl/util"
 )
 
 type SplayNode struct {
@@ -46,13 +46,13 @@ func (sn *SplayNode) update() {
 
 	if sn.l != nil {
 		sn.size += sn.l.size
-		sn.min = util.Min(sn.min, sn.l.min)
-		sn.max = util.Max(sn.max, sn.l.max)
+		sn.min = Min(sn.min, sn.l.min)
+		sn.max = Max(sn.max, sn.l.max)
 	}
 	if sn.r != nil {
 		sn.size += sn.r.size
-		sn.min = util.Min(sn.min, sn.r.min)
-		sn.max = util.Max(sn.max, sn.r.max)
+		sn.min = Min(sn.min, sn.r.min)
+		sn.max = Max(sn.max, sn.r.max)
 	}
 }
 
@@ -66,7 +66,7 @@ func (sn *SplayNode) state() int {
 	if sn.p.r == sn {
 		return -1
 	}
-	return util.INF
+	return INF
 }
 
 func (sn *SplayNode) rotate() {
@@ -183,10 +183,10 @@ func (sn *SplayNode) describe(rank int) string {
 func (sn *SplayNode) maxRank(rank int) int {
 	ret := rank
 	if sn.r != nil {
-		ret = util.Max(ret, sn.r.maxRank(rank+1))
+		ret = Max(ret, sn.r.maxRank(rank+1))
 	}
 	if sn.l != nil {
-		ret = util.Max(ret, sn.l.maxRank(rank+1))
+		ret = Max(ret, sn.l.maxRank(rank+1))
 	}
 	return ret
 }
@@ -256,7 +256,7 @@ func (sn *SplayNode) Ge(key int) (idx int) {
 	i := 0
 	for now != nil {
 		if now.key >= key {
-			idx = util.Min(idx, i+now.index())
+			idx = Min(idx, i+now.index())
 			now = now.l
 		} else {
 			i += now.index() + 1
