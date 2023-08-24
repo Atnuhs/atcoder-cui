@@ -46,20 +46,30 @@ func TestSplaySet_Remove(t *testing.T) {
 		deleteValues []int
 		want         []int
 	}{
-		"single push single delete": {
+		"single push, single delete": {
 			pushValues:   []int{10},
 			deleteValues: []int{10},
 			want:         []int{},
 		},
-		"multi push single delete": {
+		"multi push, single delete": {
 			pushValues:   []int{20, 10, 30},
 			deleteValues: []int{10},
 			want:         []int{20, 30},
 		},
-		"multi push multi delete": {
+		"multi push, multi delete": {
 			pushValues:   []int{20, 10, 30},
 			deleteValues: []int{30, 20},
 			want:         []int{10},
+		},
+		"single push, multi delete, no value left": {
+			pushValues:   []int{20},
+			deleteValues: []int{20, 10},
+			want:         []int{},
+		},
+		"single push, multi delete, value remains": {
+			pushValues:   []int{20},
+			deleteValues: []int{30, 10, 40, 50, 50},
+			want:         []int{20},
 		},
 	}
 
