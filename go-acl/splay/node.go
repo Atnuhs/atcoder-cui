@@ -137,6 +137,9 @@ func (sn *SplayNode) splay() {
 
 func (sn *SplayNode) values() []int {
 	ret := make([]int, 0)
+	if sn == nil {
+		return ret
+	}
 	if sn.l != nil {
 		ret = append(ret, sn.l.values()...)
 	}
@@ -251,6 +254,9 @@ func (sn *SplayNode) Has(key int) bool {
 }
 
 func (sn *SplayNode) Ge(key int) (idx int) {
+	if sn == nil {
+		return 0
+	}
 	now := sn
 	idx = sn.size
 	i := 0
@@ -281,6 +287,9 @@ func (sn *SplayNode) MergeR(rroot *SplayNode) *SplayNode {
 }
 
 func (sn *SplayNode) Split(idx int) (*SplayNode, *SplayNode) {
+	if sn == nil {
+		return nil, nil
+	}
 	if idx == sn.size {
 		return sn, nil
 	}

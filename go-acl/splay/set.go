@@ -10,6 +10,14 @@ func NewSplaySet() *SplaySet {
 	}
 }
 
+func NewSplayNodeFromSlice(values []int) *SplaySet {
+	s := NewSplaySet()
+	for _, v := range values {
+		s.Push(v)
+	}
+	return s
+}
+
 func NewSplaySetNode(value int) *SplayNode {
 	return NewSplayNode(value, -1)
 }
