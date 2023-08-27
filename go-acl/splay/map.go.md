@@ -55,6 +55,9 @@ data:
   - icon: ':heavy_check_mark:'
     path: go-acl/verify/many_aplusb/verify.test.go
     title: go-acl/verify/many_aplusb/verify.test.go
+  - icon: ':heavy_check_mark:'
+    path: go-acl/verify/predecessor_problem/verify.test.go
+    title: go-acl/verify/predecessor_problem/verify.test.go
   _extendedRequiredBy:
   - icon: ':heavy_check_mark:'
     path: go-acl/main.go
@@ -111,6 +114,9 @@ data:
   - icon: ':heavy_check_mark:'
     path: go-acl/verify/many_aplusb/verify.test.go
     title: go-acl/verify/many_aplusb/verify.test.go
+  - icon: ':heavy_check_mark:'
+    path: go-acl/verify/predecessor_problem/verify.test.go
+    title: go-acl/verify/predecessor_problem/verify.test.go
   _isVerificationFailed: false
   _pathExtension: go
   _verificationStatusIcon: ':heavy_check_mark:'
@@ -128,14 +134,15 @@ data:
     }\n\nfunc (ss *SplayMap) Remove(key int) int {\n\tvar removed *SplayNode\n\tss.root,\
     \ removed = ss.root.Delete(NewSplayMapNode(key, -1))\n\tif removed != nil {\n\t\
     \treturn removed.value\n\t}\n\treturn 0\n}\n\nfunc (ss *SplayMap) Has(key int)\
-    \ bool {\n\treturn ss.root.Has(key)\n}\n\nfunc (ss *SplayMap) Values() (arr []int)\
-    \ {\n\treturn ss.root.values()\n}\n\nfunc (ss *SplayMap) Size() int {\n\treturn\
-    \ ss.root.size\n}\n\nfunc (ss *SplayMap) IsEmpty() bool {\n\treturn ss.root ==\
-    \ nil\n}\n\nfunc (ss *SplayMap) At(key int) int {\n\tfound := ss.root.FindAndSplay(key)\n\
+    \ bool {\n\tfound := ss.root.Find(key)\n\tif found == nil {\n\t\treturn false\n\
+    \t}\n\tss.root = found\n\treturn true\n}\n\nfunc (ss *SplayMap) Values() (arr\
+    \ []int) {\n\treturn ss.root.values()\n}\n\nfunc (ss *SplayMap) Size() int {\n\
+    \treturn ss.root.size\n}\n\nfunc (ss *SplayMap) IsEmpty() bool {\n\treturn ss.root\
+    \ == nil\n}\n\nfunc (ss *SplayMap) At(key int) int {\n\tfound := ss.root.Find(key)\n\
     \tif found == nil {\n\t\treturn 0\n\t}\n\tss.root = found\n\treturn ss.root.value\n\
     }\n\nfunc (ss *SplayMap) String() string {\n\tif ss.root == nil {\n\t\treturn\
     \ \"\"\n\t}\n\treturn ss.root.String()\n}\n\nfunc (ss *SplayMap) Ge(value int)\
-    \ int {\n\tidx := ss.root.Ge(value)\n\tss.root = ss.root.FindAt(idx)\n\treturn\
+    \ int {\n\tidx := ss.root.Ge(value)\n\tss.root = ss.root.FindAtSub(idx)\n\treturn\
     \ ss.root.key\n}\n\nfunc (ss *SplayMap) Gt(value int) int {\n\treturn ss.Ge(value\
     \ + 1)\n}\n\nfunc (ss *SplayMap) Le(value int) int {\n\treturn ss.Ge(value+1)\
     \ - 1\n}\n\nfunc (ss *SplayMap) Lt(value int) int {\n\treturn ss.Ge(value) - 1\n\
@@ -145,6 +152,7 @@ data:
   - go-acl/splay/set_test.go
   - go-acl/splay/node_test.go
   - go-acl/splay/set.go
+  - go-acl/verify/predecessor_problem/verify.test.go
   - go-acl/verify/aplusb/verify.test.go
   - go-acl/verify/associative_array/verify.test.go
   - go-acl/verify/many_aplusb/verify.test.go
@@ -177,9 +185,10 @@ data:
   - go-acl/util/sieve_test.go
   - go-acl/util/monoid.go
   - go-acl/main.go
-  timestamp: '2023-08-25 01:19:20+09:00'
+  timestamp: '2023-08-28 00:47:54+09:00'
   verificationStatus: LIBRARY_ALL_AC
   verifiedWith:
+  - go-acl/verify/predecessor_problem/verify.test.go
   - go-acl/verify/aplusb/verify.test.go
   - go-acl/verify/associative_array/verify.test.go
   - go-acl/verify/many_aplusb/verify.test.go

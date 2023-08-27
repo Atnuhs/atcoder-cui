@@ -73,5 +73,10 @@ data:
     - icon: ':heavy_check_mark:'
       path: go-acl/verify/many_aplusb/verify.test.go
       title: go-acl/verify/many_aplusb/verify.test.go
+  - name: go-acl/verify/predecessor_problem
+    pages:
+    - icon: ':heavy_check_mark:'
+      path: go-acl/verify/predecessor_problem/verify.test.go
+      title: go-acl/verify/predecessor_problem/verify.test.go
 layout: toppage
 ---

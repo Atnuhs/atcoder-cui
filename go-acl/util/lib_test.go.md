@@ -55,6 +55,9 @@ data:
   - icon: ':heavy_check_mark:'
     path: go-acl/verify/many_aplusb/verify.test.go
     title: go-acl/verify/many_aplusb/verify.test.go
+  - icon: ':heavy_check_mark:'
+    path: go-acl/verify/predecessor_problem/verify.test.go
+    title: go-acl/verify/predecessor_problem/verify.test.go
   _extendedRequiredBy:
   - icon: ':heavy_check_mark:'
     path: go-acl/main.go
@@ -111,6 +114,9 @@ data:
   - icon: ':heavy_check_mark:'
     path: go-acl/verify/many_aplusb/verify.test.go
     title: go-acl/verify/many_aplusb/verify.test.go
+  - icon: ':heavy_check_mark:'
+    path: go-acl/verify/predecessor_problem/verify.test.go
+    title: go-acl/verify/predecessor_problem/verify.test.go
   _isVerificationFailed: false
   _pathExtension: go
   _verificationStatusIcon: ':heavy_check_mark:'
@@ -120,38 +126,45 @@ data:
     \ basedir=basedir, options={'include_paths': [basedir]}).decode()\n  File \"/home/runner/.local/lib/python3.10/site-packages/onlinejudge_verify/languages/user_defined.py\"\
     , line 68, in bundle\n    raise RuntimeError('bundler is not specified: {}'.format(str(path)))\n\
     RuntimeError: bundler is not specified: go-acl/util/lib_test.go\n"
-  code: "package util\n\nimport (\n\t\"bufio\"\n\t\"bytes\"\n\t\"testing\"\n)\n\n\
-    func TestPopBack(t *testing.T) {\n\ttestCases := []struct {\n\t\tdesc string\n\
-    \t\tdata []int\n\t}{\n\t\t{\n\t\t\tdesc: \"[1,2,3,4,5]\",\n\t\t\tdata: []int{1,\
-    \ 2, 3, 4, 5},\n\t\t},\n\t}\n\tfor _, tc := range testCases {\n\t\tt.Run(tc.desc,\
-    \ func(t *testing.T) {\n\t\t\tn := len(tc.data)\n\t\t\ta := make([]int, n)\n\t\
-    \t\tcopy(a, tc.data)\n\n\t\t\tfor i := n - 1; i >= 0; i-- {\n\t\t\t\tgot := PopBack(&a)\n\
-    \t\t\t\twant := tc.data[i]\n\t\t\t\tif want != got {\n\t\t\t\t\tt.Errorf(\"index:\
-    \ %d, expected %d, but got %d\", i, want, got)\n\t\t\t\t}\n\t\t\t}\n\t\t})\n\t\
-    }\n}\n\nfunc TestPopFront(t *testing.T) {\n\ttestCases := []struct {\n\t\tdesc\
-    \ string\n\t\tdata []int\n\t}{\n\t\t{\n\t\t\tdesc: \"[1,2,3,4,5]\",\n\t\t\tdata:\
-    \ []int{1, 2, 3, 4, 5},\n\t\t},\n\t}\n\tfor _, tc := range testCases {\n\t\tt.Run(tc.desc,\
-    \ func(t *testing.T) {\n\t\t\tn := len(tc.data)\n\t\t\ta := make([]int, n)\n\t\
-    \t\tcopy(a, tc.data)\n\n\t\t\tfor i := 0; i < n; i++ {\n\t\t\t\tgot := PopFront(&a)\n\
-    \t\t\t\twant := tc.data[i]\n\t\t\t\tif want != got {\n\t\t\t\t\tt.Errorf(\"index:\
-    \ %d, expected %d, but got %d\", i, want, got)\n\t\t\t\t}\n\t\t\t}\n\t\t})\n\t\
-    }\n}\n\nfunc TestAns(t *testing.T) {\n\ttestOut := new(bytes.Buffer)\n\tOut =\
-    \ bufio.NewWriter(testOut)\n\ttestCases := map[string]struct {\n\t\tdata     []interface{}\n\
-    \t\texpected string\n\t}{\n\t\t\"only int\":    {data: []interface{}{1, 2, 3},\
-    \ expected: \"1 2 3\\n\"},\n\t\t\"only string\": {data: []interface{}{\"a\", \"\
-    b\", \"c\"}, expected: \"a b c\\n\"},\n\t\t\"only []int\":  {data: []interface{}{[]int{1,\
-    \ 2, 3}}, expected: \"1 2 3\\n\"},\n\t\t\"combined\":    {data: []interface{}{1,\
-    \ 2, 3, \"4\", \"a\", []int{5, 6, 7}}, expected: \"1 2 3 4 a 5 6 7\\n\"},\n\t\
-    }\n\n\tfor name, tc := range testCases {\n\t\tt.Run(name, func(t *testing.T) {\n\
-    \t\t\ttestOut.Reset()\n\t\t\tAns(tc.data...)\n\t\t\tOut.Flush()\n\t\t\tactual\
-    \ := testOut.String()\n\t\t\tif tc.expected != actual {\n\t\t\t\tt.Errorf(\"expected:\
-    \ %q, but got: %q\", tc.expected, actual)\n\t\t\t}\n\t\t})\n\t}\n}\n"
+  code: "package util\n\nimport (\n\t\"bufio\"\n\t\"bytes\"\n\t\"fmt\"\n\t\"io\"\n\
+    \t\"strings\"\n\t\"testing\"\n)\n\nfunc TestPopBack(t *testing.T) {\n\ttestCases\
+    \ := []struct {\n\t\tdesc string\n\t\tdata []int\n\t}{\n\t\t{\n\t\t\tdesc: \"\
+    [1,2,3,4,5]\",\n\t\t\tdata: []int{1, 2, 3, 4, 5},\n\t\t},\n\t}\n\tfor _, tc :=\
+    \ range testCases {\n\t\tt.Run(tc.desc, func(t *testing.T) {\n\t\t\tn := len(tc.data)\n\
+    \t\t\ta := make([]int, n)\n\t\t\tcopy(a, tc.data)\n\n\t\t\tfor i := n - 1; i >=\
+    \ 0; i-- {\n\t\t\t\tgot := PopBack(&a)\n\t\t\t\twant := tc.data[i]\n\t\t\t\tif\
+    \ want != got {\n\t\t\t\t\tt.Errorf(\"index: %d, expected %d, but got %d\", i,\
+    \ want, got)\n\t\t\t\t}\n\t\t\t}\n\t\t})\n\t}\n}\n\nfunc TestPopFront(t *testing.T)\
+    \ {\n\ttestCases := []struct {\n\t\tdesc string\n\t\tdata []int\n\t}{\n\t\t{\n\
+    \t\t\tdesc: \"[1,2,3,4,5]\",\n\t\t\tdata: []int{1, 2, 3, 4, 5},\n\t\t},\n\t}\n\
+    \tfor _, tc := range testCases {\n\t\tt.Run(tc.desc, func(t *testing.T) {\n\t\t\
+    \tn := len(tc.data)\n\t\t\ta := make([]int, n)\n\t\t\tcopy(a, tc.data)\n\n\t\t\
+    \tfor i := 0; i < n; i++ {\n\t\t\t\tgot := PopFront(&a)\n\t\t\t\twant := tc.data[i]\n\
+    \t\t\t\tif want != got {\n\t\t\t\t\tt.Errorf(\"index: %d, expected %d, but got\
+    \ %d\", i, want, got)\n\t\t\t\t}\n\t\t\t}\n\t\t})\n\t}\n}\n\nfunc TestAns(t *testing.T)\
+    \ {\n\ttestOut := new(bytes.Buffer)\n\tOut = bufio.NewWriter(testOut)\n\ttestCases\
+    \ := map[string]struct {\n\t\tdata     []interface{}\n\t\texpected string\n\t\
+    }{\n\t\t\"only int\":    {data: []interface{}{1, 2, 3}, expected: \"1 2 3\\n\"\
+    },\n\t\t\"only string\": {data: []interface{}{\"a\", \"b\", \"c\"}, expected:\
+    \ \"a b c\\n\"},\n\t\t\"only []int\":  {data: []interface{}{[]int{1, 2, 3}}, expected:\
+    \ \"1 2 3\\n\"},\n\t\t\"combined\":    {data: []interface{}{1, 2, 3, \"4\", \"\
+    a\", []int{5, 6, 7}}, expected: \"1 2 3 4 a 5 6 7\\n\"},\n\t}\n\n\tfor name, tc\
+    \ := range testCases {\n\t\tt.Run(name, func(t *testing.T) {\n\t\t\ttestOut.Reset()\n\
+    \t\t\tAns(tc.data...)\n\t\t\tOut.Flush()\n\t\t\tactual := testOut.String()\n\t\
+    \t\tif tc.expected != actual {\n\t\t\t\tt.Errorf(\"expected: %q, but got: %q\"\
+    , tc.expected, actual)\n\t\t\t}\n\t\t})\n\t}\n}\n\nfunc BenchmarkOutputToOut(b\
+    \ *testing.B) {\n\ttext := strings.Repeat(\"a\", 100)\n\tb.ResetTimer()\n\tfor\
+    \ i := 0; i < b.N; i++ {\n\t\tfmt.Fprintln(Out, text)\n\t}\n}\n\nfunc BenchmarkOutputToDiscard(b\
+    \ *testing.B) {\n\ttext := strings.Repeat(\"a\", 100)\n\tDiscard := bufio.NewWriter(io.Discard)\n\
+    \tb.ResetTimer()\n\tfor i := 0; i < b.N; i++ {\n\t\tfmt.Fprintln(Discard, text)\n\
+    \t}\n}\n"
   dependsOn:
   - go-acl/splay/node.go
   - go-acl/splay/set_test.go
   - go-acl/splay/node_test.go
   - go-acl/splay/set.go
   - go-acl/splay/map.go
+  - go-acl/verify/predecessor_problem/verify.test.go
   - go-acl/verify/aplusb/verify.test.go
   - go-acl/verify/associative_array/verify.test.go
   - go-acl/verify/many_aplusb/verify.test.go
@@ -183,9 +196,10 @@ data:
   - go-acl/util/sieve_test.go
   - go-acl/util/monoid.go
   - go-acl/main.go
-  timestamp: '2023-08-25 01:19:20+09:00'
+  timestamp: '2023-08-28 00:47:54+09:00'
   verificationStatus: LIBRARY_ALL_AC
   verifiedWith:
+  - go-acl/verify/predecessor_problem/verify.test.go
   - go-acl/verify/aplusb/verify.test.go
   - go-acl/verify/associative_array/verify.test.go
   - go-acl/verify/many_aplusb/verify.test.go

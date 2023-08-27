@@ -55,6 +55,9 @@ data:
   - icon: ':heavy_check_mark:'
     path: go-acl/verify/many_aplusb/verify.test.go
     title: go-acl/verify/many_aplusb/verify.test.go
+  - icon: ':heavy_check_mark:'
+    path: go-acl/verify/predecessor_problem/verify.test.go
+    title: go-acl/verify/predecessor_problem/verify.test.go
   _extendedRequiredBy:
   - icon: ':heavy_check_mark:'
     path: go-acl/main.go
@@ -111,6 +114,9 @@ data:
   - icon: ':heavy_check_mark:'
     path: go-acl/verify/many_aplusb/verify.test.go
     title: go-acl/verify/many_aplusb/verify.test.go
+  - icon: ':heavy_check_mark:'
+    path: go-acl/verify/predecessor_problem/verify.test.go
+    title: go-acl/verify/predecessor_problem/verify.test.go
   _isVerificationFailed: false
   _pathExtension: go
   _verificationStatusIcon: ':heavy_check_mark:'
@@ -133,6 +139,7 @@ data:
   - go-acl/splay/node_test.go
   - go-acl/splay/set.go
   - go-acl/splay/map.go
+  - go-acl/verify/predecessor_problem/verify.test.go
   - go-acl/verify/aplusb/verify.test.go
   - go-acl/verify/associative_array/verify.test.go
   - go-acl/verify/many_aplusb/verify.test.go
@@ -164,9 +171,10 @@ data:
   - go-acl/util/sieve_test.go
   - go-acl/util/monoid.go
   - go-acl/main.go
-  timestamp: '2023-08-25 01:19:20+09:00'
+  timestamp: '2023-08-28 00:47:54+09:00'
   verificationStatus: LIBRARY_ALL_AC
   verifiedWith:
+  - go-acl/verify/predecessor_problem/verify.test.go
   - go-acl/verify/aplusb/verify.test.go
   - go-acl/verify/associative_array/verify.test.go
   - go-acl/verify/many_aplusb/verify.test.go

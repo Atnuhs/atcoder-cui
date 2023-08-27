@@ -55,6 +55,9 @@ data:
   - icon: ':heavy_check_mark:'
     path: go-acl/verify/many_aplusb/verify.test.go
     title: go-acl/verify/many_aplusb/verify.test.go
+  - icon: ':heavy_check_mark:'
+    path: go-acl/verify/predecessor_problem/verify.test.go
+    title: go-acl/verify/predecessor_problem/verify.test.go
   _extendedRequiredBy:
   - icon: ':heavy_check_mark:'
     path: go-acl/main.go
@@ -111,6 +114,9 @@ data:
   - icon: ':heavy_check_mark:'
     path: go-acl/verify/many_aplusb/verify.test.go
     title: go-acl/verify/many_aplusb/verify.test.go
+  - icon: ':heavy_check_mark:'
+    path: go-acl/verify/predecessor_problem/verify.test.go
+    title: go-acl/verify/predecessor_problem/verify.test.go
   _isVerificationFailed: false
   _pathExtension: go
   _verificationStatusIcon: ':heavy_check_mark:'
@@ -148,63 +154,65 @@ data:
     \ values() []int {\n\tret := make([]int, 0)\n\tif sn == nil {\n\t\treturn ret\n\
     \t}\n\tif sn.l != nil {\n\t\tret = append(ret, sn.l.values()...)\n\t}\n\tret =\
     \ append(ret, sn.key)\n\tif sn.r != nil {\n\t\tret = append(ret, sn.r.values()...)\n\
-    \t}\n\treturn ret\n}\n\nfunc (sn *SplayNode) String() string {\n\tret := strings.Builder{}\n\
-    \tret.WriteString(\"(\")\n\tif sn.l != nil {\n\t\tret.WriteString(fmt.Sprintf(\"\
-    %s \", sn.l.String()))\n\t}\n\tret.WriteString(fmt.Sprint(sn.key))\n\tif sn.r\
-    \ != nil {\n\t\tret.WriteString(fmt.Sprintf(\" %s\", sn.r.String()))\n\t}\n\t\
-    ret.WriteString(\")\")\n\treturn ret.String()\n}\n\nfunc (sn *SplayNode) describe(rank\
-    \ int) string {\n\tret := \"\"\n\tif sn.r != nil {\n\t\tret += sn.r.describe(rank\
-    \ + 1)\n\t}\n\tret += fmt.Sprintf(\n\t\tstrings.Repeat(\"    \", rank)+\"-[k:%d,\
-    \ v:%d, sz: %d, rank: %d]\\n\",\n\t\tsn.key,\n\t\tsn.value,\n\t\tsn.size,\n\t\t\
-    rank,\n\t)\n\n\tif sn.l != nil {\n\t\tret += sn.l.describe(rank + 1)\n\t}\n\t\
-    return ret\n}\n\nfunc (sn *SplayNode) maxRank(rank int) int {\n\tret := rank\n\
-    \tif sn.r != nil {\n\t\tret = Max(ret, sn.r.maxRank(rank+1))\n\t}\n\tif sn.l !=\
-    \ nil {\n\t\tret = Max(ret, sn.l.maxRank(rank+1))\n\t}\n\treturn ret\n}\n\nfunc\
-    \ (sn *SplayNode) FindAt(idx int) (found *SplayNode) {\n\tif sn == nil {\n\t\t\
-    return nil\n\t}\n\tif idx < 0 || sn.size <= idx {\n\t\treturn nil\n\t}\n\t// n\
-    \ include [0, n)\n\tnow := sn\n\tfor now != nil {\n\t\tswitch {\n\t\tcase idx\
-    \ == now.index():\n\t\t\treturn now\n\t\tcase idx < now.index():\n\t\t\tnow =\
-    \ now.l\n\t\tcase idx > now.index():\n\t\t\tidx -= now.index() + 1\n\t\t\tnow\
-    \ = now.r\n\t\t}\n\t}\n\tpanic(\"must not reach this code\")\n}\n\nfunc (sn *SplayNode)\
-    \ FindAtAndSplay(idx int) *SplayNode {\n\tnode := sn.FindAt(idx)\n\tnode.splay()\n\
-    \treturn node\n}\n\nfunc (sn *SplayNode) Find(key int) (found *SplayNode) {\n\t\
-    now := sn\n\tfor now != nil {\n\t\tif now.key == key {\n\t\t\treturn now\n\t\t\
-    }\n\n\t\tif now.key > key {\n\t\t\tnow = now.l\n\t\t} else {\n\t\t\tnow = now.r\n\
-    \t\t}\n\t}\n\treturn nil\n}\n\nfunc (sn *SplayNode) FindAndSplay(key int) (found\
-    \ *SplayNode) {\n\tfound = sn.Find(key)\n\tfound.splay()\n\treturn found\n}\n\n\
-    func (sn *SplayNode) Has(key int) bool {\n\tfound := sn.Find(key)\n\tif found\
-    \ == nil {\n\t\treturn false\n\t}\n\treturn found.key == key\n}\n\nfunc (sn *SplayNode)\
-    \ Ge(key int) (idx int) {\n\tif sn == nil {\n\t\treturn 0\n\t}\n\tnow := sn\n\t\
-    idx = sn.size\n\ti := 0\n\tfor now != nil {\n\t\tif now.key >= key {\n\t\t\tidx\
-    \ = Min(idx, i+now.index())\n\t\t\tnow = now.l\n\t\t} else {\n\t\t\ti += now.index()\
+    \t}\n\treturn ret\n}\n\nfunc (sn *SplayNode) String() string {\n\tif sn == nil\
+    \ {\n\t\treturn \"\"\n\t}\n\tret := strings.Builder{}\n\tret.WriteString(\"(\"\
+    )\n\tif sn.l != nil {\n\t\tret.WriteString(fmt.Sprintf(\"%s \", sn.l.String()))\n\
+    \t}\n\tret.WriteString(fmt.Sprint(sn.key))\n\tif sn.r != nil {\n\t\tret.WriteString(fmt.Sprintf(\"\
+    \ %s\", sn.r.String()))\n\t}\n\tret.WriteString(\")\")\n\treturn ret.String()\n\
+    }\n\nfunc (sn *SplayNode) describe(rank int) string {\n\tret := \"\"\n\tif sn.r\
+    \ != nil {\n\t\tret += sn.r.describe(rank + 1)\n\t}\n\tret += fmt.Sprintf(\n\t\
+    \tstrings.Repeat(\"    \", rank)+\"-[k:%d, v:%d, sz: %d, rank: %d]\\n\",\n\t\t\
+    sn.key,\n\t\tsn.value,\n\t\tsn.size,\n\t\trank,\n\t)\n\n\tif sn.l != nil {\n\t\
+    \tret += sn.l.describe(rank + 1)\n\t}\n\treturn ret\n}\n\nfunc (sn *SplayNode)\
+    \ maxRank(rank int) int {\n\tret := rank\n\tif sn.r != nil {\n\t\tret = Max(ret,\
+    \ sn.r.maxRank(rank+1))\n\t}\n\tif sn.l != nil {\n\t\tret = Max(ret, sn.l.maxRank(rank+1))\n\
+    \t}\n\treturn ret\n}\n\nfunc (sn *SplayNode) FindAtSub(idx int) (found *SplayNode)\
+    \ {\n\tif sn == nil {\n\t\treturn nil\n\t}\n\tif idx < 0 || sn.size <= idx {\n\
+    \t\treturn nil\n\t}\n\t// n include [0, n)\n\tnow := sn\n\tfor now != nil {\n\t\
+    \tswitch {\n\t\tcase idx == now.index():\n\t\t\tnow.splay()\n\t\t\treturn now\n\
+    \t\tcase idx < now.index():\n\t\t\tnow = now.l\n\t\tcase idx > now.index():\n\t\
+    \t\tidx -= now.index() + 1\n\t\t\tnow = now.r\n\t\t}\n\t}\n\tpanic(\"must not\
+    \ reach this code\")\n}\n\nfunc (sn *SplayNode) FindAt(idx int) *SplayNode {\n\
+    \tnode := sn.FindAtSub(idx)\n\tnode.splay()\n\treturn node\n}\n\nfunc (sn *SplayNode)\
+    \ FindSub(key int) (found *SplayNode) {\n\tnow := sn\n\tfor now != nil {\n\t\t\
+    if now.key == key {\n\t\t\tnow.splay()\n\t\t\treturn now\n\t\t}\n\n\t\tif now.key\
+    \ > key {\n\t\t\tnow = now.l\n\t\t} else {\n\t\t\tnow = now.r\n\t\t}\n\t}\n\t\
+    return nil\n}\n\nfunc (sn *SplayNode) Find(key int) (found *SplayNode) {\n\tfound\
+    \ = sn.FindSub(key)\n\tfound.splay()\n\treturn found\n}\n\nfunc (sn *SplayNode)\
+    \ Ge(key int) (idx int) {\n\tif sn == nil {\n\t\treturn -1\n\t}\n\tnow := sn\n\
+    \tidx = sn.size\n\ti := 0\n\tfor now != nil {\n\t\tif now.key >= key {\n\t\t\t\
+    idx = Min(idx, i+now.index())\n\t\t\tnow = now.l\n\t\t} else {\n\t\t\ti += now.index()\
     \ + 1\n\t\t\tnow = now.r\n\t\t}\n\t}\n\treturn idx\n}\n\nfunc (sn *SplayNode)\
     \ MergeR(rroot *SplayNode) *SplayNode {\n\tif rroot == nil {\n\t\treturn sn\n\t\
-    }\n\tif sn == nil {\n\t\treturn rroot\n\t}\n\tsn = sn.FindAtAndSplay(sn.size -\
-    \ 1) // always found\n\tsn.r = rroot\n\trroot.p = sn\n\tsn.update()\n\treturn\
-    \ sn\n}\n\nfunc (sn *SplayNode) Split(idx int) (*SplayNode, *SplayNode) {\n\t\
-    if sn == nil {\n\t\treturn nil, nil\n\t}\n\tif idx == sn.size {\n\t\treturn sn,\
-    \ nil\n\t}\n\n\trroot := sn.FindAtAndSplay(idx)\n\tif rroot == nil {\n\t\t// idx\
-    \ is out of index\n\t\treturn nil, nil\n\t}\n\n\tlroot := rroot.l\n\tif lroot\
-    \ != nil {\n\t\tlroot.p = nil\n\t}\n\trroot.l = nil\n\n\trroot.update()\n\t//\
-    \ lroot not need to update()\n\treturn lroot, rroot\n}\n\nfunc (sn *SplayNode)\
-    \ InsertAt(idx int, node *SplayNode) *SplayNode {\n\tlroot, rroot := sn.Split(idx)\n\
-    \tif lroot == nil {\n\t\treturn node.MergeR(rroot)\n\t} else {\n\t\treturn lroot.MergeR(node).MergeR(rroot)\n\
+    }\n\tif sn == nil {\n\t\treturn rroot\n\t}\n\tsn = sn.FindAt(sn.size - 1) // always\
+    \ found\n\tsn.r = rroot\n\trroot.p = sn\n\tsn.update()\n\treturn sn\n}\n\nfunc\
+    \ (sn *SplayNode) Split(idx int) (*SplayNode, *SplayNode) {\n\tif sn == nil {\n\
+    \t\treturn nil, nil\n\t}\n\tif idx == sn.size {\n\t\treturn sn, nil\n\t}\n\n\t\
+    rroot := sn.FindAt(idx)\n\tif rroot == nil {\n\t\t// idx is out of index\n\t\t\
+    return nil, nil\n\t}\n\n\tlroot := rroot.l\n\tif lroot != nil {\n\t\tlroot.p =\
+    \ nil\n\t}\n\trroot.l = nil\n\n\trroot.update()\n\t// lroot not need to update()\n\
+    \treturn lroot, rroot\n}\n\nfunc (sn *SplayNode) InsertAt(idx int, node *SplayNode)\
+    \ *SplayNode {\n\tlroot, rroot := sn.Split(idx)\n\tif lroot == nil {\n\t\treturn\
+    \ node.MergeR(rroot)\n\t} else {\n\t\treturn lroot.MergeR(node).MergeR(rroot)\n\
     \t}\n}\n\nfunc (sn *SplayNode) DeleteAt(idx int) (root *SplayNode, dropped *SplayNode)\
     \ {\n\tlroot, rroot := sn.Split(idx)\n\tif rroot == nil {\n\t\treturn lroot, nil\n\
     \t}\n\tdel, rroot := rroot.Split(1)\n\tif lroot == nil {\n\t\treturn rroot, del\n\
     \t} else {\n\t\troot = lroot.MergeR(rroot)\n\t\treturn root, del\n\t}\n}\n\nfunc\
-    \ (sn *SplayNode) Insert(node *SplayNode) *SplayNode {\n\tidx := sn.Ge(node.key)\n\
-    \tif found := sn.FindAt(idx); found != nil {\n\t\tif found.key == node.key {\n\
-    \t\t\treturn sn\n\t\t}\n\t}\n\treturn sn.InsertAt(idx, node)\n}\n\nfunc (sn *SplayNode)\
-    \ Delete(node *SplayNode) (root *SplayNode, removed *SplayNode) {\n\troot = sn.FindAndSplay(node.key)\n\
-    \tif root == nil {\n\t\t// target not found\n\t\treturn sn, nil\n\t}\n\tif root.key\
-    \ == node.key {\n\t\t// target found\n\t\troot, removed = root.DeleteAt(root.index())\n\
-    \t}\n\t// target not found\n\treturn root, removed\n}\n"
+    \ (sn *SplayNode) Insert(node *SplayNode) *SplayNode {\n\tif sn == nil {\n\t\t\
+    return node\n\t}\n\n\tidx := sn.Ge(node.key) // idx shoud be 0 <= idx <= sn.size\n\
+    \tif idx == sn.size {\n\t\treturn sn.MergeR(node)\n\t}\n\n\tfound := sn.FindAt(idx)\n\
+    \tif found.key != node.key {\n\t\treturn found.InsertAt(idx, node)\n\t}\n\n\t\
+    return found\n}\n\nfunc (sn *SplayNode) Delete(node *SplayNode) (root *SplayNode,\
+    \ removed *SplayNode) {\n\troot = sn.Find(node.key)\n\tif root == nil {\n\t\t\
+    // target not found\n\t\treturn sn, nil\n\t}\n\tif root.key == node.key {\n\t\t\
+    // target found\n\t\troot, removed = root.DeleteAt(root.index())\n\t}\n\t// target\
+    \ not found\n\treturn root, removed\n}\n"
   dependsOn:
   - go-acl/splay/set_test.go
   - go-acl/splay/node_test.go
   - go-acl/splay/set.go
   - go-acl/splay/map.go
+  - go-acl/verify/predecessor_problem/verify.test.go
   - go-acl/verify/aplusb/verify.test.go
   - go-acl/verify/associative_array/verify.test.go
   - go-acl/verify/many_aplusb/verify.test.go
@@ -237,9 +245,10 @@ data:
   - go-acl/util/sieve_test.go
   - go-acl/util/monoid.go
   - go-acl/main.go
-  timestamp: '2023-08-25 01:19:20+09:00'
+  timestamp: '2023-08-28 00:47:54+09:00'
   verificationStatus: LIBRARY_ALL_AC
   verifiedWith:
+  - go-acl/verify/predecessor_problem/verify.test.go
   - go-acl/verify/aplusb/verify.test.go
   - go-acl/verify/associative_array/verify.test.go
   - go-acl/verify/many_aplusb/verify.test.go
