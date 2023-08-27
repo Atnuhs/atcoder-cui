@@ -165,7 +165,7 @@ func TestSplayNode_FindAtSplay(t *testing.T) {
 	expected, root := generateRandomTestCase(t, n)
 
 	for i := 0; i < n; i++ {
-		root = root.FindAtAndSplay(i)
+		root = root.FindAt(i)
 
 		if root == nil {
 			t.Fatalf("root should not be nil in safe index access %d: %d", i, n)
@@ -192,7 +192,7 @@ func TestSplayNode_InsertAt(t *testing.T) {
 	expected, root := generateRandomTestCase(t, n)
 
 	for i := 0; i < n; i++ {
-		root = root.FindAtAndSplay(i)
+		root = root.FindAt(i)
 		assertValues(t, root, expected)
 	}
 }
@@ -234,7 +234,7 @@ func TestSplayNode_maxRank(t *testing.T) {
 			}
 
 			for i := 0; i < mm; i++ {
-				root = root.FindAtAndSplay(rand.Intn(root.size))
+				root = root.FindAt(rand.Intn(root.size))
 			}
 
 			result[in][im] = root.maxRank(0)
@@ -288,13 +288,16 @@ func TestSplayNode_Ge(t *testing.T) {
 		t.Run(caseName, func(t *testing.T) {
 			root := NewSplayNode(test.values[0], -1)
 			for i := 1; i < len(test.values); i++ {
-				t.Log(i)
 				root = root.Insert(NewSplayNode(test.values[i], -1))
 			}
-			t.Log("a")
+
 			idx := root.Ge(test.geV)
+			t.Log(root)
 			if test.expected != idx {
 				t.Errorf("expected: %d, but got %d", test.expected, root.index())
+			}
+			if root.size != len(test.values) {
+				t.Errorf("expected size %d but got %d", len(test.values), root.size)
 			}
 		})
 	}
@@ -390,14 +393,14 @@ func BenchmarkSplayNode(b *testing.B) {
 		data := constructSplayTree()
 		b.ResetTimer()
 		for i := 0; i < 100; i++ {
-			_ = data.FindAt(rand.Intn(b.N))
+			_ = data.FindAtSub(rand.Intn(b.N))
 		}
 	})
 	b.Run("FindAtAndSplay", func(b *testing.B) {
 		data := constructSplayTree()
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			data = data.FindAtAndSplay(rand.Intn(b.N))
+			data = data.FindAt(rand.Intn(b.N))
 		}
 	})
 

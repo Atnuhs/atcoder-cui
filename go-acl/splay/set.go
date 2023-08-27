@@ -4,14 +4,10 @@ type SplaySet struct {
 	root *SplayNode
 }
 
-func NewSplaySet() *SplaySet {
-	return &SplaySet{
+func NewSplaySet(values ...int) *SplaySet {
+	s := &SplaySet{
 		root: nil,
 	}
-}
-
-func NewSplayNodeFromSlice(values []int) *SplaySet {
-	s := NewSplaySet()
 	for _, v := range values {
 		s.Push(v)
 	}
@@ -20,6 +16,10 @@ func NewSplayNodeFromSlice(values []int) *SplaySet {
 
 func NewSplaySetNode(value int) *SplayNode {
 	return NewSplayNode(value, -1)
+}
+
+func (ss *SplaySet) String() string {
+	return ss.root.String()
 }
 
 func (ss *SplaySet) Push(value int) {
@@ -31,7 +31,12 @@ func (ss *SplaySet) Remove(value int) {
 }
 
 func (ss *SplaySet) Has(value int) bool {
-	return ss.root.Has(value)
+	found := ss.root.Find(value)
+	if found == nil {
+		return false
+	}
+	ss.root = found
+	return true
 }
 
 func (ss *SplaySet) Values() (arr []int) {
@@ -39,6 +44,9 @@ func (ss *SplaySet) Values() (arr []int) {
 }
 
 func (ss *SplaySet) Size() int {
+	if ss.root == nil {
+		return 0
+	}
 	return ss.root.size
 }
 
@@ -46,20 +54,40 @@ func (ss *SplaySet) IsEmpty() bool {
 	return ss.root == nil
 }
 
-func (ss *SplaySet) Ge(value int) int {
-	idx := ss.root.Ge(value)
-	ss.root = ss.root.FindAt(idx)
+func (ss *SplaySet) At(idx int) int {
+	found := ss.root.FindAt(idx)
+	if found == nil {
+		panic("out of index")
+	}
+	ss.root = found
 	return ss.root.key
 }
 
+func (ss *SplaySet) Ge(value int) int {
+	idx := ss.root.Ge(value)
+	if 0 <= idx && idx < ss.root.size {
+		ss.root = ss.root.FindAt(idx)
+	}
+	return idx
+}
+
 func (ss *SplaySet) Gt(value int) int {
+	if ss.root == nil {
+		return -1
+	}
 	return ss.Ge(value + 1)
 }
 
 func (ss *SplaySet) Le(value int) int {
+	if ss.root == nil {
+		return -1
+	}
 	return ss.Ge(value+1) - 1
 }
 
 func (ss *SplaySet) Lt(value int) int {
+	if ss.root == nil {
+		return -1
+	}
 	return ss.Ge(value) - 1
 }

@@ -16,6 +16,7 @@ import (
 var (
 	In  = bufio.NewScanner(os.Stdin)
 	Out = bufio.NewWriter(os.Stdout)
+	Dbg = bufio.NewWriter(os.Stderr)
 )
 
 const (

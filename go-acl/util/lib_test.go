@@ -3,6 +3,9 @@ package util
 import (
 	"bufio"
 	"bytes"
+	"fmt"
+	"io"
+	"strings"
 	"testing"
 )
 
@@ -83,5 +86,22 @@ func TestAns(t *testing.T) {
 				t.Errorf("expected: %q, but got: %q", tc.expected, actual)
 			}
 		})
+	}
+}
+
+func BenchmarkOutputToOut(b *testing.B) {
+	text := strings.Repeat("a", 100)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		fmt.Fprintln(Out, text)
+	}
+}
+
+func BenchmarkOutputToDiscard(b *testing.B) {
+	text := strings.Repeat("a", 100)
+	Discard := bufio.NewWriter(io.Discard)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		fmt.Fprintln(Discard, text)
 	}
 }

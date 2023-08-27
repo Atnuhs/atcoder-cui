@@ -32,7 +32,12 @@ func (ss *SplayMap) Remove(key int) int {
 }
 
 func (ss *SplayMap) Has(key int) bool {
-	return ss.root.Has(key)
+	found := ss.root.Find(key)
+	if found == nil {
+		return false
+	}
+	ss.root = found
+	return true
 }
 
 func (ss *SplayMap) Values() (arr []int) {
@@ -48,7 +53,7 @@ func (ss *SplayMap) IsEmpty() bool {
 }
 
 func (ss *SplayMap) At(key int) int {
-	found := ss.root.FindAndSplay(key)
+	found := ss.root.Find(key)
 	if found == nil {
 		return 0
 	}
@@ -65,7 +70,7 @@ func (ss *SplayMap) String() string {
 
 func (ss *SplayMap) Ge(value int) int {
 	idx := ss.root.Ge(value)
-	ss.root = ss.root.FindAt(idx)
+	ss.root = ss.root.FindAtSub(idx)
 	return ss.root.key
 }
 
