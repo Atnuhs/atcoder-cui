@@ -31,6 +31,12 @@ data:
   - name: go-acl/util
     pages:
     - icon: ':heavy_check_mark:'
+      path: go-acl/util/depq.go
+      title: go-acl/util/depq.go
+    - icon: ':heavy_check_mark:'
+      path: go-acl/util/depq_test.go
+      title: go-acl/util/depq_test.go
+    - icon: ':heavy_check_mark:'
       path: go-acl/util/lib.go
       title: go-acl/util/lib.go
     - icon: ':heavy_check_mark:'

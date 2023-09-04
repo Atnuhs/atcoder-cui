@@ -23,6 +23,12 @@ data:
     path: go-acl/testlib/assert.go
     title: go-acl/testlib/assert.go
   - icon: ':heavy_check_mark:'
+    path: go-acl/util/depq.go
+    title: go-acl/util/depq.go
+  - icon: ':heavy_check_mark:'
+    path: go-acl/util/depq_test.go
+    title: go-acl/util/depq_test.go
+  - icon: ':heavy_check_mark:'
     path: go-acl/util/lib.go
     title: go-acl/util/lib.go
   - icon: ':heavy_check_mark:'
@@ -80,6 +86,12 @@ data:
   - icon: ':heavy_check_mark:'
     path: go-acl/testlib/assert.go
     title: go-acl/testlib/assert.go
+  - icon: ':heavy_check_mark:'
+    path: go-acl/util/depq.go
+    title: go-acl/util/depq.go
+  - icon: ':heavy_check_mark:'
+    path: go-acl/util/depq_test.go
+    title: go-acl/util/depq_test.go
   - icon: ':heavy_check_mark:'
     path: go-acl/util/lib.go
     title: go-acl/util/lib.go
@@ -155,7 +167,9 @@ data:
   - go-acl/util/lib.go
   - go-acl/util/segmentTree.go
   - go-acl/util/math.go
+  - go-acl/util/depq.go
   - go-acl/util/sieve_test.go
+  - go-acl/util/depq_test.go
   - go-acl/main.go
   isVerificationFile: false
   path: go-acl/util/monoid.go
@@ -173,9 +187,11 @@ data:
   - go-acl/util/lib.go
   - go-acl/util/segmentTree.go
   - go-acl/util/math.go
+  - go-acl/util/depq.go
   - go-acl/util/sieve_test.go
+  - go-acl/util/depq_test.go
   - go-acl/main.go
-  timestamp: '2023-08-28 00:47:54+09:00'
+  timestamp: '2023-09-05 00:30:17+09:00'
   verificationStatus: LIBRARY_ALL_AC
   verifiedWith:
   - go-acl/verify/predecessor_problem/verify.test.go
