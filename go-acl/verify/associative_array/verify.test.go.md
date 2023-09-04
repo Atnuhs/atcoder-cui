@@ -59,6 +59,9 @@ data:
     path: go-acl/verify/aplusb/verify.test.go
     title: go-acl/verify/aplusb/verify.test.go
   - icon: ':heavy_check_mark:'
+    path: go-acl/verify/double_ended_priority_queue/verify.test.go
+    title: go-acl/verify/double_ended_priority_queue/verify.test.go
+  - icon: ':heavy_check_mark:'
     path: go-acl/verify/many_aplusb/verify.test.go
     title: go-acl/verify/many_aplusb/verify.test.go
   - icon: ':heavy_check_mark:'
@@ -124,6 +127,9 @@ data:
     path: go-acl/verify/aplusb/verify.test.go
     title: go-acl/verify/aplusb/verify.test.go
   - icon: ':heavy_check_mark:'
+    path: go-acl/verify/double_ended_priority_queue/verify.test.go
+    title: go-acl/verify/double_ended_priority_queue/verify.test.go
+  - icon: ':heavy_check_mark:'
     path: go-acl/verify/many_aplusb/verify.test.go
     title: go-acl/verify/many_aplusb/verify.test.go
   - icon: ':heavy_check_mark:'
@@ -151,6 +157,7 @@ data:
   - go-acl/splay/node_test.go
   - go-acl/splay/set.go
   - go-acl/splay/map.go
+  - go-acl/verify/double_ended_priority_queue/verify.test.go
   - go-acl/verify/predecessor_problem/verify.test.go
   - go-acl/verify/aplusb/verify.test.go
   - go-acl/verify/many_aplusb/verify.test.go
@@ -188,9 +195,10 @@ data:
   - go-acl/util/depq_test.go
   - go-acl/util/monoid.go
   - go-acl/main.go
-  timestamp: '2023-09-05 00:30:17+09:00'
+  timestamp: '2023-09-05 00:37:09+09:00'
   verificationStatus: TEST_ACCEPTED
   verifiedWith:
+  - go-acl/verify/double_ended_priority_queue/verify.test.go
   - go-acl/verify/predecessor_problem/verify.test.go
   - go-acl/verify/aplusb/verify.test.go
   - go-acl/verify/many_aplusb/verify.test.go

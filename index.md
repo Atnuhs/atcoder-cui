@@ -74,6 +74,11 @@ data:
     - icon: ':heavy_check_mark:'
       path: go-acl/verify/associative_array/verify.test.go
       title: go-acl/verify/associative_array/verify.test.go
+  - name: go-acl/verify/double_ended_priority_queue
+    pages:
+    - icon: ':heavy_check_mark:'
+      path: go-acl/verify/double_ended_priority_queue/verify.test.go
+      title: go-acl/verify/double_ended_priority_queue/verify.test.go
   - name: go-acl/verify/many_aplusb
     pages:
     - icon: ':heavy_check_mark:'

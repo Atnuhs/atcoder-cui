@@ -44,6 +44,9 @@ data:
     path: go-acl/util/monoid.go
     title: go-acl/util/monoid.go
   - icon: ':heavy_check_mark:'
+    path: go-acl/util/segmentTree.go
+    title: go-acl/util/segmentTree.go
+  - icon: ':heavy_check_mark:'
     path: go-acl/util/sieve.go
     title: go-acl/util/sieve.go
   - icon: ':heavy_check_mark:'
@@ -58,9 +61,6 @@ data:
   - icon: ':heavy_check_mark:'
     path: go-acl/verify/associative_array/verify.test.go
     title: go-acl/verify/associative_array/verify.test.go
-  - icon: ':heavy_check_mark:'
-    path: go-acl/verify/double_ended_priority_queue/verify.test.go
-    title: go-acl/verify/double_ended_priority_queue/verify.test.go
   - icon: ':heavy_check_mark:'
     path: go-acl/verify/many_aplusb/verify.test.go
     title: go-acl/verify/many_aplusb/verify.test.go
@@ -111,6 +111,9 @@ data:
     path: go-acl/util/monoid.go
     title: go-acl/util/monoid.go
   - icon: ':heavy_check_mark:'
+    path: go-acl/util/segmentTree.go
+    title: go-acl/util/segmentTree.go
+  - icon: ':heavy_check_mark:'
     path: go-acl/util/sieve.go
     title: go-acl/util/sieve.go
   - icon: ':heavy_check_mark:'
@@ -127,9 +130,6 @@ data:
     path: go-acl/verify/associative_array/verify.test.go
     title: go-acl/verify/associative_array/verify.test.go
   - icon: ':heavy_check_mark:'
-    path: go-acl/verify/double_ended_priority_queue/verify.test.go
-    title: go-acl/verify/double_ended_priority_queue/verify.test.go
-  - icon: ':heavy_check_mark:'
     path: go-acl/verify/many_aplusb/verify.test.go
     title: go-acl/verify/many_aplusb/verify.test.go
   - icon: ':heavy_check_mark:'
@@ -138,35 +138,25 @@ data:
   _isVerificationFailed: false
   _pathExtension: go
   _verificationStatusIcon: ':heavy_check_mark:'
-  attributes: {}
+  attributes:
+    PROBLEM: https://judge.yosupo.jp/problem/double_ended_priority_queue
   bundledCode: "Traceback (most recent call last):\n  File \"/home/runner/.local/lib/python3.10/site-packages/onlinejudge_verify/documentation/build.py\"\
     , line 71, in _render_source_code_stat\n    bundled_code = language.bundle(stat.path,\
     \ basedir=basedir, options={'include_paths': [basedir]}).decode()\n  File \"/home/runner/.local/lib/python3.10/site-packages/onlinejudge_verify/languages/user_defined.py\"\
     , line 68, in bundle\n    raise RuntimeError('bundler is not specified: {}'.format(str(path)))\n\
-    RuntimeError: bundler is not specified: go-acl/util/segmentTree.go\n"
-  code: "package util\n\ntype SegmentTree[T any] struct {\n\tdata []T\n\tn    int\n\
-    \tmo   *Monoid[T]\n}\n\nfunc NewSegmentTree[T any](arr []T, mo *Monoid[T]) *SegmentTree[T]\
-    \ {\n\tn := 1\n\tfor n < len(arr) {\n\t\tn *= 2\n\t}\n\n\tdata := NewArr(2*n-1,\
-    \ func(i int) T { return mo.E })\n\tfor i := range arr {\n\t\tj := i + n - 1\n\
-    \t\tdata[j] = arr[i]\n\t}\n\n\tfor i := n - 2; i >= 0; i-- {\n\t\tc1 := 2*i +\
-    \ 1\n\t\tc2 := 2*i + 2\n\t\tdata[i] = mo.Op(data[c1], data[c2])\n\t}\n\n\treturn\
-    \ &SegmentTree[T]{\n\t\tdata: data,\n\t\tn:    n,\n\t\tmo:   mo,\n\t}\n}\n\nfunc\
-    \ (st *SegmentTree[T]) Update(i int, x T) {\n\ti += st.n - 1\n\tst.data[i] = x\n\
-    \tfor i > 0 {\n\t\ti = (i - 1) / 2\n\t\tst.data[i] = st.mo.Op(st.data[2*i+1],\
-    \ st.data[2*i+2])\n\t}\n}\n\nfunc (st *SegmentTree[T]) At(i int) T {\n\treturn\
-    \ st.Query(i, i+1)\n}\n\nfunc (st *SegmentTree[T]) Query(a, b int) T {\n\treturn\
-    \ st.querySub(a, b, 0, 0, st.n)\n}\n\nfunc (st *SegmentTree[T]) querySub(a, b,\
-    \ n, l, r int) T {\n\tif r <= a || b <= l {\n\t\treturn st.mo.E\n\t}\n\n\tif a\
-    \ <= l && r <= b {\n\t\treturn st.data[n]\n\t}\n\n\tvl := st.querySub(a, b, 2*n+1,\
-    \ l, (l+r)/2)\n\tvr := st.querySub(a, b, 2*n+2, (l+r)/2, r)\n\treturn st.mo.Op(vl,\
-    \ vr)\n}\n"
+    RuntimeError: bundler is not specified: go-acl/verify/double_ended_priority_queue/verify.test.go\n"
+  code: "// verification-helper: PROBLEM https://judge.yosupo.jp/problem/double_ended_priority_queue\n\
+    package main\n\nimport . \"go-acl/util\"\n\nfunc main() {\n\tdefer Out.Flush()\n\
+    \n\tn, q := Readi(), Readi()\n\tpq := NewDEPQ(Readis(n)...)\n\n\tfor iq := 0;\
+    \ iq < q; iq++ {\n\t\tt := Readi()\n\t\tswitch t {\n\t\tcase 0:\n\t\t\tx := Readi()\n\
+    \t\t\tpq.Push(x)\n\t\tcase 1:\n\t\t\tAns(pq.PopMin())\n\t\tcase 2:\n\t\t\tAns(pq.PopMax())\n\
+    \t\t}\n\t}\n}\n"
   dependsOn:
   - go-acl/splay/node.go
   - go-acl/splay/set_test.go
   - go-acl/splay/node_test.go
   - go-acl/splay/set.go
   - go-acl/splay/map.go
-  - go-acl/verify/double_ended_priority_queue/verify.test.go
   - go-acl/verify/predecessor_problem/verify.test.go
   - go-acl/verify/aplusb/verify.test.go
   - go-acl/verify/associative_array/verify.test.go
@@ -177,14 +167,15 @@ data:
   - go-acl/util/math_test.go
   - go-acl/util/lib_test.go
   - go-acl/util/lib.go
+  - go-acl/util/segmentTree.go
   - go-acl/util/math.go
   - go-acl/util/depq.go
   - go-acl/util/sieve_test.go
   - go-acl/util/depq_test.go
   - go-acl/util/monoid.go
   - go-acl/main.go
-  isVerificationFile: false
-  path: go-acl/util/segmentTree.go
+  isVerificationFile: true
+  path: go-acl/verify/double_ended_priority_queue/verify.test.go
   requiredBy:
   - go-acl/splay/node.go
   - go-acl/splay/set_test.go
@@ -197,6 +188,7 @@ data:
   - go-acl/util/math_test.go
   - go-acl/util/lib_test.go
   - go-acl/util/lib.go
+  - go-acl/util/segmentTree.go
   - go-acl/util/math.go
   - go-acl/util/depq.go
   - go-acl/util/sieve_test.go
@@ -204,17 +196,16 @@ data:
   - go-acl/util/monoid.go
   - go-acl/main.go
   timestamp: '2023-09-05 00:37:09+09:00'
-  verificationStatus: LIBRARY_ALL_AC
+  verificationStatus: TEST_ACCEPTED
   verifiedWith:
-  - go-acl/verify/double_ended_priority_queue/verify.test.go
   - go-acl/verify/predecessor_problem/verify.test.go
   - go-acl/verify/aplusb/verify.test.go
   - go-acl/verify/associative_array/verify.test.go
   - go-acl/verify/many_aplusb/verify.test.go
-documentation_of: go-acl/util/segmentTree.go
+documentation_of: go-acl/verify/double_ended_priority_queue/verify.test.go
 layout: document
 redirect_from:
-- /library/go-acl/util/segmentTree.go
-- /library/go-acl/util/segmentTree.go.html
-title: go-acl/util/segmentTree.go
+- /verify/go-acl/verify/double_ended_priority_queue/verify.test.go
+- /verify/go-acl/verify/double_ended_priority_queue/verify.test.go.html
+title: go-acl/verify/double_ended_priority_queue/verify.test.go
 ---
