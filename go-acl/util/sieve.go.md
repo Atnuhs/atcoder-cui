@@ -215,7 +215,7 @@ data:
   - go-acl/util/math_test.go
   - go-acl/util/depq.go
   - go-acl/util/segmentTree.go
-  timestamp: '2023-11-21 21:19:15+09:00'
+  timestamp: '2023-11-21 21:27:14+09:00'
   verificationStatus: LIBRARY_ALL_AC
   verifiedWith:
   - go-acl/verify/predecessor_problem/verify.test.go

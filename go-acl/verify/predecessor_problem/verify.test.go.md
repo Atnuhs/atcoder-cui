@@ -201,7 +201,7 @@ data:
   - go-acl/util/depq.go
   - go-acl/util/sieve.go
   - go-acl/util/segmentTree.go
-  timestamp: '2023-11-21 21:19:15+09:00'
+  timestamp: '2023-11-21 21:27:14+09:00'
   verificationStatus: TEST_ACCEPTED
   verifiedWith:
   - go-acl/verify/associative_array/verify.test.go
