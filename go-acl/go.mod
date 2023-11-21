@@ -6,3 +6,5 @@ require (
 	github.com/google/go-cmp v0.5.9
 	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63
 )
+
+require github.com/samber/lo v1.38.1 // indirect

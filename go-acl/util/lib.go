@@ -145,9 +145,11 @@ func NewGraph(n int) [][]int {
 
 func All[T any](vals []T, f func(i int, v T) bool) bool {
 	for i, v := range vals {
-        if f(i, v){return false}
+		if f(i, v) {
+			return false
+		}
 	}
-    return true
+	return true
 }
 
 func Any[T any](vals []T, f func(i int, v T) bool) bool {
