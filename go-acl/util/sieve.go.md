@@ -173,56 +173,56 @@ data:
     // 1 => 1\n// 2 => 2\n// 10 => 4\nfunc (sv *EratosthenesSieve) CountDivisors(x\
     \ int) int {\n\treturn CountDivisors(sv.Factorize(x))\n}\n"
   dependsOn:
-  - go-acl/splay/node.go
-  - go-acl/splay/set_test.go
-  - go-acl/splay/node_test.go
-  - go-acl/splay/set.go
-  - go-acl/splay/map.go
-  - go-acl/verify/double_ended_priority_queue/verify.test.go
   - go-acl/verify/predecessor_problem/verify.test.go
-  - go-acl/verify/aplusb/verify.test.go
   - go-acl/verify/associative_array/verify.test.go
   - go-acl/verify/many_aplusb/verify.test.go
+  - go-acl/verify/aplusb/verify.test.go
+  - go-acl/verify/double_ended_priority_queue/verify.test.go
   - go-acl/testlib/assert.go
+  - go-acl/main.go
+  - go-acl/splay/node_test.go
+  - go-acl/splay/map.go
+  - go-acl/splay/node.go
+  - go-acl/splay/set.go
+  - go-acl/splay/set_test.go
   - go-acl/util/unionfind.go
-  - go-acl/util/math_test.go
+  - go-acl/util/sieve_test.go
+  - go-acl/util/math.go
+  - go-acl/util/monoid.go
+  - go-acl/util/depq_test.go
   - go-acl/util/lib_test.go
   - go-acl/util/lib.go
-  - go-acl/util/segmentTree.go
-  - go-acl/util/math.go
+  - go-acl/util/math_test.go
   - go-acl/util/depq.go
-  - go-acl/util/sieve_test.go
-  - go-acl/util/depq_test.go
-  - go-acl/util/monoid.go
-  - go-acl/main.go
+  - go-acl/util/segmentTree.go
   isVerificationFile: false
   path: go-acl/util/sieve.go
   requiredBy:
-  - go-acl/splay/node.go
-  - go-acl/splay/set_test.go
-  - go-acl/splay/node_test.go
-  - go-acl/splay/set.go
-  - go-acl/splay/map.go
   - go-acl/testlib/assert.go
+  - go-acl/main.go
+  - go-acl/splay/node_test.go
+  - go-acl/splay/map.go
+  - go-acl/splay/node.go
+  - go-acl/splay/set.go
+  - go-acl/splay/set_test.go
   - go-acl/util/unionfind.go
-  - go-acl/util/math_test.go
+  - go-acl/util/sieve_test.go
+  - go-acl/util/math.go
+  - go-acl/util/monoid.go
+  - go-acl/util/depq_test.go
   - go-acl/util/lib_test.go
   - go-acl/util/lib.go
-  - go-acl/util/segmentTree.go
-  - go-acl/util/math.go
+  - go-acl/util/math_test.go
   - go-acl/util/depq.go
-  - go-acl/util/sieve_test.go
-  - go-acl/util/depq_test.go
-  - go-acl/util/monoid.go
-  - go-acl/main.go
-  timestamp: '2023-09-05 00:37:09+09:00'
+  - go-acl/util/segmentTree.go
+  timestamp: '2023-11-21 21:19:15+09:00'
   verificationStatus: LIBRARY_ALL_AC
   verifiedWith:
-  - go-acl/verify/double_ended_priority_queue/verify.test.go
   - go-acl/verify/predecessor_problem/verify.test.go
-  - go-acl/verify/aplusb/verify.test.go
   - go-acl/verify/associative_array/verify.test.go
   - go-acl/verify/many_aplusb/verify.test.go
+  - go-acl/verify/aplusb/verify.test.go
+  - go-acl/verify/double_ended_priority_queue/verify.test.go
 documentation_of: go-acl/util/sieve.go
 layout: document
 redirect_from:

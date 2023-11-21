@@ -176,67 +176,67 @@ data:
     func (pq *PriorityQueue[T]) Pop() T {\n\tx := heap.Pop(&pq.value)\n\treturn x.(T)\n\
     }\n\nfunc NewGraph(n int) [][]int {\n\tg := make([][]int, n)\n\tfor i := range\
     \ g {\n\t\tg[i] = make([]int, 0)\n\t}\n\treturn g\n}\n\nfunc All[T any](vals []T,\
-    \ f func(i int, v T) bool) bool {\n\tret := true\n\tfor i, v := range vals {\n\
-    \t\tret = ret && f(i, v)\n\t}\n\treturn ret\n}\n\nfunc Any[T any](vals []T, f\
-    \ func(i int, v T) bool) bool {\n\tfor i, v := range vals {\n\t\tif f(i, v) {\n\
-    \t\t\treturn true\n\t\t}\n\t}\n\treturn false\n}\n\nfunc Ans(args ...interface{})\
-    \ {\n\tfor i, arg := range args {\n\t\tif reflect.TypeOf(arg).Kind() == reflect.Slice\
+    \ f func(i int, v T) bool) bool {\n\tfor i, v := range vals {\n        if f(i,\
+    \ v){return false}\n\t}\n    return true\n}\n\nfunc Any[T any](vals []T, f func(i\
+    \ int, v T) bool) bool {\n\tfor i, v := range vals {\n\t\tif f(i, v) {\n\t\t\t\
+    return true\n\t\t}\n\t}\n\treturn false\n}\n\nfunc Ans(args ...interface{}) {\n\
+    \tfor i, arg := range args {\n\t\tif reflect.TypeOf(arg).Kind() == reflect.Slice\
     \ {\n\t\t\tfmt.Fprint(Out, strings.Trim(fmt.Sprint(arg), \"[]\"))\n\t\t} else\
     \ {\n\t\t\tfmt.Fprint(Out, arg)\n\t\t}\n\t\tif i < len(args)-1 {\n\t\t\tfmt.Fprint(Out,\
     \ \" \")\n\t\t}\n\t}\n\tfmt.Fprintln(Out)\n}\n\nfunc Yes() {\n\tAns(\"Yes\")\n\
     }\n\nfunc No() {\n\tAns(\"No\")\n}\n\nfunc YesNo(f func() bool) {\n\tif f() {\n\
     \t\tYes()\n\t} else {\n\t\tNo()\n\t}\n}\n"
   dependsOn:
-  - go-acl/splay/node.go
-  - go-acl/splay/set_test.go
-  - go-acl/splay/node_test.go
-  - go-acl/splay/set.go
-  - go-acl/splay/map.go
-  - go-acl/verify/double_ended_priority_queue/verify.test.go
   - go-acl/verify/predecessor_problem/verify.test.go
-  - go-acl/verify/aplusb/verify.test.go
   - go-acl/verify/associative_array/verify.test.go
   - go-acl/verify/many_aplusb/verify.test.go
+  - go-acl/verify/aplusb/verify.test.go
+  - go-acl/verify/double_ended_priority_queue/verify.test.go
   - go-acl/testlib/assert.go
-  - go-acl/util/unionfind.go
-  - go-acl/util/sieve.go
-  - go-acl/util/math_test.go
-  - go-acl/util/lib_test.go
-  - go-acl/util/segmentTree.go
-  - go-acl/util/math.go
-  - go-acl/util/depq.go
-  - go-acl/util/sieve_test.go
-  - go-acl/util/depq_test.go
-  - go-acl/util/monoid.go
   - go-acl/main.go
+  - go-acl/splay/node_test.go
+  - go-acl/splay/map.go
+  - go-acl/splay/node.go
+  - go-acl/splay/set.go
+  - go-acl/splay/set_test.go
+  - go-acl/util/unionfind.go
+  - go-acl/util/sieve_test.go
+  - go-acl/util/math.go
+  - go-acl/util/monoid.go
+  - go-acl/util/depq_test.go
+  - go-acl/util/lib_test.go
+  - go-acl/util/math_test.go
+  - go-acl/util/depq.go
+  - go-acl/util/sieve.go
+  - go-acl/util/segmentTree.go
   isVerificationFile: false
   path: go-acl/util/lib.go
   requiredBy:
-  - go-acl/splay/node.go
-  - go-acl/splay/set_test.go
-  - go-acl/splay/node_test.go
-  - go-acl/splay/set.go
-  - go-acl/splay/map.go
   - go-acl/testlib/assert.go
-  - go-acl/util/unionfind.go
-  - go-acl/util/sieve.go
-  - go-acl/util/math_test.go
-  - go-acl/util/lib_test.go
-  - go-acl/util/segmentTree.go
-  - go-acl/util/math.go
-  - go-acl/util/depq.go
-  - go-acl/util/sieve_test.go
-  - go-acl/util/depq_test.go
-  - go-acl/util/monoid.go
   - go-acl/main.go
-  timestamp: '2023-09-05 00:37:09+09:00'
+  - go-acl/splay/node_test.go
+  - go-acl/splay/map.go
+  - go-acl/splay/node.go
+  - go-acl/splay/set.go
+  - go-acl/splay/set_test.go
+  - go-acl/util/unionfind.go
+  - go-acl/util/sieve_test.go
+  - go-acl/util/math.go
+  - go-acl/util/monoid.go
+  - go-acl/util/depq_test.go
+  - go-acl/util/lib_test.go
+  - go-acl/util/math_test.go
+  - go-acl/util/depq.go
+  - go-acl/util/sieve.go
+  - go-acl/util/segmentTree.go
+  timestamp: '2023-11-21 21:19:15+09:00'
   verificationStatus: LIBRARY_ALL_AC
   verifiedWith:
-  - go-acl/verify/double_ended_priority_queue/verify.test.go
   - go-acl/verify/predecessor_problem/verify.test.go
-  - go-acl/verify/aplusb/verify.test.go
   - go-acl/verify/associative_array/verify.test.go
   - go-acl/verify/many_aplusb/verify.test.go
+  - go-acl/verify/aplusb/verify.test.go
+  - go-acl/verify/double_ended_priority_queue/verify.test.go
 documentation_of: go-acl/util/lib.go
 layout: document
 redirect_from:
