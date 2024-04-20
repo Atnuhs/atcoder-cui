@@ -71,16 +71,14 @@ func Readi() int {
 	return ret
 }
 
-func Readss(n int) []string {
-	return NewArr(n, func(i int) string { return Reads() })
+func ReadLine[T any](n int, f func() T) []T {
+	return NewArr(n, func(_ int) T { return f() })
 }
 
-func Readrs(n int) [][]rune {
-	return NewArr(n, func(i int) []rune { return Readr() })
-}
-
-func Readis(n int) []int {
-	return NewArr(n, func(i int) int { return Readi() })
+func ReadGrid[T any](h, w int, f func() T) [][]T {
+	return NewArr[[]T](h, func(_ int) []T {
+		return ReadLine[T](w, f)
+	})
 }
 
 // PopBack is O(1)
