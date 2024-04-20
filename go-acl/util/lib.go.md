@@ -1,55 +1,55 @@
 ---
 data:
   _extendedDependsOn:
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/main.go
     title: go-acl/main.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/splay/map.go
     title: go-acl/splay/map.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/splay/node.go
     title: go-acl/splay/node.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/splay/node_test.go
     title: go-acl/splay/node_test.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/splay/set.go
     title: go-acl/splay/set.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/splay/set_test.go
     title: go-acl/splay/set_test.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/testlib/assert.go
     title: go-acl/testlib/assert.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/util/depq.go
     title: go-acl/util/depq.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/util/depq_test.go
     title: go-acl/util/depq_test.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/util/lib_test.go
     title: go-acl/util/lib_test.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/util/math.go
     title: go-acl/util/math.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/util/math_test.go
     title: go-acl/util/math_test.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/util/monoid.go
     title: go-acl/util/monoid.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/util/segmentTree.go
     title: go-acl/util/segmentTree.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/util/sieve.go
     title: go-acl/util/sieve.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/util/sieve_test.go
     title: go-acl/util/sieve_test.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/util/unionfind.go
     title: go-acl/util/unionfind.go
   - icon: ':heavy_check_mark:'
@@ -58,7 +58,7 @@ data:
   - icon: ':heavy_check_mark:'
     path: go-acl/verify/associative_array/verify.test.go
     title: go-acl/verify/associative_array/verify.test.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':x:'
     path: go-acl/verify/double_ended_priority_queue/verify.test.go
     title: go-acl/verify/double_ended_priority_queue/verify.test.go
   - icon: ':heavy_check_mark:'
@@ -68,55 +68,55 @@ data:
     path: go-acl/verify/predecessor_problem/verify.test.go
     title: go-acl/verify/predecessor_problem/verify.test.go
   _extendedRequiredBy:
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/main.go
     title: go-acl/main.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/splay/map.go
     title: go-acl/splay/map.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/splay/node.go
     title: go-acl/splay/node.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/splay/node_test.go
     title: go-acl/splay/node_test.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/splay/set.go
     title: go-acl/splay/set.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/splay/set_test.go
     title: go-acl/splay/set_test.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/testlib/assert.go
     title: go-acl/testlib/assert.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/util/depq.go
     title: go-acl/util/depq.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/util/depq_test.go
     title: go-acl/util/depq_test.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/util/lib_test.go
     title: go-acl/util/lib_test.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/util/math.go
     title: go-acl/util/math.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/util/math_test.go
     title: go-acl/util/math_test.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/util/monoid.go
     title: go-acl/util/monoid.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/util/segmentTree.go
     title: go-acl/util/segmentTree.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/util/sieve.go
     title: go-acl/util/sieve.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/util/sieve_test.go
     title: go-acl/util/sieve_test.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':question:'
     path: go-acl/util/unionfind.go
     title: go-acl/util/unionfind.go
   _extendedVerifiedWith:
@@ -126,7 +126,7 @@ data:
   - icon: ':heavy_check_mark:'
     path: go-acl/verify/associative_array/verify.test.go
     title: go-acl/verify/associative_array/verify.test.go
-  - icon: ':heavy_check_mark:'
+  - icon: ':x:'
     path: go-acl/verify/double_ended_priority_queue/verify.test.go
     title: go-acl/verify/double_ended_priority_queue/verify.test.go
   - icon: ':heavy_check_mark:'
@@ -135,9 +135,9 @@ data:
   - icon: ':heavy_check_mark:'
     path: go-acl/verify/predecessor_problem/verify.test.go
     title: go-acl/verify/predecessor_problem/verify.test.go
-  _isVerificationFailed: false
+  _isVerificationFailed: true
   _pathExtension: go
-  _verificationStatusIcon: ':heavy_check_mark:'
+  _verificationStatusIcon: ':question:'
   attributes: {}
   bundledCode: "Traceback (most recent call last):\n  File \"/home/runner/.local/lib/python3.10/site-packages/onlinejudge_verify/documentation/build.py\"\
     , line 71, in _render_source_code_stat\n    bundled_code = language.bundle(stat.path,\
@@ -157,85 +157,84 @@ data:
     \ int) T) []T {\n\tret := make([]T, n)\n\tfor i := range ret {\n\t\tret[i] = f(i)\n\
     \t}\n\treturn ret\n}\n\nfunc Reads() string {\n\tIn.Scan()\n\treturn In.Text()\n\
     }\n\nfunc Readr() []rune {\n\treturn []rune(Reads())\n}\n\nfunc Readi() int {\n\
-    \tIn.Scan()\n\tret, _ := strconv.Atoi(In.Text())\n\treturn ret\n}\n\nfunc Readss(n\
-    \ int) []string {\n\treturn NewArr(n, func(i int) string { return Reads() })\n\
-    }\n\nfunc Readrs(n int) [][]rune {\n\treturn NewArr(n, func(i int) []rune { return\
-    \ Readr() })\n}\n\nfunc Readis(n int) []int {\n\treturn NewArr(n, func(i int)\
-    \ int { return Readi() })\n}\n\n// PopBack is O(1)\nfunc PopBack[T any](a *[]T)\
-    \ T {\n\tret := (*a)[len(*a)-1]\n\t*a = (*a)[:len(*a)-1]\n\treturn ret\n}\n\n\
-    // PopFront is O(1)\nfunc PopFront[T any](a *[]T) T {\n\tret := (*a)[0]\n\t*a\
-    \ = (*a)[1:]\n\treturn ret\n}\n\ntype heapImpl[T Ordered] []T\n\nfunc (h heapImpl[T])\
-    \ Len() int { return len(h) }\nfunc (h heapImpl[T]) Less(i, j int) bool {\n\t\
-    hi, hj := h[i], h[j]\n\treturn hi < hj\n}\nfunc (h heapImpl[T]) Swap(i, j int)\
-    \ { h[i], h[j] = h[j], h[i] }\n\nfunc (h *heapImpl[T]) Push(x any) {\n\t*h = append(*h,\
-    \ x.(T))\n}\n\nfunc (h *heapImpl[T]) Pop() any {\n\tx := (*h)[len(*h)-1]\n\t*h\
-    \ = (*h)[:len(*h)-1]\n\treturn x\n}\n\ntype PriorityQueue[T Ordered] struct {\n\
-    \tvalue heapImpl[T]\n}\n\nfunc NewPriorityQueue[T Ordered]() *PriorityQueue[T]\
-    \ {\n\tvalue := &heapImpl[T]{}\n\theap.Init(value)\n\treturn &PriorityQueue[T]{}\n\
-    }\n\nfunc (pq *PriorityQueue[T]) Push(x T) {\n\theap.Push(&pq.value, x)\n}\n\n\
-    func (pq *PriorityQueue[T]) Pop() T {\n\tx := heap.Pop(&pq.value)\n\treturn x.(T)\n\
-    }\n\nfunc NewGraph(n int) [][]int {\n\tg := make([][]int, n)\n\tfor i := range\
-    \ g {\n\t\tg[i] = make([]int, 0)\n\t}\n\treturn g\n}\n\nfunc All[T any](vals []T,\
-    \ f func(i int, v T) bool) bool {\n\tfor i, v := range vals {\n\t\tif f(i, v)\
-    \ {\n\t\t\treturn false\n\t\t}\n\t}\n\treturn true\n}\n\nfunc Any[T any](vals\
-    \ []T, f func(i int, v T) bool) bool {\n\tfor i, v := range vals {\n\t\tif f(i,\
-    \ v) {\n\t\t\treturn true\n\t\t}\n\t}\n\treturn false\n}\n\nfunc Ans(args ...interface{})\
-    \ {\n\tfor i, arg := range args {\n\t\tif reflect.TypeOf(arg).Kind() == reflect.Slice\
-    \ {\n\t\t\tfmt.Fprint(Out, strings.Trim(fmt.Sprint(arg), \"[]\"))\n\t\t} else\
-    \ {\n\t\t\tfmt.Fprint(Out, arg)\n\t\t}\n\t\tif i < len(args)-1 {\n\t\t\tfmt.Fprint(Out,\
-    \ \" \")\n\t\t}\n\t}\n\tfmt.Fprintln(Out)\n}\n\nfunc Yes() {\n\tAns(\"Yes\")\n\
-    }\n\nfunc No() {\n\tAns(\"No\")\n}\n\nfunc YesNo(f func() bool) {\n\tif f() {\n\
-    \t\tYes()\n\t} else {\n\t\tNo()\n\t}\n}\n"
+    \tIn.Scan()\n\tret, _ := strconv.Atoi(In.Text())\n\treturn ret\n}\n\nfunc ReadLine[T\
+    \ any](n int, f func() T) []T {\n\treturn NewArr(n, func(_ int) T { return f()\
+    \ })\n}\n\nfunc ReadGrid[T any](h, w int, f func() T) [][]T {\n\treturn NewArr[[]T](h,\
+    \ func(_ int) []T {\n\t\treturn ReadLine[T](w, f)\n\t})\n}\n\n// PopBack is O(1)\n\
+    func PopBack[T any](a *[]T) T {\n\tret := (*a)[len(*a)-1]\n\t*a = (*a)[:len(*a)-1]\n\
+    \treturn ret\n}\n\n// PopFront is O(1)\nfunc PopFront[T any](a *[]T) T {\n\tret\
+    \ := (*a)[0]\n\t*a = (*a)[1:]\n\treturn ret\n}\n\ntype heapImpl[T Ordered] []T\n\
+    \nfunc (h heapImpl[T]) Len() int { return len(h) }\nfunc (h heapImpl[T]) Less(i,\
+    \ j int) bool {\n\thi, hj := h[i], h[j]\n\treturn hi < hj\n}\nfunc (h heapImpl[T])\
+    \ Swap(i, j int) { h[i], h[j] = h[j], h[i] }\n\nfunc (h *heapImpl[T]) Push(x any)\
+    \ {\n\t*h = append(*h, x.(T))\n}\n\nfunc (h *heapImpl[T]) Pop() any {\n\tx :=\
+    \ (*h)[len(*h)-1]\n\t*h = (*h)[:len(*h)-1]\n\treturn x\n}\n\ntype PriorityQueue[T\
+    \ Ordered] struct {\n\tvalue heapImpl[T]\n}\n\nfunc NewPriorityQueue[T Ordered]()\
+    \ *PriorityQueue[T] {\n\tvalue := &heapImpl[T]{}\n\theap.Init(value)\n\treturn\
+    \ &PriorityQueue[T]{}\n}\n\nfunc (pq *PriorityQueue[T]) Push(x T) {\n\theap.Push(&pq.value,\
+    \ x)\n}\n\nfunc (pq *PriorityQueue[T]) Pop() T {\n\tx := heap.Pop(&pq.value)\n\
+    \treturn x.(T)\n}\n\nfunc NewGraph(n int) [][]int {\n\tg := make([][]int, n)\n\
+    \tfor i := range g {\n\t\tg[i] = make([]int, 0)\n\t}\n\treturn g\n}\n\nfunc All[T\
+    \ any](vals []T, f func(i int, v T) bool) bool {\n\tfor i, v := range vals {\n\
+    \t\tif f(i, v) {\n\t\t\treturn false\n\t\t}\n\t}\n\treturn true\n}\n\nfunc Any[T\
+    \ any](vals []T, f func(i int, v T) bool) bool {\n\tfor i, v := range vals {\n\
+    \t\tif f(i, v) {\n\t\t\treturn true\n\t\t}\n\t}\n\treturn false\n}\n\nfunc Ans(args\
+    \ ...interface{}) {\n\tfor i, arg := range args {\n\t\tif reflect.TypeOf(arg).Kind()\
+    \ == reflect.Slice {\n\t\t\tfmt.Fprint(Out, strings.Trim(fmt.Sprint(arg), \"[]\"\
+    ))\n\t\t} else {\n\t\t\tfmt.Fprint(Out, arg)\n\t\t}\n\t\tif i < len(args)-1 {\n\
+    \t\t\tfmt.Fprint(Out, \" \")\n\t\t}\n\t}\n\tfmt.Fprintln(Out)\n}\n\nfunc Yes()\
+    \ {\n\tAns(\"Yes\")\n}\n\nfunc No() {\n\tAns(\"No\")\n}\n\nfunc YesNo(f func()\
+    \ bool) {\n\tif f() {\n\t\tYes()\n\t} else {\n\t\tNo()\n\t}\n}\n"
   dependsOn:
-  - go-acl/verify/predecessor_problem/verify.test.go
   - go-acl/verify/associative_array/verify.test.go
-  - go-acl/verify/many_aplusb/verify.test.go
   - go-acl/verify/aplusb/verify.test.go
+  - go-acl/verify/many_aplusb/verify.test.go
+  - go-acl/verify/predecessor_problem/verify.test.go
   - go-acl/verify/double_ended_priority_queue/verify.test.go
-  - go-acl/testlib/assert.go
-  - go-acl/main.go
   - go-acl/splay/node_test.go
-  - go-acl/splay/map.go
+  - go-acl/splay/set_test.go
   - go-acl/splay/node.go
   - go-acl/splay/set.go
-  - go-acl/splay/set_test.go
-  - go-acl/util/unionfind.go
+  - go-acl/splay/map.go
   - go-acl/util/sieve_test.go
+  - go-acl/util/math_test.go
+  - go-acl/util/unionfind.go
+  - go-acl/util/depq_test.go
+  - go-acl/util/sieve.go
   - go-acl/util/math.go
   - go-acl/util/monoid.go
-  - go-acl/util/depq_test.go
-  - go-acl/util/lib_test.go
-  - go-acl/util/math_test.go
   - go-acl/util/depq.go
-  - go-acl/util/sieve.go
+  - go-acl/util/lib_test.go
   - go-acl/util/segmentTree.go
+  - go-acl/testlib/assert.go
+  - go-acl/main.go
   isVerificationFile: false
   path: go-acl/util/lib.go
   requiredBy:
-  - go-acl/testlib/assert.go
-  - go-acl/main.go
   - go-acl/splay/node_test.go
-  - go-acl/splay/map.go
+  - go-acl/splay/set_test.go
   - go-acl/splay/node.go
   - go-acl/splay/set.go
-  - go-acl/splay/set_test.go
-  - go-acl/util/unionfind.go
+  - go-acl/splay/map.go
   - go-acl/util/sieve_test.go
+  - go-acl/util/math_test.go
+  - go-acl/util/unionfind.go
+  - go-acl/util/depq_test.go
+  - go-acl/util/sieve.go
   - go-acl/util/math.go
   - go-acl/util/monoid.go
-  - go-acl/util/depq_test.go
-  - go-acl/util/lib_test.go
-  - go-acl/util/math_test.go
   - go-acl/util/depq.go
-  - go-acl/util/sieve.go
+  - go-acl/util/lib_test.go
   - go-acl/util/segmentTree.go
-  timestamp: '2023-11-21 21:27:14+09:00'
-  verificationStatus: LIBRARY_ALL_AC
+  - go-acl/testlib/assert.go
+  - go-acl/main.go
+  timestamp: '2024-04-20 13:54:19+09:00'
+  verificationStatus: LIBRARY_SOME_WA
   verifiedWith:
-  - go-acl/verify/predecessor_problem/verify.test.go
   - go-acl/verify/associative_array/verify.test.go
-  - go-acl/verify/many_aplusb/verify.test.go
   - go-acl/verify/aplusb/verify.test.go
+  - go-acl/verify/many_aplusb/verify.test.go
+  - go-acl/verify/predecessor_problem/verify.test.go
   - go-acl/verify/double_ended_priority_queue/verify.test.go
 documentation_of: go-acl/util/lib.go
 layout: document
