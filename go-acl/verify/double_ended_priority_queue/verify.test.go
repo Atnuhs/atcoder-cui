@@ -1,13 +1,12 @@
 // verification-helper: PROBLEM https://judge.yosupo.jp/problem/double_ended_priority_queue
 package main
 
-import . "go-acl/util"
 
 func main() {
-	defer Out.Flush()
+	defer util.Out.Flush()
 
-	n, q := Readi(), Readi()
-	pq := NewDEPQ(Readis(n)...)
+	n, q := Readi(), util.Readi()
+	pq := util.NewDEPQ(util.Readis(n)...)
 
 	for iq := 0; iq < q; iq++ {
 		t := Readi()

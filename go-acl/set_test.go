@@ -1,4 +1,4 @@
-package splay
+package main
 
 import (
 	"math/rand"
