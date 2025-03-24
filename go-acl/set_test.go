@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"go-acl/testlib"
-	"go-acl/util"
 )
 
 func TestSplaySet_Push(t *testing.T) {
@@ -126,7 +125,7 @@ func TestSplaySet_Ge(t *testing.T) {
 	}{
 		"minimmum": {
 			pushValues: pushValues,
-			trialValue: -util.INF,
+			trialValue: -INF,
 			want:       0,
 		},
 		"less than first value": {
@@ -161,7 +160,7 @@ func TestSplaySet_Ge(t *testing.T) {
 		},
 		"maximum": {
 			pushValues: pushValues,
-			trialValue: util.INF,
+			trialValue: INF,
 			want:       3,
 		},
 	}
@@ -188,7 +187,7 @@ func TestSplaySet_Le(t *testing.T) {
 	}{
 		"minimmum": {
 			pushValues: pushValues,
-			trialValue: -util.INF,
+			trialValue: -INF,
 			want:       -1,
 		},
 		"less than first value": {
@@ -223,7 +222,7 @@ func TestSplaySet_Le(t *testing.T) {
 		},
 		"maximum": {
 			pushValues: pushValues,
-			trialValue: util.INF,
+			trialValue: INF,
 			want:       2,
 		},
 	}
@@ -242,7 +241,7 @@ func TestSplaySet_Le(t *testing.T) {
 }
 
 func BenchmarkSplaySet_Insert(b *testing.B) {
-	s := NewSplaySet(util.NewArr(100000, func(i int) int { return rand.Intn(100000) })...)
+	s := NewSplaySet(NewArr(100000, func(i int) int { return rand.Intn(100000) })...)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		vPush, vRemove := rand.Intn(b.N), rand.Intn(b.N)
@@ -252,7 +251,7 @@ func BenchmarkSplaySet_Insert(b *testing.B) {
 }
 
 func BenchmarkSplaySet_Remove(b *testing.B) {
-	s := NewSplaySet(util.NewArr(100000, func(i int) int { return rand.Intn(100000) })...)
+	s := NewSplaySet(NewArr(100000, func(i int) int { return rand.Intn(100000) })...)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		vPush, vRemove := rand.Intn(b.N), rand.Intn(b.N)
