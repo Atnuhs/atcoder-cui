@@ -1341,3 +1341,28 @@ func (st *SegmentTree[T]) querySub(a, b, n, l, r int) T {
 	vr := st.querySub(a, b, 2*n+2, (l+r)/2, r)
 	return st.mo.Op(vl, vr)
 }
+
+// Manacher algorithm
+func Manacher(s string) []int {
+	m := len(s)
+	rad := make([]int, m)
+
+	fmt.Println(s)
+	i,j := 0, 0
+	for i < m {
+		fmt.Println(i,j,rad)
+		for i-j >= 0 && i+j < m && s[i-j] == s[i+j] {
+			j++
+		}
+		fmt.Println(j)
+		rad[i] = j
+		k := 1
+		for i-k >= 0 && k + rad[i-k] < j {
+			rad[i+k] = rad[i-k]
+			k++	
+		}
+		i += k
+		j -= k
+	}
+	return rad
+}
