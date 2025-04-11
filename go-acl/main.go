@@ -7,6 +7,7 @@ import (
 	"math"
 	"os"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -1340,6 +1341,32 @@ func (st *SegmentTree[T]) querySub(a, b, n, l, r int) T {
 	vl := st.querySub(a, b, 2*n+1, l, (l+r)/2)
 	vr := st.querySub(a, b, 2*n+2, (l+r)/2, r)
 	return st.mo.Op(vl, vr)
+}
+
+type WEdge struct {
+	from, to, weight int
+}
+
+func Kruskal(n int, edges []WEdge) (int, []WEdge) {
+	sort.Slice(edges, func(i, j int) bool {
+		return edges[i].weight < edges[j].weight
+	})
+
+	uf := NewUnionFind(n)
+	ret := make([]WEdge, 0)
+	sum := 0
+	for _, e := range edges {
+		if uf.Family(e.from, e.to) {
+			continue
+		}
+		ret = append(ret, e)
+		sum += e.weight
+		uf.Union(e.from, e.to)
+	}
+	if uf.Size(0) != n {
+		return -1, nil
+	}
+	return sum, ret
 }
 
 // Manacher algorithm
