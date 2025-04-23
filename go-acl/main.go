@@ -170,6 +170,9 @@ func Ans(args ...interface{}) {
 	for i, arg := range args {
 		if reflect.TypeOf(arg).Kind() == reflect.Slice {
 			fmt.Fprint(Out, strings.Trim(fmt.Sprint(arg), "[]"))
+		// float64の場合、小数点以下14桁まで出力
+		} else if reflect.TypeOf(arg).Kind() == reflect.Float64 {
+			fmt.Fprintf(Out, "%.14f", arg)
 		} else {
 			fmt.Fprint(Out, arg)
 		}
