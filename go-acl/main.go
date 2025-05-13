@@ -8,15 +8,14 @@ import (
 	"os"
 	"reflect"
 	"sort"
-	"strconv"
 	"strings"
 )
 
 // lib
 var (
-	In  = bufio.NewScanner(os.Stdin)
-	Out = bufio.NewWriter(os.Stdout)
-	Dbg = bufio.NewWriter(os.Stderr)
+	In  = bufio.NewReaderSize(os.Stdin, 1<<20)
+	Out = bufio.NewWriterSize(os.Stdout, 1<<20)
+	Dbg = bufio.NewWriterSize(os.Stderr, 1<<20)
 )
 
 const (
@@ -27,35 +26,37 @@ const (
 )
 
 func init() {
-	In.Split(bufio.ScanWords)
-	In.Buffer([]byte{}, math.MaxInt64)
 }
 
 func main() {
 	defer Out.Flush()
 }
 
+// Ordered はconstraints.OrderedがAtCoderで使えないので、代わりに使う
 type Ordered interface {
-		~int | ~int8 | ~int16 | ~int32 | ~int64 |
+	~int | ~int8 | ~int16 | ~int32 | ~int64 |
 		~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr |
 		~float32 | ~float64 |
 		~string
 }
 
+// Pair は2つの値を持つ構造体
 type Pair[T any] struct {
 	u, v T
 }
 
+// NewPair Pairを生成する
 func NewPair[T any](u, v T) *Pair[T] {
 	return &Pair[T]{u, v}
 }
 
-// String return 'p.u p.v'
+// String Pairの文字列を、空白区切りで返す
 func (p *Pair[T]) String() string {
 	return fmt.Sprintf("%v %v", p.u, p.v)
 }
 
-func NewArr[T any](n int, f func(i int) T) []T {
+// ILF は長さnの配列を、関数fで初期化する
+func ILF[T any](n int, f func(i int) T) []T {
 	ret := make([]T, n)
 	for i := range ret {
 		ret[i] = f(i)
@@ -63,45 +64,222 @@ func NewArr[T any](n int, f func(i int) T) []T {
 	return ret
 }
 
-func Reads() string {
-	In.Scan()
-	return In.Text()
-}
-
-func Readr() []rune {
-	return []rune(Reads())
-}
-
-func Readi() int {
-	In.Scan()
-	ret, _ := strconv.Atoi(In.Text())
-	return ret
-}
-
-func ReadLine[T any](n int, f func() T) []T {
-	return NewArr(n, func(_ int) T { return f() })
-}
-
-func ReadGrid[T any](h, w int, f func() T) [][]T {
-	return NewArr[[]T](h, func(_ int) []T {
-		return ReadLine[T](w, f)
+// IGF はh行w列の配列を、関数fで初期化する
+func IGF[T any](h, w int, f func(ih, iw int) T) [][]T {
+	return ILF(h, func(ih int) []T {
+		return ILF(w, func(iw int) T {
+			return f(ih, iw)
+		})
 	})
 }
 
-// PopBack is O(1)
+// ILF2 は長さnの配列を、関数fで初期化する
+func ILF2[T any](n int, f func() T) []T { return ILF(n, func(_ int) T { return f() }) }
+
+// IGF2 はh行w列の配列を、関数fで初期化する
+func IGF2[T any](h, w int, f func() T) [][]T {
+	return IGF(h, w, func(_ int, _ int) T { return f() })
+}
+
+// IL は長さnの配列を、値vで初期化する
+// vに配列を指定すると、すべてポインタが同じになる
+func IL[T any](n int, v T) []T {
+	return ILF(n, func(_ int) T { return v })
+}
+
+// IG はh行w列の配列を、値vで初期化する
+// vに配列を指定すると、すべてポインタが同じになる
+func IG[T any](h, w int, v T) [][]T {
+	return IGF(h, w, func(_ int, _ int) T { return v })
+}
+
+// IJF はn行のグラフをjagged配列で初期化する
+func IJ[T any](n int) [][]T {
+	return ILF(n, func(_ int) []T { return make([]T, 0) })
+}
+
+// Prepend は配列の先頭に値を追加する
+func Prepend[T any](arr []T, vars ...T) []T {
+	return append(vars, arr...)
+}
+
+// S は文字列を読み込む
+func S() string {
+	var ret string
+	fmt.Fscan(In, &ret)
+	return ret
+}
+
+// R は文字列を[]runeとして読み込む
+func R() []rune {
+	return []rune(S())
+}
+
+// I は整数を読み込む
+func I() int {
+	var ret int
+	fmt.Fscan(In, &ret)
+	return ret
+}
+
+// I2 は整数を2つ読み込む
+func II() (int, int) {
+	var ret1, ret2 int
+	fmt.Fscan(In, &ret1, &ret2)
+	return ret1, ret2
+}
+
+// I3 は整数を3つ読み込む
+func III() (int, int, int) {
+	var ret1, ret2, ret3 int
+	fmt.Fscan(In, &ret1, &ret2, &ret3)
+	return ret1, ret2, ret3
+}
+
+// Is は整数をn個読み込む
+func Is(n int) []int { return ILF2(n, I) }
+
+// Iss は整数をh行w列の配列として読み込む
+func Iss(h, w int) [][]int { return IGF2(h, w, I) }
+
+// Sss は文字列をn個読み込む
+func Ss(n int) []string { return ILF2(n, S) }
+
+// Rss は文字列をn個読み込む
+func Rs(n int) [][]rune { return ILF2(n, R) }
+
+// All は配列のすべての要素が条件を満たすかどうかを判定する
+func All[T any](vals []T, f func(i int, v T) bool) bool {
+	for i, v := range vals {
+		if f(i, v) {
+			return false
+		}
+	}
+	return true
+}
+
+// Any は配列のいずれかの要素が条件を満たすかどうかを判定する
+func Any[T any](vals []T, f func(i int, v T) bool) bool {
+	for i, v := range vals {
+		if f(i, v) {
+			return true
+		}
+	}
+	return false
+}
+
+// Ans は出力を行う
+func Ans(args ...interface{}) {
+	for i, arg := range args {
+		if reflect.TypeOf(arg).Kind() == reflect.Slice {
+			fmt.Fprint(Out, strings.Trim(fmt.Sprint(arg), "[]"))
+			// float64の場合、小数点以下14桁まで出力
+		} else if reflect.TypeOf(arg).Kind() == reflect.Float64 {
+			fmt.Fprintf(Out, "%.14f", arg)
+		} else {
+			fmt.Fprint(Out, arg)
+		}
+		if i < len(args)-1 {
+			fmt.Fprint(Out, " ")
+		}
+	}
+	fmt.Fprintln(Out)
+}
+
+// Yes は"Yes"を出力する
+func Yes() {
+	Ans("Yes")
+}
+
+// No は"No"を出力する
+func No() {
+	Ans("No")
+}
+
+// YesNo は条件に応じてYesまたはNoを出力する
+func YesNo(f func() bool) {
+	if f() {
+		Yes()
+	} else {
+		No()
+	}
+}
+
+// YesNo2 は条件に応じてYesまたはNoを出力する
+func YesNo2(b bool) {
+	if b {
+		Yes()
+	} else {
+		No()
+	}
+}
+
+// PopBack はO(1)で配列の末尾を削除して返す
 func PopBack[T any](a *[]T) T {
 	ret := (*a)[len(*a)-1]
 	*a = (*a)[:len(*a)-1]
 	return ret
 }
 
-// PopFront is O(1)
+// PopFront はO(1)で配列の先頭を削除して返す
 func PopFront[T any](a *[]T) T {
 	ret := (*a)[0]
 	*a = (*a)[1:]
 	return ret
 }
 
+// UnionFind はUnion-Find木の実装
+type UnionFind struct {
+	data []int
+}
+
+// NewUnionFind は新しいUnion-Find木を生成する
+func NewUnionFind(n int) *UnionFind {
+	data := make([]int, n)
+	for i := range data {
+		data[i] = -1
+	}
+	return &UnionFind{
+		data: data,
+	}
+}
+
+func (uf *UnionFind) Root(x int) int {
+	if uf.data[x] < 0 {
+		return x
+	} else {
+		uf.data[x] = uf.Root(uf.data[x])
+		return uf.data[x]
+	}
+}
+
+func (uf *UnionFind) Family(x, y int) bool {
+	return uf.Root(x) == uf.Root(y)
+}
+
+func (uf *UnionFind) Size(x int) int {
+	return -uf.data[uf.Root(x)]
+}
+
+func (uf *UnionFind) Union(x, y int) {
+	rx := uf.Root(x)
+	ry := uf.Root(y)
+
+	if rx == ry {
+		return
+	}
+
+	if uf.Size(rx) < uf.Size(ry) {
+		rx = rx ^ ry
+		ry = rx ^ ry
+		rx = rx ^ ry
+	}
+
+	uf.data[rx] += uf.data[ry]
+	uf.data[ry] = rx
+}
+
+// heaapImpl はヒープの実装
 type heapImpl[T Ordered] []T
 
 func (h heapImpl[T]) Len() int { return len(h) }
@@ -121,106 +299,53 @@ func (h *heapImpl[T]) Pop() any {
 	return x
 }
 
-type PriorityQueue[T Ordered] struct {
+// PQ は優先度付きキューの実装
+type PQ[T Ordered] struct {
 	value heapImpl[T]
 }
 
-func NewPriorityQueue[T Ordered]() *PriorityQueue[T] {
+func NewPQ[T Ordered]() *PQ[T] {
 	value := &heapImpl[T]{}
 	heap.Init(value)
-	return &PriorityQueue[T]{}
+	return &PQ[T]{}
 }
 
-func (pq *PriorityQueue[T]) Push(x T) {
+func (pq *PQ[T]) Push(x T) {
 	heap.Push(&pq.value, x)
 }
 
-func (pq *PriorityQueue[T]) Pop() T {
+func (pq *PQ[T]) Pop() T {
 	x := heap.Pop(&pq.value)
 	return x.(T)
 }
 
-func NewGraph(n int) [][]int {
-	g := make([][]int, n)
-	for i := range g {
-		g[i] = make([]int, 0)
-	}
-	return g
-}
-
-func All[T any](vals []T, f func(i int, v T) bool) bool {
-	for i, v := range vals {
-		if f(i, v) {
-			return false
-		}
-	}
-	return true
-}
-
-func Any[T any](vals []T, f func(i int, v T) bool) bool {
-	for i, v := range vals {
-		if f(i, v) {
-			return true
-		}
-	}
-	return false
-}
-
-func Ans(args ...interface{}) {
-	for i, arg := range args {
-		if reflect.TypeOf(arg).Kind() == reflect.Slice {
-			fmt.Fprint(Out, strings.Trim(fmt.Sprint(arg), "[]"))
-		// float64の場合、小数点以下14桁まで出力
-		} else if reflect.TypeOf(arg).Kind() == reflect.Float64 {
-			fmt.Fprintf(Out, "%.14f", arg)
-		} else {
-			fmt.Fprint(Out, arg)
-		}
-		if i < len(args)-1 {
-			fmt.Fprint(Out, " ")
-		}
-	}
-	fmt.Fprintln(Out)
-}
-
-func Yes() {
-	Ans("Yes")
-}
-
-func No() {
-	Ans("No")
-}
-
-func YesNo(f func() bool) {
-	if f() {
-		Yes()
-	} else {
-		No()
-	}
-}
-
+// lIdx　は左の子ノードのインデックスを返す
 func lIdx(idx int) int {
 	return idx & ^1
 }
 
+// rIdx　は右の子ノードのインデックスを返す
 func rIdx(idx int) int {
 	return idx | 1
 }
 
+// pIdx　は親ノードのインデックスを返す
 func pIdx(idx int) int {
 	return ((idx >> 1) - 1) & ^1
 }
 
+// cIdx　は子ノードのインデックスを返す
 func cIdx(idx int) int {
 	return (idx & ^1)<<1 | 2 | idx&1
 }
 
-const depqCap = 1000
-
+// DEPQ は二重優先度キューの実装
+// 二重優先度キューは、最大値と最小値をO(logN)で取得できるデータ構造
 type DEPQ[T Ordered] struct {
 	values []T
 }
 
+// NewDEPQ は二重優先度キューを初期化する
 func NewDEPQ[T Ordered](values ...T) *DEPQ[T] {
 	pq := &DEPQ[T]{
 		values: values,
@@ -330,14 +455,14 @@ func (pq *DEPQ[T]) down(idx int) int {
 	return idx
 }
 
-// Eratosthenes sieve
+// EratosthenesSieve はエラトステネスの篩の実装
 type EratosthenesSieve struct {
 	isPrime   []bool
 	minFactor []int
 	mobius    []int
 }
 
-// NewSieve is O(N loglog N)
+// NewSieve はO(N loglog N)でエラトステネスの篩を初期化する
 func NewSieve(n int) *EratosthenesSieve {
 	isPrime := make([]bool, n+1)
 	minFactor := make([]int, n+1)
@@ -383,13 +508,14 @@ func NewSieve(n int) *EratosthenesSieve {
 	}
 }
 
-// IsPrime is O(1)
+// IsPrime はO(1)で素数かどうかを判定する
 func (sv *EratosthenesSieve) IsPrime(x int) bool {
 	return sv.isPrime[x]
 }
 
-// Factorize is O(Sqrt(1))
-// got, ret
+// Factorize は O(Sqrt(N))で素因数分解を行う
+// 返り値は素因数とその指数のPairのスライス
+// 例）got, ret
 // 6, []Pair{{2,1}, {3.1}}
 func (sv *EratosthenesSieve) Factorize(x int) []*Pair[int] {
 	ret := make([]*Pair[int], 0)
@@ -407,10 +533,15 @@ func (sv *EratosthenesSieve) Factorize(x int) []*Pair[int] {
 	return ret
 }
 
-// Mobius is O(1) return
-// 0 <= 4, 12, 18, 50
-// 1 <= 1, 6, 210
-// -1 <= 2, 30, 140729
+// Mobius はO(sqrt(n))でメビウス関数を計算する
+// メビウス関数は、整数nに対して以下のように定義される
+// 0 <= n: nが平方数で割り切れる場合
+// 1 or -1 <= (-1)^k: nがk個の異なる素因数を持つ場合
+// 具体的には以下のような値となる
+// 0 <= 4, 12, 18, 50: 平方数で割り切れる
+// 1 <= 1, 6, 210: 偶数個の素因数を持つ
+// -1 <= 2, 30, 140729 : 奇数個の素因数を持つ
+// 約数系包除原理で使う
 func (sv *EratosthenesSieve) Mobius(x int) int {
 	return sv.mobius[x]
 }
@@ -458,10 +589,12 @@ func ModPow(x, e, mod int) int {
 	return ret
 }
 
+// Inv return x^(-1) % mod
 func Inv(x, mod int) int {
 	return ModPow(x, mod-2, mod)
 }
 
+// Gcd return greatest common divisor on O(log N)
 func Gcd(a, b int) int {
 	if b == 0 {
 		return a
@@ -469,10 +602,12 @@ func Gcd(a, b int) int {
 	return Gcd(b, a%b)
 }
 
+// Lcm return least common multiple on O(log N)
 func Lcm(a, b int) int {
 	return a / Gcd(a, b) * b
 }
 
+// Sqrt return square root of x
 func Sqrt(x int) int {
 	return int(math.Sqrt(float64(x)))
 }
@@ -528,6 +663,7 @@ func Min[T Ordered](vals ...T) T {
 	return mi
 }
 
+// Sum returns sum of vals
 func Sum[T Ordered](vals ...T) T {
 	var sum T
 	for _, v := range vals {
@@ -536,6 +672,7 @@ func Sum[T Ordered](vals ...T) T {
 	return sum
 }
 
+// Abs returns absolute value of x
 func Abs(x int) int {
 	if x < 0 {
 		x = -x
@@ -653,6 +790,7 @@ type (
 	}
 )
 
+// MoMax は最大値を求めるモノイド
 func MoMax() *Monoid[int] {
 	return &Monoid[int]{
 		Op: func(x1, x2 int) int {
@@ -662,6 +800,7 @@ func MoMax() *Monoid[int] {
 	}
 }
 
+// MoMin は最小値を求めるモノイド
 func MoMin() *Monoid[int] {
 	return &Monoid[int]{
 		Op: func(x1, x2 int) int {
@@ -671,6 +810,7 @@ func MoMin() *Monoid[int] {
 	}
 }
 
+// MoSum は和を求めるモノイド
 func MoSum[T int | float64]() *Monoid[T] {
 	return &Monoid[T]{
 		Op: func(x1, x2 T) T {
@@ -680,6 +820,7 @@ func MoSum[T int | float64]() *Monoid[T] {
 	}
 }
 
+// MoXOR はXORを求めるモノイド
 func MoXOR() *Monoid[int] {
 	return &Monoid[int]{
 		Op: func(x1, x2 int) int {
@@ -689,6 +830,7 @@ func MoXOR() *Monoid[int] {
 	}
 }
 
+// MoMODMul はmodを考慮した掛け算を求めるモノイド
 func MoMODMul(mod int) *Monoid[int] {
 	return &Monoid[int]{
 		Op: func(x1, x2 int) int {
@@ -698,7 +840,71 @@ func MoMODMul(mod int) *Monoid[int] {
 	}
 }
 
+// SegmentTree はセグメント木の実装
+type SegmentTree[T any] struct {
+	data []T
+	n    int
+	mo   *Monoid[T]
+}
 
+// NewSegmentTree はセグメント木を初期化する
+func NewSegmentTree[T any](arr []T, mo *Monoid[T]) *SegmentTree[T] {
+	n := 1
+	for n < len(arr) {
+		n *= 2
+	}
+
+	data := ILF(2*n-1, func(i int) T { return mo.E })
+	for i := range arr {
+		j := i + n - 1
+		data[j] = arr[i]
+	}
+
+	for i := n - 2; i >= 0; i-- {
+		c1 := 2*i + 1
+		c2 := 2*i + 2
+		data[i] = mo.Op(data[c1], data[c2])
+	}
+
+	return &SegmentTree[T]{
+		data: data,
+		n:    n,
+		mo:   mo,
+	}
+}
+
+func (st *SegmentTree[T]) Update(i int, x T) {
+	i += st.n - 1
+	st.data[i] = x
+	for i > 0 {
+		i = (i - 1) / 2
+		st.data[i] = st.mo.Op(st.data[2*i+1], st.data[2*i+2])
+	}
+}
+
+func (st *SegmentTree[T]) At(i int) T {
+	return st.Query(i, i+1)
+}
+
+func (st *SegmentTree[T]) Query(a, b int) T {
+	return st.querySub(a, b, 0, 0, st.n)
+}
+
+func (st *SegmentTree[T]) querySub(a, b, n, l, r int) T {
+	if r <= a || b <= l {
+		return st.mo.E
+	}
+
+	if a <= l && r <= b {
+		return st.data[n]
+	}
+
+	vl := st.querySub(a, b, 2*n+1, l, (l+r)/2)
+	vr := st.querySub(a, b, 2*n+2, (l+r)/2, r)
+	return st.mo.Op(vl, vr)
+}
+
+// SplayNode はスプレー木のノードを表す構造体
 type SplayNode struct {
 	l, r, p         *SplayNode
 	size            int
@@ -706,6 +912,7 @@ type SplayNode struct {
 	value, min, max int
 }
 
+// NewSplayNode は新しいスプレー木のノードを生成する
 func NewSplayNode(key, value int) *SplayNode {
 	ret := &SplayNode{
 		l:     nil,
@@ -1055,11 +1262,12 @@ func (sn *SplayNode) Delete(node *SplayNode) (root *SplayNode, removed *SplayNod
 	return root, removed
 }
 
-
+// SplaySet はスプレー木のセットを表す構造体
 type SplaySet struct {
 	root *SplayNode
 }
 
+// NewSplaySet は新しいスプレー木のセットを生成する
 func NewSplaySet(values ...int) *SplaySet {
 	s := &SplaySet{
 		root: nil,
@@ -1148,60 +1356,12 @@ func (ss *SplaySet) Lt(value int) int {
 	return ss.Ge(value) - 1
 }
 
-// NewUnionFind
-type UnionFind struct {
-	data []int
-}
-
-func NewUnionFind(n int) *UnionFind {
-	data := make([]int, n)
-	for i := range data {
-		data[i] = -1
-	}
-	return &UnionFind{
-		data: data,
-	}
-}
-
-func (uf *UnionFind) Root(x int) int {
-	if uf.data[x] < 0 {
-		return x
-	} else {
-		uf.data[x] = uf.Root(uf.data[x])
-		return uf.data[x]
-	}
-}
-
-func (uf *UnionFind) Family(x, y int) bool {
-	return uf.Root(x) == uf.Root(y)
-}
-
-func (uf *UnionFind) Size(x int) int {
-	return -uf.data[uf.Root(x)]
-}
-
-func (uf *UnionFind) Union(x, y int) {
-	rx := uf.Root(x)
-	ry := uf.Root(y)
-
-	if rx == ry {
-		return
-	}
-
-	if uf.Size(rx) < uf.Size(ry) {
-		rx = rx ^ ry
-		ry = rx ^ ry
-		rx = rx ^ ry
-	}
-
-	uf.data[rx] += uf.data[ry]
-	uf.data[ry] = rx
-}
-
+// SplayMap はスプレー木のマップを表す構造体
 type SplayMap struct {
 	root *SplayNode
 }
 
+// NewSplayMap は新しいスプレー木のマップを生成する
 func NewSplayMap() *SplayMap {
 	return &SplayMap{
 		root: nil,
@@ -1284,80 +1444,33 @@ func (ss *SplayMap) Lt(value int) int {
 	return ss.Ge(value) - 1
 }
 
-type SegmentTree[T any] struct {
-	data []T
-	n    int
-	mo   *Monoid[T]
-}
-
-func NewSegmentTree[T any](arr []T, mo *Monoid[T]) *SegmentTree[T] {
-	n := 1
-	for n < len(arr) {
-		n *= 2
-	}
-
-	data := NewArr(2*n-1, func(i int) T { return mo.E })
-	for i := range arr {
-		j := i + n - 1
-		data[j] = arr[i]
-	}
-
-	for i := n - 2; i >= 0; i-- {
-		c1 := 2*i + 1
-		c2 := 2*i + 2
-		data[i] = mo.Op(data[c1], data[c2])
-	}
-
-	return &SegmentTree[T]{
-		data: data,
-		n:    n,
-		mo:   mo,
-	}
-}
-
-func (st *SegmentTree[T]) Update(i int, x T) {
-	i += st.n - 1
-	st.data[i] = x
-	for i > 0 {
-		i = (i - 1) / 2
-		st.data[i] = st.mo.Op(st.data[2*i+1], st.data[2*i+2])
-	}
-}
-
-func (st *SegmentTree[T]) At(i int) T {
-	return st.Query(i, i+1)
-}
-
-func (st *SegmentTree[T]) Query(a, b int) T {
-	return st.querySub(a, b, 0, 0, st.n)
-}
-
-func (st *SegmentTree[T]) querySub(a, b, n, l, r int) T {
-	if r <= a || b <= l {
-		return st.mo.E
-	}
-
-	if a <= l && r <= b {
-		return st.data[n]
-	}
-
-	vl := st.querySub(a, b, 2*n+1, l, (l+r)/2)
-	vr := st.querySub(a, b, 2*n+2, (l+r)/2, r)
-	return st.mo.Op(vl, vr)
-}
-
+// WEdge は重み付き辺を表す構造体
 type WEdge struct {
 	from, to, weight int
 }
 
-func Kruskal(n int, edges []WEdge) (int, []WEdge) {
+// NewWEdge は新しい重み付き辺を生成する
+func NewWEdge(from, to, weight int) *WEdge {
+	return &WEdge{
+		from:   from,
+		to:     to,
+		weight: weight,
+	}
+}
+
+// Kruskal はクラスカル法を用いて最小全域木を求める
+func Kruskal(n int, edges []*WEdge) (int, []*WEdge) {
+	// はじめに辺を重みでソートする
 	sort.Slice(edges, func(i, j int) bool {
 		return edges[i].weight < edges[j].weight
 	})
 
+	// その後、Union-Findを用いて最小全域木を求める
 	uf := NewUnionFind(n)
-	ret := make([]WEdge, 0)
+	ret := make([]*WEdge, 0)
 	sum := 0
+
+	// すべての辺を調べる
 	for _, e := range edges {
 		if uf.Family(e.from, e.to) {
 			continue
@@ -1372,24 +1485,25 @@ func Kruskal(n int, edges []WEdge) (int, []WEdge) {
 	return sum, ret
 }
 
-// Manacher algorithm
+// Manacher は文字が与えられたとき、各iについて、
+// 文字iを中心とした回文の半径を記録した配列を返す
+// 例）"ababa" => [0, 1, 2, 1, 0]
+// O(|S|)
+// 偶数調の回文を考慮する場合は、"a$b$a$b$a"のように$を挿入すると検出できるようになる
 func Manacher(s string) []int {
 	m := len(s)
 	rad := make([]int, m)
 
-	fmt.Println(s)
-	i,j := 0, 0
+	i, j := 0, 0
 	for i < m {
-		fmt.Println(i,j,rad)
 		for i-j >= 0 && i+j < m && s[i-j] == s[i+j] {
 			j++
 		}
-		fmt.Println(j)
 		rad[i] = j
 		k := 1
-		for i-k >= 0 && k + rad[i-k] < j {
+		for i-k >= 0 && k+rad[i-k] < j {
 			rad[i+k] = rad[i-k]
-			k++	
+			k++
 		}
 		i += k
 		j -= k
