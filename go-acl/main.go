@@ -151,7 +151,7 @@ func Rs(n int) [][]rune { return ILF2(n, R) }
 // All は配列のすべての要素が条件を満たすかどうかを判定する
 func All[T any](vals []T, f func(i int, v T) bool) bool {
 	for i, v := range vals {
-		if f(i, v) {
+		if !f(i, v) {
 			return false
 		}
 	}
@@ -270,9 +270,7 @@ func (uf *UnionFind) Union(x, y int) {
 	}
 
 	if uf.Size(rx) < uf.Size(ry) {
-		rx = rx ^ ry
-		ry = rx ^ ry
-		rx = rx ^ ry
+		rx, ry = ry, rx
 	}
 
 	uf.data[rx] += uf.data[ry]
@@ -305,9 +303,9 @@ type PQ[T Ordered] struct {
 }
 
 func NewPQ[T Ordered]() *PQ[T] {
-	value := &heapImpl[T]{}
-	heap.Init(value)
-	return &PQ[T]{}
+	pq := &PQ[T]{}
+	heap.Init(&pq.value)
+	return pq
 }
 
 func (pq *PQ[T]) Push(x T) {
@@ -576,15 +574,13 @@ func (sv *EratosthenesSieve) CountDivisors(x int) int {
 
 // ModPow return x^e % mod
 func ModPow(x, e, mod int) int {
-	i := 1
 	ret := 1
-
-	for i <= e {
-		if i&e > 0 {
+	for e > 0 {
+		if e&1 == 1 {
 			ret = (ret * x) % mod
 		}
-		i <<= 1
 		x = (x * x) % mod
+		e >>= 1
 	}
 	return ret
 }

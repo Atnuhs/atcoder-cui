@@ -7,6 +7,9 @@ CONTESTNAME=$1
 
 mkdir -p "${PWD}/problems" 
 
+[ -d "$ROOT/solve" ] && rm -r "$ROOT/solve/"
+[ -d "$ROOT/submit" ] && rm -r "$ROOT/submit/"
+
 cd "${PWD}/problems"
 acc new "${CONTESTNAME}" --choice all
 

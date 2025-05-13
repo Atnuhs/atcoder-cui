@@ -8,7 +8,7 @@ source "${ROOT}/bin/.env"
 PROBLEM=$1
 mkdir -p "${PWD}/submit"
 
-cp "${PWD}/solve/main.go" "${PWD}/submit"
+cp "${PWD}/solve/$PROBLEM/main.go" "${PWD}/submit"
 
 oj t -c "go run ${PWD}/submit/main.go" -d ${PWD}/problems/${CONTESTNAME}/${PROBLEM}/tests -S
 

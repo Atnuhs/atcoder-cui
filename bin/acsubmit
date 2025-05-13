@@ -9,7 +9,7 @@ PROBLEM=$1
 
 mkdir -p "${PWD}/submit"
 FILE_SRC="${PWD}/submit/main.go"
-cp "${PWD}/solve/main.go" "$FILE_SRC"
+cp "${PWD}/solve/$PROBLEM/main.go" "$FILE_SRC"
 
 cd "${ROOT}/problems/${CONTESTNAME}/${PROBLEM}"
 acc submit "${FILE_SRC}" 
