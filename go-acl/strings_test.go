@@ -11,11 +11,11 @@ func TestManacher(t *testing.T) {
 		s    string
 		want []int
 	}{
-		"odd":  {s: "ababa", want: []int{1,2,3,2,1}},
+		"odd": {s: "ababa", want: []int{1, 2, 3, 2, 1}},
 		// 偶数長の回文を検知できるようにしていないもの
-		"even": {s: "abba", want: []int{1,1,1,1}},
+		"even": {s: "abba", want: []int{1, 1, 1, 1}},
 		// 偶数長の回文を検知できるように入力文字を$で挟んで細工したもの
-		"even2": {s: "$a$b$b$a$", want: []int{1,2,1,2,5,2,1,2,1}},
+		"even2": {s: "$a$b$b$a$", want: []int{1, 2, 1, 2, 5, 2, 1, 2, 1}},
 	}
 
 	for name, tc := range tests {

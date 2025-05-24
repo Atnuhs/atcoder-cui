@@ -4,7 +4,7 @@ import (
 	"math/rand"
 	"testing"
 
-	"go-acl/testlib"
+	"github.com/Atnuhs/atcoder-cui/go-acl/testlib"
 )
 
 func TestSplaySet_Push(t *testing.T) {

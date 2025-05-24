@@ -197,7 +197,7 @@ func TestSplayNode_InsertAt(t *testing.T) {
 	}
 }
 
-func delete(i int, arr []int) []int {
+func deleteTest(i int, arr []int) []int {
 	l := arr[:i]
 	var r []int
 	if i+1 < len(arr) {
@@ -213,7 +213,7 @@ func TestSplayNode_DeleteAt(t *testing.T) {
 	for i := 0; i < n; i++ {
 		j := rand.Intn(root.size)
 		root, _ = root.DeleteAt(j)
-		expected = delete(j, expected)
+		expected = deleteTest(j, expected)
 		assertValues(t, root, expected)
 	}
 }
