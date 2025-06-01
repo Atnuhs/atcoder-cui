@@ -196,21 +196,17 @@ func No() {
 }
 
 // YesNo は条件に応じてYesまたはNoを出力する
-func YesNo(f func() bool) {
-	if f() {
+func YesNo(b bool) {
+	if b {
 		Yes()
 	} else {
 		No()
 	}
 }
 
-// YesNo2 は条件に応じてYesまたはNoを出力する
-func YesNo2(b bool) {
-	if b {
-		Yes()
-	} else {
-		No()
-	}
+// YesNoFunc は関数の結果に応じてYesまたはNoを出力する
+func YesNoFunc(f func() bool) {
+	YesNo(f())
 }
 
 // PopBack はO(1)で配列の末尾を削除して返す
@@ -317,7 +313,9 @@ type Compress[T Ordered] struct {
 }
 
 func NewCompress[T Ordered](vals []T) *Compress[T] {
-	v := MakeSlice(len(vals), func(i int) T { return vals[i] })
+	// Copy and sort the values
+	v := make([]T, len(vals))
+	copy(v, vals)
 	sort.Slice(v, func(i, j int) bool { return v[i] < v[j] })
 	v = Uniq(v)
 

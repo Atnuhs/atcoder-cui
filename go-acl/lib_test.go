@@ -89,6 +89,70 @@ func TestAns(t *testing.T) {
 	}
 }
 
+func TestYesNo(t *testing.T) {
+	testOut := new(bytes.Buffer)
+	Out = bufio.NewWriter(testOut)
+	
+	tests := map[string]struct {
+		input bool
+		want  string
+	}{
+		"true": {input: true, want: "Yes\n"},
+		"false": {input: false, want: "No\n"},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			testOut.Reset()
+			YesNo(tc.input)
+			Out.Flush()
+			actual := testOut.String()
+			if tc.want != actual {
+				t.Errorf("expected: %q, but got: %q", tc.want, actual)
+			}
+		})
+	}
+}
+
+func TestYesNoFunc(t *testing.T) {
+	testOut := new(bytes.Buffer)
+	Out = bufio.NewWriter(testOut)
+	
+	tests := map[string]struct {
+		inputFunc func() bool
+		want      string
+	}{
+		"function returns true": {
+			inputFunc: func() bool { return true },
+			want:      "Yes\n",
+		},
+		"function returns false": {
+			inputFunc: func() bool { return false },
+			want:      "No\n",
+		},
+		"complex function true": {
+			inputFunc: func() bool { return 5 > 3 },
+			want:      "Yes\n",
+		},
+		"complex function false": {
+			inputFunc: func() bool { return 2 > 5 },
+			want:      "No\n",
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			testOut.Reset()
+			YesNoFunc(tc.inputFunc)
+			Out.Flush()
+			actual := testOut.String()
+			if tc.want != actual {
+				t.Errorf("expected: %q, but got: %q", tc.want, actual)
+			}
+		})
+	}
+}
+
 func BenchmarkOutputToOut(b *testing.B) {
 	text := strings.Repeat("a", 100)
 	b.ResetTimer()

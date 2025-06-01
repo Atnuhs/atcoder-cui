@@ -1,0 +1,2005 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>go-acl: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/Atnuhs/atcoder-cui/go-acl/depq.go (100.0%)</option>
+				
+				<option value="file1">github.com/Atnuhs/atcoder-cui/go-acl/graph.go (0.0%)</option>
+				
+				<option value="file2">github.com/Atnuhs/atcoder-cui/go-acl/lib.go (12.0%)</option>
+				
+				<option value="file3">github.com/Atnuhs/atcoder-cui/go-acl/main.go (0.0%)</option>
+				
+				<option value="file4">github.com/Atnuhs/atcoder-cui/go-acl/math.go (69.0%)</option>
+				
+				<option value="file5">github.com/Atnuhs/atcoder-cui/go-acl/pair.go (50.0%)</option>
+				
+				<option value="file6">github.com/Atnuhs/atcoder-cui/go-acl/pq.go (83.8%)</option>
+				
+				<option value="file7">github.com/Atnuhs/atcoder-cui/go-acl/segtree.go (0.0%)</option>
+				
+				<option value="file8">github.com/Atnuhs/atcoder-cui/go-acl/sieve.go (100.0%)</option>
+				
+				<option value="file9">github.com/Atnuhs/atcoder-cui/go-acl/splay.go (76.1%)</option>
+				
+				<option value="file10">github.com/Atnuhs/atcoder-cui/go-acl/strings.go (100.0%)</option>
+				
+				<option value="file11">github.com/Atnuhs/atcoder-cui/go-acl/testlib/assert.go (0.0%)</option>
+				
+				<option value="file12">github.com/Atnuhs/atcoder-cui/go-acl/unionfind.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+
+// lIdx　は左の子ノードのインデックスを返す
+func lIdx(idx int) int <span class="cov8" title="1">{
+        return idx &amp; ^1
+}</span>
+
+// rIdx　は右の子ノードのインデックスを返す
+func rIdx(idx int) int <span class="cov8" title="1">{
+        return idx | 1
+}</span>
+
+// pIdx　は親ノードのインデックスを返す
+func pIdx(idx int) int <span class="cov8" title="1">{
+        return ((idx &gt;&gt; 1) - 1) &amp; ^1
+}</span>
+
+// cIdx　は子ノードのインデックスを返す
+func cIdx(idx int) int <span class="cov8" title="1">{
+        return (idx &amp; ^1)&lt;&lt;1 | 2 | idx&amp;1
+}</span>
+
+// DEPQ は二重優先度キューの実装
+// 二重優先度キューは、最大値と最小値をO(logN)で取得できるデータ構造
+type DEPQ[T Ordered] struct {
+        values []T
+}
+
+// NewDEPQ は二重優先度キューを初期化する
+func NewDEPQ[T Ordered](values ...T) *DEPQ[T] <span class="cov8" title="1">{
+        pq := &amp;DEPQ[T]{
+                values: values,
+        }
+        for i := pq.Size() - 1; i &gt;= 0; i-- </span><span class="cov8" title="1">{
+                if i&amp;1 == 1 &amp;&amp; pq.values[i-1] &lt; pq.values[i] </span><span class="cov8" title="1">{
+                        pq.values[i-1], pq.values[i] = pq.values[i], pq.values[i-1]
+                }</span>
+                <span class="cov8" title="1">idx := pq.down(i)
+                pq.upAt(idx, i)</span>
+        }
+        <span class="cov8" title="1">return pq</span>
+}
+
+func (pq *DEPQ[T]) Size() int <span class="cov8" title="1">{
+        return len(pq.values)
+}</span>
+
+func (pq *DEPQ[T]) Empty() bool <span class="cov8" title="1">{
+        return len(pq.values) == 0
+}</span>
+
+func (pq *DEPQ[T]) Push(x T) <span class="cov8" title="1">{
+        pq.values = append(pq.values, x)
+        pq.up(pq.Size() - 1)
+}</span>
+
+func (pq *DEPQ[T]) GetMax() T <span class="cov8" title="1">{
+        return pq.values[0]
+}</span>
+
+func (pq *DEPQ[T]) GetMin() T <span class="cov8" title="1">{
+        if pq.Size() &lt; 2 </span><span class="cov8" title="1">{
+                return pq.values[0]
+        }</span>
+        <span class="cov8" title="1">return pq.values[1]</span>
+}
+
+func (pq *DEPQ[T]) PopMax() T <span class="cov8" title="1">{
+        ret := pq.GetMax()
+        pq.values[0] = pq.values[pq.Size()-1]
+        pq.values = pq.values[:pq.Size()-1]
+        idx := pq.down(0)
+        pq.up(idx)
+        return ret
+}</span>
+
+func (pq *DEPQ[T]) PopMin() T <span class="cov8" title="1">{
+        ret := pq.GetMin()
+        if pq.Size() &lt; 2 </span><span class="cov8" title="1">{
+                pq.values = []T{}
+                return ret
+        }</span>
+        <span class="cov8" title="1">pq.values[1] = pq.values[pq.Size()-1]
+        pq.values = pq.values[:pq.Size()-1]
+        idx := pq.down(1)
+        pq.up(idx)
+        return ret</span>
+}
+
+func (pq *DEPQ[T]) upAt(idx, root int) <span class="cov8" title="1">{
+        l, r := lIdx(idx), rIdx(idx)
+
+        // sould be value[l] &gt;= value[r]
+        if r &lt; pq.Size() &amp;&amp; pq.values[l] &lt; pq.values[r] </span><span class="cov8" title="1">{
+                pq.values[l], pq.values[r] = pq.values[r], pq.values[l]
+                idx ^= 1
+        }</span>
+
+        <span class="cov8" title="1">for p := pIdx(idx); idx &gt; root &amp;&amp; pq.values[p] &lt; pq.values[idx]; idx, p = p, pIdx(p) </span><span class="cov8" title="1">{
+                // max heap
+                pq.values[idx], pq.values[p] = pq.values[p], pq.values[idx]
+        }</span>
+
+        <span class="cov8" title="1">for p := pIdx(idx) | 1; idx &gt; root &amp;&amp; pq.values[p] &gt; pq.values[idx]; idx, p = p, pIdx(p)|1 </span><span class="cov8" title="1">{
+                // min heap
+                pq.values[idx], pq.values[p] = pq.values[p], pq.values[idx]
+        }</span>
+}
+
+func (pq *DEPQ[T]) up(idx int) <span class="cov8" title="1">{
+        pq.upAt(idx, 1)
+}</span>
+
+func (pq *DEPQ[T]) down(idx int) int <span class="cov8" title="1">{
+        if idx&amp;1 == 1 </span><span class="cov8" title="1">{
+                // min heap
+                for c := cIdx(idx); c &lt; pq.Size(); idx, c = c, cIdx(c) </span><span class="cov8" title="1">{
+                        if c+2 &lt; pq.Size() &amp;&amp; pq.values[c] &gt; pq.values[c+2] </span><span class="cov8" title="1">{
+                                c += 2
+                        }</span>
+                        <span class="cov8" title="1">if pq.values[c] &lt; pq.values[idx] </span><span class="cov8" title="1">{
+                                pq.values[idx], pq.values[c] = pq.values[c], pq.values[idx]
+                        }</span>
+                }
+        } else<span class="cov8" title="1"> {
+                // max heap
+                for c := cIdx(idx); c &lt; pq.Size(); idx, c = c, cIdx(c) </span><span class="cov8" title="1">{
+                        if c+2 &lt; pq.Size() &amp;&amp; pq.values[c] &lt; pq.values[c+2] </span><span class="cov8" title="1">{
+                                c += 2
+                        }</span>
+                        <span class="cov8" title="1">if pq.values[c] &gt; pq.values[idx] </span><span class="cov8" title="1">{
+                                pq.values[idx], pq.values[c] = pq.values[c], pq.values[idx]
+                        }</span>
+                }
+        }
+        <span class="cov8" title="1">return idx</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package main
+
+import "sort"
+
+// WEdge は重み付き辺を表す構造体
+type WEdge struct {
+        from, to, weight int
+}
+
+// NewWEdge は新しい重み付き辺を生成する
+func NewWEdge(from, to, weight int) *WEdge <span class="cov0" title="0">{
+        return &amp;WEdge{
+                from:   from,
+                to:     to,
+                weight: weight,
+        }
+}</span>
+
+// Kruskal はクラスカル法を用いて最小全域木を求める
+func Kruskal(n int, edges []*WEdge) (int, []*WEdge) <span class="cov0" title="0">{
+        // はじめに辺を重みでソートする
+        sort.Slice(edges, func(i, j int) bool </span><span class="cov0" title="0">{
+                return edges[i].weight &lt; edges[j].weight
+        }</span>)
+
+        // その後、Union-Findを用いて最小全域木を求める
+        <span class="cov0" title="0">uf := NewUnionFind(n)
+        ret := make([]*WEdge, 0)
+        sum := 0
+
+        // すべての辺を調べる
+        for _, e := range edges </span><span class="cov0" title="0">{
+                if uf.Family(e.from, e.to) </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+                <span class="cov0" title="0">ret = append(ret, e)
+                sum += e.weight
+                uf.Union(e.from, e.to)</span>
+        }
+        <span class="cov0" title="0">if uf.Size(0) != n </span><span class="cov0" title="0">{
+                return -1, nil
+        }</span>
+        <span class="cov0" title="0">return sum, ret</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package main
+
+import (
+        "bufio"
+        "fmt"
+        "os"
+        "sort"
+)
+
+var (
+        In  = bufio.NewReaderSize(os.Stdin, 1&lt;&lt;20)
+        Out = bufio.NewWriterSize(os.Stdout, 1&lt;&lt;20)
+        Dbg = bufio.NewWriterSize(os.Stderr, 1&lt;&lt;20)
+)
+
+const (
+        MOD1 = 1000000007
+        MOD2 = 998244353
+        // INF is 10^18
+        INF = 1000000000000000000
+)
+
+// Ordered はconstraints.OrderedがAtCoderで使えないので、代わりに使う
+type Ordered interface {
+        ~int | ~int8 | ~int16 | ~int32 | ~int64 |
+                ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr |
+                ~float32 | ~float64 |
+                ~string
+}
+
+// MakeSlice は長さnの配列を、関数fで初期化する
+func MakeSlice[T any](n int, f func(i int) T) []T <span class="cov0" title="0">{
+        ret := make([]T, n)
+        for i := range ret </span><span class="cov0" title="0">{
+                ret[i] = f(i)
+        }</span>
+        <span class="cov0" title="0">return ret</span>
+}
+
+// MakeGrid はh行w列の配列を、関数fで初期化する
+func MakeGrid[T any](h, w int, f func(ih, iw int) T) [][]T <span class="cov0" title="0">{
+        return MakeSlice(h, func(ih int) []T </span><span class="cov0" title="0">{
+                return MakeSlice(w, func(iw int) T </span><span class="cov0" title="0">{
+                        return f(ih, iw)
+                }</span>)
+        })
+}
+
+// MakeSliceWith は長さnの配列を、関数fで初期化する
+func MakeSliceWith[T any](n int, f func() T) []T <span class="cov0" title="0">{ return MakeSlice(n, func(_ int) T </span><span class="cov0" title="0">{ return f() }</span>) }
+
+// MakeGridWith はh行w列の配列を、関数fで初期化する
+func MakeGridWith[T any](h, w int, f func() T) [][]T <span class="cov0" title="0">{
+        return MakeGrid(h, w, func(_ int, _ int) T </span><span class="cov0" title="0">{ return f() }</span>)
+}
+
+// MakeSliceOf は長さnの配列を、値vで初期化する
+// vに配列を指定すると、すべてポインタが同じになる
+func MakeSliceOf[T any](n int, v T) []T <span class="cov0" title="0">{
+        return MakeSlice(n, func(_ int) T </span><span class="cov0" title="0">{ return v }</span>)
+}
+
+// MakeGridOf はh行w列の配列を、値vで初期化する
+// vに配列を指定すると、すべてポインタが同じになる
+func MakeGridOf[T any](h, w int, v T) [][]T <span class="cov0" title="0">{
+        return MakeGrid(h, w, func(_ int, _ int) T </span><span class="cov0" title="0">{ return v }</span>)
+}
+
+// MakeJaggedSlice はn行のグラフをjagged配列で初期化する
+func MakeJaggedSlice[T any](n int) [][]T <span class="cov0" title="0">{
+        return MakeSlice(n, func(_ int) []T </span><span class="cov0" title="0">{ return make([]T, 0) }</span>)
+}
+
+// Prepend は配列の先頭に値を追加する
+func Prepend[T any](arr []T, vars ...T) []T <span class="cov0" title="0">{
+        return append(vars, arr...)
+}</span>
+
+// All は配列のすべての要素が条件を満たすかどうかを判定する
+func All[T any](vals []T, f func(i int, v T) bool) bool <span class="cov0" title="0">{
+        for i, v := range vals </span><span class="cov0" title="0">{
+                if !f(i, v) </span><span class="cov0" title="0">{
+                        return false
+                }</span>
+        }
+        <span class="cov0" title="0">return true</span>
+}
+
+// Any は配列のいずれかの要素が条件を満たすかどうかを判定する
+func Any[T any](vals []T, f func(i int, v T) bool) bool <span class="cov0" title="0">{
+        for i, v := range vals </span><span class="cov0" title="0">{
+                if f(i, v) </span><span class="cov0" title="0">{
+                        return true
+                }</span>
+        }
+        <span class="cov0" title="0">return false</span>
+}
+
+// S は文字列を読み込む
+func S() string <span class="cov0" title="0">{
+        var ret string
+        fmt.Fscan(In, &amp;ret)
+        return ret
+}</span>
+
+// R は文字列を[]runeとして読み込む
+func R() []rune <span class="cov0" title="0">{
+        return []rune(S())
+}</span>
+
+// I は整数を読み込む
+func I() int <span class="cov0" title="0">{
+        var ret int
+        fmt.Fscan(In, &amp;ret)
+        return ret
+}</span>
+
+// II は整数を2つ読み込む
+func II() (int, int) <span class="cov0" title="0">{
+        var ret1, ret2 int
+        fmt.Fscan(In, &amp;ret1, &amp;ret2)
+        return ret1, ret2
+}</span>
+
+// III は整数を3つ読み込む
+func III() (int, int, int) <span class="cov0" title="0">{
+        var ret1, ret2, ret3 int
+        fmt.Fscan(In, &amp;ret1, &amp;ret2, &amp;ret3)
+        return ret1, ret2, ret3
+}</span>
+
+// IIII は整数を4つ読み込む
+func IIII() (int, int, int, int) <span class="cov0" title="0">{
+        var ret1, ret2, ret3, ret4 int
+        fmt.Fscan(In, &amp;ret1, &amp;ret2, &amp;ret3, &amp;ret4)
+        return ret1, ret2, ret3, ret4
+}</span>
+
+// Is は整数をn個読み込む
+func Is(n int) []int <span class="cov0" title="0">{ return MakeSliceWith(n, I) }</span>
+
+// Iss は整数をh行w列の配列として読み込む
+func Iss(h, w int) [][]int <span class="cov0" title="0">{ return MakeGridWith(h, w, I) }</span>
+
+// Sss は文字列をn個読み込む
+func Ss(n int) []string <span class="cov0" title="0">{ return MakeSliceWith(n, S) }</span>
+
+// Rss は文字列をn個読み込む
+func Rs(n int) [][]rune <span class="cov0" title="0">{ return MakeSliceWith(n, R) }</span>
+
+// Ans は出力を行う
+func Ans(args ...any) <span class="cov8" title="1">{
+        for i, arg := range args </span><span class="cov8" title="1">{
+                switch v := arg.(type) </span>{
+                case float64:<span class="cov0" title="0">
+                        fmt.Fprintf(Out, "%.14f", v)</span>
+                case []int:<span class="cov8" title="1">
+                        for j, x := range v </span><span class="cov8" title="1">{
+                                if j &gt; 0 </span><span class="cov8" title="1">{
+                                        fmt.Fprint(Out, " ")
+                                }</span>
+                                <span class="cov8" title="1">fmt.Fprint(Out, x)</span>
+                        }
+                case []string:<span class="cov0" title="0">
+                        for j, x := range v </span><span class="cov0" title="0">{
+                                if j &gt; 0 </span><span class="cov0" title="0">{
+                                        fmt.Fprint(Out, " ")
+                                }</span>
+                                <span class="cov0" title="0">fmt.Fprint(Out, x)</span>
+                        }
+                case []float64:<span class="cov0" title="0">
+                        for j, x := range v </span><span class="cov0" title="0">{
+                                if j &gt; 0 </span><span class="cov0" title="0">{
+                                        fmt.Fprint(Out, " ")
+                                }</span>
+                                <span class="cov0" title="0">fmt.Fprintf(Out, "%.14f", x)</span>
+                        }
+                default:<span class="cov8" title="1">
+                        fmt.Fprint(Out, v)</span>
+                }
+                <span class="cov8" title="1">if i &lt; len(args)-1 </span><span class="cov8" title="1">{
+                        fmt.Fprint(Out, " ")
+                }</span>
+        }
+        <span class="cov8" title="1">fmt.Fprintln(Out)</span>
+}
+
+// Yes は"Yes"を出力する
+func Yes() <span class="cov0" title="0">{
+        Ans("Yes")
+}</span>
+
+// No は"No"を出力する
+func No() <span class="cov0" title="0">{
+        Ans("No")
+}</span>
+
+// YesNo は条件に応じてYesまたはNoを出力する
+func YesNo(f func() bool) <span class="cov0" title="0">{
+        if f() </span><span class="cov0" title="0">{
+                Yes()
+        }</span> else<span class="cov0" title="0"> {
+                No()
+        }</span>
+}
+
+// YesNo2 は条件に応じてYesまたはNoを出力する
+func YesNo2(b bool) <span class="cov0" title="0">{
+        if b </span><span class="cov0" title="0">{
+                Yes()
+        }</span> else<span class="cov0" title="0"> {
+                No()
+        }</span>
+}
+
+// PopBack はO(1)で配列の末尾を削除して返す
+func PopBack[T any](a *[]T) T <span class="cov8" title="1">{
+        ret := (*a)[len(*a)-1]
+        *a = (*a)[:len(*a)-1]
+        return ret
+}</span>
+
+// PopFront はO(1)で配列の先頭を削除して返す
+func PopFront[T any](a *[]T) T <span class="cov8" title="1">{
+        ret := (*a)[0]
+        *a = (*a)[1:]
+        return ret
+}</span>
+
+func Reduce[A any, B any](src []A, f func(A, B) B, acc B) B <span class="cov0" title="0">{
+        ret := acc
+        for _, v := range src </span><span class="cov0" title="0">{
+                ret = f(v, ret)
+        }</span>
+        <span class="cov0" title="0">return ret</span>
+}
+
+func ReduceI[A any, B any](src []A, f func(int, A, B) B, acc B) B <span class="cov0" title="0">{
+        ret := acc
+        for i, v := range src </span><span class="cov0" title="0">{
+                ret = f(i, v, ret)
+        }</span>
+        <span class="cov0" title="0">return ret</span>
+}
+
+func Reduce2D[A any, B any](src [][]A, f func(A, B) B, acc B) B <span class="cov0" title="0">{
+        ret := acc
+        for _, row := range src </span><span class="cov0" title="0">{
+                for _, v := range row </span><span class="cov0" title="0">{
+                        ret = f(v, ret)
+                }</span>
+        }
+        <span class="cov0" title="0">return ret</span>
+}
+
+func Uniq[T Ordered](vals []T) []T <span class="cov0" title="0">{
+        return Reduce(vals, func(val T, acc []T) []T </span><span class="cov0" title="0">{
+                if len(acc) == 0 || acc[len(acc)-1] != val </span><span class="cov0" title="0">{
+                        acc = append(acc, val)
+                }</span>
+                <span class="cov0" title="0">return acc</span>
+        }, make([]T, 0, len(vals)))
+}
+
+func Filter[T any](vals []T, f func(val T) bool) []T <span class="cov0" title="0">{
+        return Reduce(vals, func(val T, acc []T) []T </span><span class="cov0" title="0">{
+                if f(val) </span><span class="cov0" title="0">{
+                        return append(acc, val)
+                }</span>
+                <span class="cov0" title="0">return acc</span>
+        }, make([]T, 0, len(vals)))
+}
+
+func FilterI[T any](vals []T, f func(i int, val T) bool) []T <span class="cov0" title="0">{
+        return ReduceI(vals, func(i int, val T, acc []T) []T </span><span class="cov0" title="0">{
+                if f(i, val) </span><span class="cov0" title="0">{
+                        return append(acc, val)
+                }</span>
+                <span class="cov0" title="0">return acc</span>
+        }, make([]T, 0, len(vals)))
+}
+
+func Map[S any, T any](src []S, f func(S) T) []T <span class="cov0" title="0">{
+        return Reduce(src, func(val S, acc []T) []T </span><span class="cov0" title="0">{
+                return append(acc, f(val))
+        }</span>, make([]T, 0, len(src)))
+}
+
+func MapI[S any, T any](src []S, f func(int, S) T) []T <span class="cov0" title="0">{
+        return ReduceI(src, func(i int, val S, acc []T) []T </span><span class="cov0" title="0">{
+                return append(acc, f(i, val))
+        }</span>, make([]T, 0, len(src)))
+}
+
+func RotateCW90[T any](src [][]T) [][]T <span class="cov0" title="0">{
+        if len(src) == 0 || len(src[0]) == 0 </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov0" title="0">h, w := len(src), len(src[0])
+
+        ret := make([][]T, w)
+        for i := range ret </span><span class="cov0" title="0">{
+                ret[i] = make([]T, h)
+        }</span>
+        <span class="cov0" title="0">for ih := range src </span><span class="cov0" title="0">{
+                for iw := range src[ih] </span><span class="cov0" title="0">{
+                        jh, jw := iw, h-1-ih
+                        ret[jh][jw] = src[ih][iw]
+                }</span>
+        }
+        <span class="cov0" title="0">return ret</span>
+}
+
+type Compress[T Ordered] struct {
+        toOrig []T       // idx -&gt; value
+        toIdx  map[T]int // value -&gt; idx
+}
+
+func NewCompress[T Ordered](vals []T) *Compress[T] <span class="cov0" title="0">{
+        v := MakeSlice(len(vals), func(i int) T </span><span class="cov0" title="0">{ return vals[i] }</span>)
+        <span class="cov0" title="0">sort.Slice(v, func(i, j int) bool </span><span class="cov0" title="0">{ return v[i] &lt; v[j] }</span>)
+        <span class="cov0" title="0">v = Uniq(v)
+
+        m := make(map[T]int, len(v))
+        for i, x := range v </span><span class="cov0" title="0">{
+                m[x] = i
+        }</span>
+        <span class="cov0" title="0">return &amp;Compress[T]{
+                toOrig: v,
+                toIdx:  m,
+        }</span>
+}
+
+func (c *Compress[T]) Idx(x T) int <span class="cov0" title="0">{
+        if i, ok := c.toIdx[x]; ok </span><span class="cov0" title="0">{
+                return i
+        }</span>
+        <span class="cov0" title="0">return -1</span>
+}
+
+func (c *Compress[T]) Val(i int) T <span class="cov0" title="0">{
+        return c.toOrig[i]
+}</span>
+
+func (c *Compress[T]) Size() int <span class="cov0" title="0">{
+        return len(c.toOrig)
+}</span>
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package main
+
+func main() <span class="cov0" title="0">{
+        defer Out.Flush()
+
+        h, w := II()
+        g := Rs(h)
+        passed := MakeGridOf(h, w, -1)
+        a, b, c, d := IIII()
+        a--
+        b--
+        c--
+        d--
+
+        todo := NewPQ(func(i, j *Pair[*Pair[int, int], int]) bool </span><span class="cov0" title="0">{ return i.v &lt; j.v }</span>)
+        <span class="cov0" title="0">todo.Push(NewPair(NewPair(a, b), 0))
+        dxy := [][2]int{{1, 0}, {0, 1}, {-1, 0}, {0, -1}}
+        for !todo.IsEmpty() </span><span class="cov0" title="0">{
+                now := todo.Pop()
+                p := now.u
+                cnt := now.v
+
+                if p.u &lt; 0 || h &lt;= p.u || p.v &lt; 0 || w &lt;= p.v </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+                <span class="cov0" title="0">if passed[p.u][p.v] &gt;= 0 </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+                <span class="cov0" title="0">passed[p.u][p.v] = cnt
+                Ans("#")
+                for _, v := range passed </span><span class="cov0" title="0">{
+                        Ans(Map(v, func(v int) any </span><span class="cov0" title="0">{
+                                if v == -1 </span><span class="cov0" title="0">{
+                                        return "#"
+                                }</span>
+                                <span class="cov0" title="0">return v</span>
+                        }))
+                }
+                <span class="cov0" title="0">if p.u == c &amp;&amp; p.v == d </span><span class="cov0" title="0">{
+                        Ans(cnt)
+                        return
+                }</span>
+
+                <span class="cov0" title="0">if g[p.u][p.v] == '#' </span><span class="cov0" title="0">{
+                        for _, d := range dxy </span><span class="cov0" title="0">{
+                                u, v := p.u+d[0], p.v+d[1]
+                                if 0 &lt;= u || u &lt; h || 0 &lt;= v || v &lt; w || g[u][v] == '.' </span><span class="cov0" title="0">{
+                                        todo.Push(NewPair(NewPair(u, v), cnt))
+                                }</span>
+                        }
+                        <span class="cov0" title="0">continue</span>
+                }
+
+                <span class="cov0" title="0">for _, d := range dxy </span><span class="cov0" title="0">{
+                        u, v := p.u+d[0], p.v+d[1]
+                        if u &lt; 0 || h &lt;= u || v &lt; 0 || w &lt;= v </span><span class="cov0" title="0">{
+                                continue</span>
+                        }
+
+                        <span class="cov0" title="0">if g[u][v] == '.' </span><span class="cov0" title="0">{
+                                todo.Push(NewPair(NewPair(u, v), cnt))
+                        }</span> else<span class="cov0" title="0"> {
+                                todo.Push(NewPair(NewPair(u, v), cnt+1))
+                                u2, v2 := u+d[0], v+d[1]
+                                if 0 &lt;= u2 || u2 &lt; h || 0 &lt;= v2 || v2 &lt; w || g[u2][v2] == '#' </span><span class="cov0" title="0">{
+                                        todo.Push(NewPair(NewPair(u2, v2), cnt+1))
+                                }</span>
+                        }
+                }
+        }
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package main
+
+import "math"
+
+// return x! % mod with O(x)
+func Factorial(x, mod int) int <span class="cov0" title="0">{
+        ans := 1
+        for i := 2; i &lt;= x; i++ </span><span class="cov0" title="0">{
+                ans = (ans * i) % mod
+        }</span>
+        <span class="cov0" title="0">return ans</span>
+}
+
+// ModPow return x^e % mod
+func ModPow(x, e, mod int) int <span class="cov8" title="1">{
+        ret := 1
+        for e &gt; 0 </span><span class="cov8" title="1">{
+                if e&amp;1 == 1 </span><span class="cov8" title="1">{
+                        ret = (ret * x) % mod
+                }</span>
+                <span class="cov8" title="1">x = (x * x) % mod
+                e &gt;&gt;= 1</span>
+        }
+        <span class="cov8" title="1">return ret</span>
+}
+
+// Inv return x^(-1) % mod
+func Inv(x, mod int) int <span class="cov8" title="1">{
+        return ModPow(x, mod-2, mod)
+}</span>
+
+// Gcd return greatest common divisor on O(log N)
+func Gcd(a, b int) int <span class="cov8" title="1">{
+        if b == 0 </span><span class="cov8" title="1">{
+                return a
+        }</span>
+        <span class="cov8" title="1">return Gcd(b, a%b)</span>
+}
+
+// Lcm return least common multiple on O(log N)
+func Lcm(a, b int) int <span class="cov0" title="0">{
+        return a / Gcd(a, b) * b
+}</span>
+
+// Sqrt return square root of x
+func Sqrt(x int) int <span class="cov8" title="1">{
+        return int(math.Sqrt(float64(x)))
+}</span>
+
+// NextPerm returns [1,2,3,4] =&gt; [1,2,4,3] ... [4,3,2,1]
+func NextPerm(a []int) bool <span class="cov0" title="0">{
+        // search i
+        i := len(a) - 2
+        for i &gt;= 0 &amp;&amp; a[i] &gt;= a[i+1] </span><span class="cov0" title="0">{
+                i--
+        }</span>
+        <span class="cov0" title="0">if i &lt; 0 </span><span class="cov0" title="0">{
+                return false
+        }</span>
+        <span class="cov0" title="0">j := len(a) - 1
+        for j &gt;= 0 &amp;&amp; a[j] &lt;= a[i] </span><span class="cov0" title="0">{
+                j--
+        }</span>
+
+        <span class="cov0" title="0">a[i], a[j] = a[j], a[i]
+
+        l := i + 1
+        r := len(a) - 1
+        for l &lt; r </span><span class="cov0" title="0">{
+                a[l], a[r] = a[r], a[l]
+                l++
+                r--
+        }</span>
+        <span class="cov0" title="0">return true</span>
+}
+
+// Extrema returns min, max
+func Extrema[T Ordered](vals ...T) (T, T) <span class="cov0" title="0">{
+        mi, ma := vals[0], vals[0]
+        for _, v := range vals </span><span class="cov0" title="0">{
+                if v &lt; mi </span><span class="cov0" title="0">{
+                        mi = v
+                }</span>
+                <span class="cov0" title="0">if v &gt; ma </span><span class="cov0" title="0">{
+                        ma = v
+                }</span>
+        }
+        <span class="cov0" title="0">return mi, ma</span>
+}
+
+func Max[T Ordered](vals ...T) T <span class="cov8" title="1">{
+        ma := vals[0]
+        for _, v := range vals[1:] </span><span class="cov8" title="1">{
+                if v &gt; ma </span><span class="cov8" title="1">{
+                        ma = v
+                }</span>
+        }
+        <span class="cov8" title="1">return ma</span>
+}
+
+func Min[T Ordered](vals ...T) T <span class="cov8" title="1">{
+        mi := vals[0]
+        for _, v := range vals[1:] </span><span class="cov8" title="1">{
+                if v &lt; mi </span><span class="cov8" title="1">{
+                        mi = v
+                }</span>
+        }
+        <span class="cov8" title="1">return mi</span>
+}
+
+// Sum returns sum of vals
+func Sum[T Ordered](vals ...T) T <span class="cov0" title="0">{
+        var sum T
+        for _, v := range vals </span><span class="cov0" title="0">{
+                sum += v
+        }</span>
+        <span class="cov0" title="0">return sum</span>
+}
+
+// Abs returns absolute value of x
+func Abs(x int) int <span class="cov0" title="0">{
+        if x &lt; 0 </span><span class="cov0" title="0">{
+                x = -x
+        }</span>
+        <span class="cov0" title="0">return x</span>
+}
+
+// IsPrime is O(Sqrt(N))
+func IsPrime(x int) bool <span class="cov8" title="1">{
+        if x &lt;= 1 </span><span class="cov8" title="1">{
+                return false
+        }</span>
+        <span class="cov8" title="1">if x &lt;= 3 </span><span class="cov0" title="0">{
+                return true
+        }</span>
+        <span class="cov8" title="1">if x%2 == 0 || x%3 == 0 </span><span class="cov8" title="1">{
+                return false
+        }</span>
+
+        <span class="cov8" title="1">rx := Sqrt(x)
+        for i := 5; i &lt;= rx; i += 6 </span><span class="cov8" title="1">{
+                if x%i == 0 || x%(i+2) == 0 </span><span class="cov0" title="0">{
+                        return false
+                }</span>
+        }
+        <span class="cov8" title="1">return true</span>
+}
+
+// Factorize is O(Sqrt(N))
+// got, ret
+// 6, []Pair{{2,1}, {3.1}}
+func Factorize(x int) []*Pair[int, int] <span class="cov8" title="1">{
+        if x &lt;= 1 </span><span class="cov8" title="1">{
+                return []*Pair[int, int]{}
+        }</span>
+
+        <span class="cov8" title="1">ret := make([]*Pair[int, int], 0)
+        n := x
+
+        // Handle factor 2
+        if n%2 == 0 </span><span class="cov8" title="1">{
+                exp := 0
+                for n%2 == 0 </span><span class="cov8" title="1">{
+                        n /= 2
+                        exp++
+                }</span>
+                <span class="cov8" title="1">ret = append(ret, NewPair(2, exp))</span>
+        }
+
+        // Handle odd factors from 3 onwards
+        <span class="cov8" title="1">rx := Sqrt(n)
+        for i := 3; i &lt;= rx; i += 2 </span><span class="cov8" title="1">{
+                if n%i == 0 </span><span class="cov8" title="1">{
+                        exp := 0
+                        for n%i == 0 </span><span class="cov8" title="1">{
+                                n /= i
+                                exp++
+                        }</span>
+                        <span class="cov8" title="1">ret = append(ret, NewPair(i, exp))
+                        rx = Sqrt(n)</span> // Update rx after reducing n
+                }
+        }
+
+        <span class="cov8" title="1">if n &gt; 1 </span><span class="cov8" title="1">{
+                ret = append(ret, NewPair(n, 1))
+        }</span>
+        <span class="cov8" title="1">return ret</span>
+}
+
+// Mobius is O(sqrt(n)) returns
+// 0 &lt;= 4, 12, 18, 50
+// 1 &lt;= 1, 6, 210
+// -1 &lt;= 2, 30, 140729
+func Mobius(x int) int <span class="cov8" title="1">{
+        if x &lt;= 0 </span><span class="cov0" title="0">{
+                return 0
+        }</span>
+        <span class="cov8" title="1">if x == 1 </span><span class="cov8" title="1">{
+                return 1
+        }</span>
+
+        <span class="cov8" title="1">ret := 1
+        n := x
+
+        // Handle factor 2
+        if n%2 == 0 </span><span class="cov8" title="1">{
+                n /= 2
+                ret = -ret
+                if n%2 == 0 </span><span class="cov8" title="1">{ // Square factor
+                        return 0
+                }</span>
+        }
+
+        // Handle odd factors
+        <span class="cov8" title="1">rx := Sqrt(n)
+        for i := 3; i &lt;= rx; i += 2 </span><span class="cov8" title="1">{
+                if n%i == 0 </span><span class="cov8" title="1">{
+                        n /= i
+                        ret = -ret
+                        if n%i == 0 </span><span class="cov8" title="1">{ // Square factor
+                                return 0
+                        }</span>
+                        <span class="cov8" title="1">rx = Sqrt(n)</span>
+                }
+        }
+
+        <span class="cov8" title="1">if n &gt; 1 </span><span class="cov8" title="1">{
+                ret = -ret
+        }</span>
+        <span class="cov8" title="1">return ret</span>
+}
+
+// Divisors is O(sqrt(n)) returns
+// 2 =&gt; 1, 2
+// 10 =&gt; 1, 2, 5, 10
+func Divisors(x int) []int <span class="cov8" title="1">{
+        if x &lt;= 0 </span><span class="cov0" title="0">{
+                return []int{}
+        }</span>
+
+        <span class="cov8" title="1">ret := make([]int, 0)
+        rx := Sqrt(x)
+        for i := 1; i &lt;= rx; i++ </span><span class="cov8" title="1">{
+                if x%i == 0 </span><span class="cov8" title="1">{
+                        ret = append(ret, i)
+                        if i != x/i </span><span class="cov8" title="1">{
+                                ret = append(ret, x/i)
+                        }</span>
+                }
+        }
+        <span class="cov8" title="1">return ret</span>
+}
+
+// CountDivisors is O(sqrt(n)) returns
+// 1 =&gt; 1
+// 2 =&gt; 2
+// 10 =&gt; 4
+func CountDivisors(pairs []*Pair[int, int]) int <span class="cov8" title="1">{
+        ans := 1
+        for _, pe := range pairs </span><span class="cov8" title="1">{
+                ans *= (pe.v + 1)
+        }</span>
+        <span class="cov8" title="1">return ans</span>
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package main
+
+import "fmt"
+
+// Pair は2つの値を持つ構造体
+type Pair[A any, B any] struct {
+        u A
+        v B
+}
+
+// NewPair Pairを生成する
+func NewPair[A any, B any](u A, v B) *Pair[A, B] <span class="cov8" title="1">{
+        return &amp;Pair[A, B]{u, v}
+}</span>
+
+// String Pairの文字列を、空白区切りで返す
+func (p *Pair[A, B]) String() string <span class="cov0" title="0">{
+        return fmt.Sprintf("%v %v", p.u, p.v)
+}</span>
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package main
+
+type LessFunc[T any] func(a, b T) bool
+
+// heaapImpl はヒープの実装
+type PQ[T any] struct {
+        data []T
+        less LessFunc[T]
+}
+
+func NewPQ[T any](less LessFunc[T]) *PQ[T] <span class="cov0" title="0">{
+        return &amp;PQ[T]{data: []T{}, less: less}
+}</span>
+
+func NewPQOrdered[T Ordered]() *PQ[T] <span class="cov8" title="1">{
+        return &amp;PQ[T]{data: []T{}, less: func(a, b T) bool </span><span class="cov8" title="1">{ return a &lt; b }</span>}
+}
+
+func (pq *PQ[T]) Push(x T) <span class="cov8" title="1">{
+        pq.data = append(pq.data, x)
+        pq.up(len(pq.data) - 1)
+}</span>
+
+func (pq *PQ[T]) Pop() T <span class="cov8" title="1">{
+        n := len(pq.data)
+        if n == 0 </span><span class="cov0" title="0">{
+                panic("pop from empty queue")</span>
+        }
+        <span class="cov8" title="1">pq.swap(0, n-1)
+        val := pq.data[n-1]
+        pq.data = pq.data[:n-1]
+        pq.down(0)
+        return val</span>
+}
+
+func (pq *PQ[T]) Peek() T <span class="cov0" title="0">{
+        if pq.IsEmpty() </span><span class="cov0" title="0">{
+                panic("peek from empty queue")</span>
+        }
+        <span class="cov0" title="0">return pq.data[0]</span>
+}
+
+func (pq *PQ[T]) IsEmpty() bool <span class="cov0" title="0">{
+        return len(pq.data) == 0
+}</span>
+
+func (pq *PQ[T]) Len() int <span class="cov8" title="1">{
+        return len(pq.data)
+}</span>
+
+func (pq *PQ[T]) up(i int) <span class="cov8" title="1">{
+        for </span><span class="cov8" title="1">{
+                p := (i - 1) / 2
+                if i == 0 || !pq.less(pq.data[i], pq.data[p]) </span><span class="cov8" title="1">{
+                        break</span>
+                }
+                <span class="cov8" title="1">pq.swap(i, p)
+                i = p</span>
+        }
+}
+
+func (pq *PQ[T]) down(i int) <span class="cov8" title="1">{
+        n := len(pq.data)
+        for </span><span class="cov8" title="1">{
+                l, r := 2*i+1, 2*i+2
+                smallest := i
+                if l &lt; n &amp;&amp; pq.less(pq.data[l], pq.data[smallest]) </span><span class="cov8" title="1">{
+                        smallest = l
+                }</span>
+                <span class="cov8" title="1">if r &lt; n &amp;&amp; pq.less(pq.data[r], pq.data[smallest]) </span><span class="cov8" title="1">{
+                        smallest = r
+                }</span>
+                <span class="cov8" title="1">if smallest == i </span><span class="cov8" title="1">{
+                        break</span>
+                }
+                <span class="cov8" title="1">pq.swap(i, smallest)
+                i = smallest</span>
+        }
+}
+
+func (pq *PQ[T]) swap(i, j int) <span class="cov8" title="1">{
+        pq.data[i], pq.data[j] = pq.data[j], pq.data[i]
+}</span>
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package main
+
+// Monoid
+type (
+        Operator[T any] func(x1, x2 T) T
+        Monoid[T any]   struct {
+                Op Operator[T]
+                E  T
+        }
+)
+
+// MoMax は最大値を求めるモノイド
+func MoMax() *Monoid[int] <span class="cov0" title="0">{
+        return &amp;Monoid[int]{
+                Op: func(x1, x2 int) int </span><span class="cov0" title="0">{
+                        return Max(x1, x2)
+                }</span>,
+                E: -INF,
+        }
+}
+
+// MoMin は最小値を求めるモノイド
+func MoMin() *Monoid[int] <span class="cov0" title="0">{
+        return &amp;Monoid[int]{
+                Op: func(x1, x2 int) int </span><span class="cov0" title="0">{
+                        return Min(x1, x2)
+                }</span>,
+                E: INF,
+        }
+}
+
+// MoSum は和を求めるモノイド
+func MoSum[T int | float64]() *Monoid[T] <span class="cov0" title="0">{
+        return &amp;Monoid[T]{
+                Op: func(x1, x2 T) T </span><span class="cov0" title="0">{
+                        return x1 + x2
+                }</span>,
+                E: 0,
+        }
+}
+
+// MoXOR はXORを求めるモノイド
+func MoXOR() *Monoid[int] <span class="cov0" title="0">{
+        return &amp;Monoid[int]{
+                Op: func(x1, x2 int) int </span><span class="cov0" title="0">{
+                        return x1 ^ x2
+                }</span>,
+                E: 0,
+        }
+}
+
+// MoMODMul はmodを考慮した掛け算を求めるモノイド
+func MoMODMul(mod int) *Monoid[int] <span class="cov0" title="0">{
+        return &amp;Monoid[int]{
+                Op: func(x1, x2 int) int </span><span class="cov0" title="0">{
+                        return (x1 * x2) % mod
+                }</span>,
+                E: 1,
+        }
+}
+
+// SegmentTree はセグメント木の実装
+type SegmentTree[T any] struct {
+        data []T
+        n    int
+        mo   *Monoid[T]
+}
+
+// NewSegmentTree はセグメント木を初期化する
+func NewSegmentTree[T any](arr []T, mo *Monoid[T]) *SegmentTree[T] <span class="cov0" title="0">{
+        n := 1
+        for n &lt; len(arr) </span><span class="cov0" title="0">{
+                n *= 2
+        }</span>
+
+        <span class="cov0" title="0">data := MakeSlice(2*n-1, func(i int) T </span><span class="cov0" title="0">{ return mo.E }</span>)
+        <span class="cov0" title="0">for i := range arr </span><span class="cov0" title="0">{
+                j := i + n - 1
+                data[j] = arr[i]
+        }</span>
+
+        <span class="cov0" title="0">for i := n - 2; i &gt;= 0; i-- </span><span class="cov0" title="0">{
+                c1 := 2*i + 1
+                c2 := 2*i + 2
+                data[i] = mo.Op(data[c1], data[c2])
+        }</span>
+
+        <span class="cov0" title="0">return &amp;SegmentTree[T]{
+                data: data,
+                n:    n,
+                mo:   mo,
+        }</span>
+}
+
+func (st *SegmentTree[T]) Update(i int, x T) <span class="cov0" title="0">{
+        i += st.n - 1
+        st.data[i] = x
+        for i &gt; 0 </span><span class="cov0" title="0">{
+                i = (i - 1) / 2
+                st.data[i] = st.mo.Op(st.data[2*i+1], st.data[2*i+2])
+        }</span>
+}
+
+func (st *SegmentTree[T]) At(i int) T <span class="cov0" title="0">{
+        return st.Query(i, i+1)
+}</span>
+
+func (st *SegmentTree[T]) Query(a, b int) T <span class="cov0" title="0">{
+        return st.querySub(a, b, 0, 0, st.n)
+}</span>
+
+func (st *SegmentTree[T]) querySub(a, b, n, l, r int) T <span class="cov0" title="0">{
+        if r &lt;= a || b &lt;= l </span><span class="cov0" title="0">{
+                return st.mo.E
+        }</span>
+
+        <span class="cov0" title="0">if a &lt;= l &amp;&amp; r &lt;= b </span><span class="cov0" title="0">{
+                return st.data[n]
+        }</span>
+
+        <span class="cov0" title="0">vl := st.querySub(a, b, 2*n+1, l, (l+r)/2)
+        vr := st.querySub(a, b, 2*n+2, (l+r)/2, r)
+        return st.mo.Op(vl, vr)</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package main
+
+// EratosthenesSieve はエラトステネスの篩の実装
+type EratosthenesSieve struct {
+        isPrime   []bool
+        minFactor []int
+        mobius    []int
+}
+
+// NewSieve はO(N loglog N)でエラトステネスの篩を初期化する
+func NewSieve(n int) *EratosthenesSieve <span class="cov8" title="1">{
+        isPrime := make([]bool, n+1)
+        minFactor := make([]int, n+1)
+        mobius := make([]int, n+1)
+
+        for i := range isPrime </span><span class="cov8" title="1">{
+                isPrime[i] = true
+                minFactor[i] = -1
+                mobius[i] = 1
+        }</span>
+
+        <span class="cov8" title="1">isPrime[0] = false
+        isPrime[1] = false
+        minFactor[1] = 1
+
+        // sieve
+        for i := range isPrime </span><span class="cov8" title="1">{
+                if !isPrime[i] </span><span class="cov8" title="1">{
+                        continue</span>
+                }
+
+                <span class="cov8" title="1">minFactor[i] = i
+                mobius[i] = -1
+
+                for j := i * 2; j &lt;= n; j += i </span><span class="cov8" title="1">{
+                        isPrime[j] = false
+
+                        if minFactor[j] == -1 </span><span class="cov8" title="1">{
+                                minFactor[j] = i
+                        }</span>
+
+                        <span class="cov8" title="1">if (j/i)%i == 0 </span><span class="cov8" title="1">{
+                                mobius[j] = 0
+                        }</span> else<span class="cov8" title="1"> {
+                                mobius[j] = -mobius[j]
+                        }</span>
+                }
+        }
+        <span class="cov8" title="1">return &amp;EratosthenesSieve{
+                isPrime:   isPrime,
+                minFactor: minFactor,
+                mobius:    mobius,
+        }</span>
+}
+
+// IsPrime はO(1)で素数かどうかを判定する
+func (sv *EratosthenesSieve) IsPrime(x int) bool <span class="cov8" title="1">{
+        return sv.isPrime[x]
+}</span>
+
+// Factorize は O(Sqrt(N))で素因数分解を行う
+// 返り値は素因数とその指数のPairのスライス
+// 例）got, ret
+// 6, []Pair{{2,1}, {3.1}}
+func (sv *EratosthenesSieve) Factorize(x int) []*Pair[int, int] <span class="cov8" title="1">{
+        ret := make([]*Pair[int, int], 0)
+        n := x
+        for n &gt; 1 </span><span class="cov8" title="1">{
+                p := sv.minFactor[n]
+                exp := 0
+
+                for sv.minFactor[n] == p </span><span class="cov8" title="1">{
+                        n /= p
+                        exp++
+                }</span>
+                <span class="cov8" title="1">ret = append(ret, NewPair(p, exp))</span>
+        }
+        <span class="cov8" title="1">return ret</span>
+}
+
+// Mobius はO(sqrt(n))でメビウス関数を計算する
+// メビウス関数は、整数nに対して以下のように定義される
+// 0 &lt;= n: nが平方数で割り切れる場合
+// 1 or -1 &lt;= (-1)^k: nがk個の異なる素因数を持つ場合
+// 具体的には以下のような値となる
+// 0 &lt;= 4, 12, 18, 50: 平方数で割り切れる
+// 1 &lt;= 1, 6, 210: 偶数個の素因数を持つ
+// -1 &lt;= 2, 30, 140729 : 奇数個の素因数を持つ
+// 約数系包除原理で使う
+func (sv *EratosthenesSieve) Mobius(x int) int <span class="cov8" title="1">{
+        return sv.mobius[x]
+}</span>
+
+// Divisors is O(sqrt(n)) returns
+// 2 =&gt; 1, 2
+// 10 =&gt; 1, 2, 5, 10
+func (sv *EratosthenesSieve) Divisors(x int) []int <span class="cov8" title="1">{
+        ret := []int{1}
+
+        f := sv.Factorize(x)
+        for _, pe := range f </span><span class="cov8" title="1">{
+                n := len(ret)
+                for i := 0; i &lt; n; i++ </span><span class="cov8" title="1">{
+                        v := 1
+                        for j := 0; j &lt; pe.v; j++ </span><span class="cov8" title="1">{
+                                v *= pe.u
+                                ret = append(ret, ret[i]*v)
+                        }</span>
+                }
+        }
+        <span class="cov8" title="1">return ret</span>
+}
+
+// CountDivisors is O(1) returns len(sv.Divisors(x))
+// 1 =&gt; 1
+// 2 =&gt; 2
+// 10 =&gt; 4
+func (sv *EratosthenesSieve) CountDivisors(x int) int <span class="cov8" title="1">{
+        return CountDivisors(sv.Factorize(x))
+}</span>
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package main
+
+import (
+        "fmt"
+        "strings"
+)
+
+// SplayNode はスプレー木のノードを表す構造体
+type SplayNode struct {
+        l, r, p         *SplayNode
+        size            int
+        key             int
+        value, min, max int
+}
+
+// NewSplayNode は新しいスプレー木のノードを生成する
+func NewSplayNode(key, value int) *SplayNode <span class="cov8" title="1">{
+        ret := &amp;SplayNode{
+                l:     nil,
+                r:     nil,
+                p:     nil,
+                key:   key,
+                value: value,
+        }
+        ret.update()
+        return ret
+}</span>
+
+func (sn *SplayNode) index() int <span class="cov8" title="1">{
+        if sn == nil </span><span class="cov0" title="0">{
+                return -1
+        }</span>
+        <span class="cov8" title="1">if sn.l != nil </span><span class="cov8" title="1">{
+                return sn.l.size
+        }</span>
+        <span class="cov8" title="1">return 0</span>
+}
+
+func (sn *SplayNode) update() <span class="cov8" title="1">{
+        if sn == nil </span><span class="cov0" title="0">{
+                return
+        }</span>
+        <span class="cov8" title="1">sn.size = 1
+        sn.min = sn.value
+        sn.max = sn.value
+
+        if sn.l != nil </span><span class="cov8" title="1">{
+                sn.size += sn.l.size
+                sn.min = Min(sn.min, sn.l.min)
+                sn.max = Max(sn.max, sn.l.max)
+        }</span>
+        <span class="cov8" title="1">if sn.r != nil </span><span class="cov8" title="1">{
+                sn.size += sn.r.size
+                sn.min = Min(sn.min, sn.r.min)
+                sn.max = Max(sn.max, sn.r.max)
+        }</span>
+}
+
+func (sn *SplayNode) state() int <span class="cov8" title="1">{
+        if sn.p == nil </span><span class="cov8" title="1">{
+                return 0
+        }</span>
+        <span class="cov8" title="1">if sn.p.l == sn </span><span class="cov8" title="1">{
+                return 1
+        }</span>
+        <span class="cov8" title="1">if sn.p.r == sn </span><span class="cov8" title="1">{
+                return -1
+        }</span>
+        <span class="cov0" title="0">return INF</span>
+}
+
+func (sn *SplayNode) rotate() <span class="cov8" title="1">{
+        if sn == nil </span><span class="cov0" title="0">{
+                return
+        }</span>
+        <span class="cov8" title="1">ns := sn.state()
+        if ns == 0 </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">p := sn.p
+        ps := p.state()
+
+        // edge 1
+        pp := p.p
+        switch ps </span>{
+        case 1:<span class="cov8" title="1">
+                pp.l = sn</span>
+        case -1:<span class="cov8" title="1">
+                pp.r = sn</span>
+        }
+        <span class="cov8" title="1">sn.p = pp
+
+        // edge 2, 3
+        var c *SplayNode
+        switch ns </span>{
+        case 1:<span class="cov8" title="1">
+                c = sn.r
+                sn.r = p
+                p.l = c</span>
+        case -1:<span class="cov8" title="1">
+                c = sn.l
+                sn.l = p
+                p.r = c</span>
+        }
+
+        <span class="cov8" title="1">p.p = sn
+        if c != nil </span><span class="cov8" title="1">{
+                c.p = p
+        }</span>
+        <span class="cov8" title="1">p.update()
+        sn.update()</span>
+}
+
+func (sn *SplayNode) splay() <span class="cov8" title="1">{
+        if sn == nil </span><span class="cov8" title="1">{
+                return
+        }</span>
+        <span class="cov8" title="1">for sn.p != nil </span><span class="cov8" title="1">{
+                // sn is not root
+
+                if sn.p.state() == 0 </span><span class="cov8" title="1">{
+                        // sn.p is root
+                        sn.rotate()
+                        continue</span>
+                }
+
+                <span class="cov8" title="1">if sn.state() == sn.p.state() </span><span class="cov8" title="1">{
+                        sn.p.rotate()
+                        sn.rotate()
+                }</span> else<span class="cov8" title="1"> {
+                        sn.rotate()
+                        sn.rotate()
+                }</span>
+        }
+}
+
+func (sn *SplayNode) values() []int <span class="cov8" title="1">{
+        ret := make([]int, 0)
+        if sn == nil </span><span class="cov8" title="1">{
+                return ret
+        }</span>
+        <span class="cov8" title="1">if sn.l != nil </span><span class="cov8" title="1">{
+                ret = append(ret, sn.l.values()...)
+        }</span>
+        <span class="cov8" title="1">ret = append(ret, sn.key)
+        if sn.r != nil </span><span class="cov8" title="1">{
+                ret = append(ret, sn.r.values()...)
+        }</span>
+        <span class="cov8" title="1">return ret</span>
+}
+
+func (sn *SplayNode) String() string <span class="cov8" title="1">{
+        if sn == nil </span><span class="cov0" title="0">{
+                return ""
+        }</span>
+        <span class="cov8" title="1">ret := strings.Builder{}
+        ret.WriteString("(")
+        if sn.l != nil </span><span class="cov8" title="1">{
+                ret.WriteString(fmt.Sprintf("%s ", sn.l.String()))
+        }</span>
+        <span class="cov8" title="1">ret.WriteString(fmt.Sprint(sn.key))
+        if sn.r != nil </span><span class="cov8" title="1">{
+                ret.WriteString(fmt.Sprintf(" %s", sn.r.String()))
+        }</span>
+        <span class="cov8" title="1">ret.WriteString(")")
+        return ret.String()</span>
+}
+
+func (sn *SplayNode) describe(rank int) string <span class="cov8" title="1">{
+        ret := ""
+        if sn.r != nil </span><span class="cov8" title="1">{
+                ret += sn.r.describe(rank + 1)
+        }</span>
+        <span class="cov8" title="1">ret += fmt.Sprintf(
+                strings.Repeat("    ", rank)+"-[k:%d, v:%d, sz: %d, rank: %d]\n",
+                sn.key,
+                sn.value,
+                sn.size,
+                rank,
+        )
+
+        if sn.l != nil </span><span class="cov8" title="1">{
+                ret += sn.l.describe(rank + 1)
+        }</span>
+        <span class="cov8" title="1">return ret</span>
+}
+
+func (sn *SplayNode) maxRank(rank int) int <span class="cov8" title="1">{
+        ret := rank
+        if sn.r != nil </span><span class="cov8" title="1">{
+                ret = Max(ret, sn.r.maxRank(rank+1))
+        }</span>
+        <span class="cov8" title="1">if sn.l != nil </span><span class="cov8" title="1">{
+                ret = Max(ret, sn.l.maxRank(rank+1))
+        }</span>
+        <span class="cov8" title="1">return ret</span>
+}
+
+func (sn *SplayNode) FindAtSub(idx int) (found *SplayNode) <span class="cov8" title="1">{
+        if sn == nil </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        <span class="cov8" title="1">if idx &lt; 0 || sn.size &lt;= idx </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+        // n include [0, n)
+        <span class="cov8" title="1">now := sn
+        for now != nil </span><span class="cov8" title="1">{
+                switch </span>{
+                case idx == now.index():<span class="cov8" title="1">
+                        now.splay()
+                        return now</span>
+                case idx &lt; now.index():<span class="cov8" title="1">
+                        now = now.l</span>
+                case idx &gt; now.index():<span class="cov8" title="1">
+                        idx -= now.index() + 1
+                        now = now.r</span>
+                }
+        }
+        <span class="cov0" title="0">panic("must not reach this code")</span>
+}
+
+func (sn *SplayNode) FindAt(idx int) *SplayNode <span class="cov8" title="1">{
+        node := sn.FindAtSub(idx)
+        node.splay()
+        return node
+}</span>
+
+func (sn *SplayNode) FindSub(key int) (found *SplayNode) <span class="cov8" title="1">{
+        now := sn
+        for now != nil </span><span class="cov8" title="1">{
+                if now.key == key </span><span class="cov8" title="1">{
+                        now.splay()
+                        return now
+                }</span>
+
+                <span class="cov8" title="1">if now.key &gt; key </span><span class="cov8" title="1">{
+                        now = now.l
+                }</span> else<span class="cov8" title="1"> {
+                        now = now.r
+                }</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (sn *SplayNode) Find(key int) (found *SplayNode) <span class="cov8" title="1">{
+        found = sn.FindSub(key)
+        found.splay()
+        return found
+}</span>
+
+func (sn *SplayNode) Ge(key int) (idx int) <span class="cov8" title="1">{
+        if sn == nil </span><span class="cov0" title="0">{
+                return -1
+        }</span>
+        <span class="cov8" title="1">now := sn
+        idx = sn.size
+        i := 0
+        for now != nil </span><span class="cov8" title="1">{
+                if now.key &gt;= key </span><span class="cov8" title="1">{
+                        idx = Min(idx, i+now.index())
+                        now = now.l
+                }</span> else<span class="cov8" title="1"> {
+                        i += now.index() + 1
+                        now = now.r
+                }</span>
+        }
+        <span class="cov8" title="1">return idx</span>
+}
+
+func (sn *SplayNode) MergeR(rroot *SplayNode) *SplayNode <span class="cov8" title="1">{
+        if rroot == nil </span><span class="cov8" title="1">{
+                return sn
+        }</span>
+        <span class="cov8" title="1">if sn == nil </span><span class="cov0" title="0">{
+                return rroot
+        }</span>
+        <span class="cov8" title="1">sn = sn.FindAt(sn.size - 1) // always found
+        sn.r = rroot
+        rroot.p = sn
+        sn.update()
+        return sn</span>
+}
+
+func (sn *SplayNode) Split(idx int) (*SplayNode, *SplayNode) <span class="cov8" title="1">{
+        if sn == nil </span><span class="cov0" title="0">{
+                return nil, nil
+        }</span>
+        <span class="cov8" title="1">if idx == sn.size </span><span class="cov8" title="1">{
+                return sn, nil
+        }</span>
+
+        <span class="cov8" title="1">rroot := sn.FindAt(idx)
+        if rroot == nil </span><span class="cov0" title="0">{
+                // idx is out of index
+                return nil, nil
+        }</span>
+
+        <span class="cov8" title="1">lroot := rroot.l
+        if lroot != nil </span><span class="cov8" title="1">{
+                lroot.p = nil
+        }</span>
+        <span class="cov8" title="1">rroot.l = nil
+
+        rroot.update()
+        // lroot not need to update()
+        return lroot, rroot</span>
+}
+
+func (sn *SplayNode) InsertAt(idx int, node *SplayNode) *SplayNode <span class="cov8" title="1">{
+        lroot, rroot := sn.Split(idx)
+        if lroot == nil </span><span class="cov8" title="1">{
+                return node.MergeR(rroot)
+        }</span> else<span class="cov8" title="1"> {
+                return lroot.MergeR(node).MergeR(rroot)
+        }</span>
+}
+
+func (sn *SplayNode) DeleteAt(idx int) (root *SplayNode, dropped *SplayNode) <span class="cov8" title="1">{
+        lroot, rroot := sn.Split(idx)
+        if rroot == nil </span><span class="cov0" title="0">{
+                return lroot, nil
+        }</span>
+        <span class="cov8" title="1">del, rroot := rroot.Split(1)
+        if lroot == nil </span><span class="cov8" title="1">{
+                return rroot, del
+        }</span> else<span class="cov8" title="1"> {
+                root = lroot.MergeR(rroot)
+                return root, del
+        }</span>
+}
+
+func (sn *SplayNode) Insert(node *SplayNode) *SplayNode <span class="cov8" title="1">{
+        if sn == nil </span><span class="cov8" title="1">{
+                return node
+        }</span>
+
+        <span class="cov8" title="1">idx := sn.Ge(node.key) // idx shoud be 0 &lt;= idx &lt;= sn.size
+        if idx == sn.size </span><span class="cov8" title="1">{
+                return sn.MergeR(node)
+        }</span>
+
+        <span class="cov8" title="1">found := sn.FindAt(idx)
+        if found.key != node.key </span><span class="cov8" title="1">{
+                return found.InsertAt(idx, node)
+        }</span>
+
+        <span class="cov8" title="1">return found</span>
+}
+
+func (sn *SplayNode) Delete(node *SplayNode) (root *SplayNode, removed *SplayNode) <span class="cov8" title="1">{
+        root = sn.Find(node.key)
+        if root == nil </span><span class="cov8" title="1">{
+                // target not found
+                return sn, nil
+        }</span>
+        <span class="cov8" title="1">if root.key == node.key </span><span class="cov8" title="1">{
+                // target found
+                root, removed = root.DeleteAt(root.index())
+        }</span>
+        // target not found
+        <span class="cov8" title="1">return root, removed</span>
+}
+
+// SplaySet はスプレー木のセットを表す構造体
+type SplaySet struct {
+        root *SplayNode
+}
+
+// NewSplaySet は新しいスプレー木のセットを生成する
+func NewSplaySet(values ...int) *SplaySet <span class="cov8" title="1">{
+        s := &amp;SplaySet{
+                root: nil,
+        }
+        for _, v := range values </span><span class="cov8" title="1">{
+                s.Push(v)
+        }</span>
+        <span class="cov8" title="1">return s</span>
+}
+
+func NewSplaySetNode(value int) *SplayNode <span class="cov8" title="1">{
+        return NewSplayNode(value, -1)
+}</span>
+
+func (ss *SplaySet) String() string <span class="cov8" title="1">{
+        return ss.root.String()
+}</span>
+
+func (ss *SplaySet) Push(value int) <span class="cov8" title="1">{
+        ss.root = ss.root.Insert(NewSplaySetNode(value))
+}</span>
+
+func (ss *SplaySet) Remove(value int) <span class="cov8" title="1">{
+        ss.root, _ = ss.root.Delete(NewSplaySetNode(value))
+}</span>
+
+func (ss *SplaySet) Has(value int) bool <span class="cov8" title="1">{
+        found := ss.root.Find(value)
+        if found == nil </span><span class="cov8" title="1">{
+                return false
+        }</span>
+        <span class="cov8" title="1">ss.root = found
+        return true</span>
+}
+
+func (ss *SplaySet) Values() (arr []int) <span class="cov8" title="1">{
+        return ss.root.values()
+}</span>
+
+func (ss *SplaySet) Size() int <span class="cov8" title="1">{
+        if ss.root == nil </span><span class="cov0" title="0">{
+                return 0
+        }</span>
+        <span class="cov8" title="1">return ss.root.size</span>
+}
+
+func (ss *SplaySet) IsEmpty() bool <span class="cov0" title="0">{
+        return ss.root == nil
+}</span>
+
+func (ss *SplaySet) At(idx int) int <span class="cov0" title="0">{
+        found := ss.root.FindAt(idx)
+        if found == nil </span><span class="cov0" title="0">{
+                panic("out of index")</span>
+        }
+        <span class="cov0" title="0">ss.root = found
+        return ss.root.key</span>
+}
+
+func (ss *SplaySet) Ge(value int) int <span class="cov8" title="1">{
+        idx := ss.root.Ge(value)
+        if 0 &lt;= idx &amp;&amp; idx &lt; ss.root.size </span><span class="cov8" title="1">{
+                ss.root = ss.root.FindAt(idx)
+        }</span>
+        <span class="cov8" title="1">return idx</span>
+}
+
+func (ss *SplaySet) Gt(value int) int <span class="cov0" title="0">{
+        if ss.root == nil </span><span class="cov0" title="0">{
+                return -1
+        }</span>
+        <span class="cov0" title="0">return ss.Ge(value + 1)</span>
+}
+
+func (ss *SplaySet) Le(value int) int <span class="cov8" title="1">{
+        if ss.root == nil </span><span class="cov0" title="0">{
+                return -1
+        }</span>
+        <span class="cov8" title="1">return ss.Ge(value+1) - 1</span>
+}
+
+func (ss *SplaySet) Lt(value int) int <span class="cov0" title="0">{
+        if ss.root == nil </span><span class="cov0" title="0">{
+                return -1
+        }</span>
+        <span class="cov0" title="0">return ss.Ge(value) - 1</span>
+}
+
+// SplayMap はスプレー木のマップを表す構造体
+type SplayMap struct {
+        root *SplayNode
+}
+
+// NewSplayMap は新しいスプレー木のマップを生成する
+func NewSplayMap() *SplayMap <span class="cov0" title="0">{
+        return &amp;SplayMap{
+                root: nil,
+        }
+}</span>
+
+func NewSplayMapNode(key int, value int) *SplayNode <span class="cov0" title="0">{
+        return NewSplayNode(key, value)
+}</span>
+
+func (ss *SplayMap) Push(key int, value int) <span class="cov0" title="0">{
+        node := NewSplayMapNode(key, value)
+        if ss.root == nil </span><span class="cov0" title="0">{
+                ss.root = node
+        }</span>
+        <span class="cov0" title="0">ss.root = ss.root.Insert(node)</span>
+}
+
+func (ss *SplayMap) Remove(key int) int <span class="cov0" title="0">{
+        var removed *SplayNode
+        ss.root, removed = ss.root.Delete(NewSplayMapNode(key, -1))
+        if removed != nil </span><span class="cov0" title="0">{
+                return removed.value
+        }</span>
+        <span class="cov0" title="0">return 0</span>
+}
+
+func (ss *SplayMap) Has(key int) bool <span class="cov0" title="0">{
+        found := ss.root.Find(key)
+        if found == nil </span><span class="cov0" title="0">{
+                return false
+        }</span>
+        <span class="cov0" title="0">ss.root = found
+        return true</span>
+}
+
+func (ss *SplayMap) Values() (arr []int) <span class="cov0" title="0">{
+        return ss.root.values()
+}</span>
+
+func (ss *SplayMap) Size() int <span class="cov0" title="0">{
+        return ss.root.size
+}</span>
+
+func (ss *SplayMap) IsEmpty() bool <span class="cov0" title="0">{
+        return ss.root == nil
+}</span>
+
+func (ss *SplayMap) At(key int) int <span class="cov0" title="0">{
+        found := ss.root.Find(key)
+        if found == nil </span><span class="cov0" title="0">{
+                return 0
+        }</span>
+        <span class="cov0" title="0">ss.root = found
+        return ss.root.value</span>
+}
+
+func (ss *SplayMap) String() string <span class="cov0" title="0">{
+        if ss.root == nil </span><span class="cov0" title="0">{
+                return ""
+        }</span>
+        <span class="cov0" title="0">return ss.root.String()</span>
+}
+
+func (ss *SplayMap) Ge(value int) int <span class="cov0" title="0">{
+        idx := ss.root.Ge(value)
+        ss.root = ss.root.FindAtSub(idx)
+        return ss.root.key
+}</span>
+
+func (ss *SplayMap) Gt(value int) int <span class="cov0" title="0">{
+        return ss.Ge(value + 1)
+}</span>
+
+func (ss *SplayMap) Le(value int) int <span class="cov0" title="0">{
+        return ss.Ge(value+1) - 1
+}</span>
+
+func (ss *SplayMap) Lt(value int) int <span class="cov0" title="0">{
+        return ss.Ge(value) - 1
+}</span>
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package main
+
+// Manacher は文字が与えられたとき、各iについて、
+// 文字iを中心とした回文の半径を記録した配列を返す
+// 例）"ababa" =&gt; [0, 1, 2, 1, 0]
+// O(|S|)
+// 偶数調の回文を考慮する場合は、"a$b$a$b$a"のように$を挿入すると検出できるようになる
+func Manacher(s string) []int <span class="cov8" title="1">{
+        m := len(s)
+        rad := make([]int, m)
+
+        i, j := 0, 0
+        for i &lt; m </span><span class="cov8" title="1">{
+                for i-j &gt;= 0 &amp;&amp; i+j &lt; m &amp;&amp; s[i-j] == s[i+j] </span><span class="cov8" title="1">{
+                        j++
+                }</span>
+                <span class="cov8" title="1">rad[i] = j
+                k := 1
+                for i-k &gt;= 0 &amp;&amp; k+rad[i-k] &lt; j </span><span class="cov8" title="1">{
+                        rad[i+k] = rad[i-k]
+                        k++
+                }</span>
+                <span class="cov8" title="1">i += k
+                j -= k</span>
+        }
+        <span class="cov8" title="1">return rad</span>
+}
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package testlib
+
+import (
+        "testing"
+
+        "github.com/google/go-cmp/cmp"
+        "github.com/google/go-cmp/cmp/cmpopts"
+)
+
+func AclAssert(t *testing.T, want, got any) <span class="cov0" title="0">{
+        AclAssertWithOpts(t, want, got)
+}</span>
+
+func AclAssertWithOpts(t *testing.T, want any, got any, opts ...cmp.Option) <span class="cov0" title="0">{
+        if diff := cmp.Diff(want, got, opts...); diff != "" </span><span class="cov0" title="0">{
+                t.Errorf("want(-), got(+)\n%s\n", diff)
+        }</span>
+}
+
+func AclAssertEquateEmpty(t *testing.T, want, got any) <span class="cov0" title="0">{
+        AclAssertWithOpts(t, want, got, cmpopts.EquateEmpty())
+}</span>
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">package main
+
+// UnionFind はUnion-Find木の実装
+type UnionFind struct {
+        data []int
+}
+
+// NewUnionFind は新しいUnion-Find木を生成する
+func NewUnionFind(n int) *UnionFind <span class="cov0" title="0">{
+        data := make([]int, n)
+        for i := range data </span><span class="cov0" title="0">{
+                data[i] = -1
+        }</span>
+        <span class="cov0" title="0">return &amp;UnionFind{
+                data: data,
+        }</span>
+}
+
+func (uf *UnionFind) Root(x int) int <span class="cov0" title="0">{
+        if uf.data[x] &lt; 0 </span><span class="cov0" title="0">{
+                return x
+        }</span> else<span class="cov0" title="0"> {
+                uf.data[x] = uf.Root(uf.data[x])
+                return uf.data[x]
+        }</span>
+}
+
+func (uf *UnionFind) Family(x, y int) bool <span class="cov0" title="0">{
+        return uf.Root(x) == uf.Root(y)
+}</span>
+
+func (uf *UnionFind) Size(x int) int <span class="cov0" title="0">{
+        return -uf.data[uf.Root(x)]
+}</span>
+
+func (uf *UnionFind) Union(x, y int) <span class="cov0" title="0">{
+        rx := uf.Root(x)
+        ry := uf.Root(y)
+
+        if rx == ry </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        <span class="cov0" title="0">if uf.Size(rx) &lt; uf.Size(ry) </span><span class="cov0" title="0">{
+                rx, ry = ry, rx
+        }</span>
+
+        <span class="cov0" title="0">uf.data[rx] += uf.data[ry]
+        uf.data[ry] = rx</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

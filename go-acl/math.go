@@ -13,7 +13,18 @@ func Factorial(x, mod int) int {
 
 // ModPow return x^e % mod
 func ModPow(x, e, mod int) int {
+	if mod <= 1 {
+		return 0
+	}
+	if e == 0 {
+		return 1
+	}
+	if e < 0 {
+		return 0 // 負の指数は扱わない
+	}
+	
 	ret := 1
+	x %= mod
 	for e > 0 {
 		if e&1 == 1 {
 			ret = (ret * x) % mod
