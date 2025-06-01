@@ -393,7 +393,7 @@ func BenchmarkSplayNode(b *testing.B) {
 		data := constructSplayTree()
 		b.ResetTimer()
 		for i := 0; i < 100; i++ {
-			_ = data.FindAtSub(rand.Intn(b.N))
+			_ = data.findAtSub(rand.Intn(b.N))
 		}
 	})
 	b.Run("FindAtAndSplay", func(b *testing.B) {

@@ -5,6 +5,11 @@ import (
 	"strings"
 )
 
+const (
+	SplaySetDefaultValue = -1 // SplaySetで使用するデフォルト値
+)
+
+
 // SplayNode はスプレー木のノードを表す構造体
 type SplayNode struct {
 	l, r, p         *SplayNode
@@ -197,7 +202,7 @@ func (sn *SplayNode) maxRank(rank int) int {
 	return ret
 }
 
-func (sn *SplayNode) FindAtSub(idx int) (found *SplayNode) {
+func (sn *SplayNode) findAtSub(idx int) (found *SplayNode) {
 	if sn == nil {
 		return nil
 	}
@@ -222,12 +227,14 @@ func (sn *SplayNode) FindAtSub(idx int) (found *SplayNode) {
 }
 
 func (sn *SplayNode) FindAt(idx int) *SplayNode {
-	node := sn.FindAtSub(idx)
-	node.splay()
+	node := sn.findAtSub(idx)
+	if node != nil {
+		node.splay()
+	}
 	return node
 }
 
-func (sn *SplayNode) FindSub(key int) (found *SplayNode) {
+func (sn *SplayNode) findSub(key int) (found *SplayNode) {
 	now := sn
 	for now != nil {
 		if now.key == key {
@@ -245,8 +252,10 @@ func (sn *SplayNode) FindSub(key int) (found *SplayNode) {
 }
 
 func (sn *SplayNode) Find(key int) (found *SplayNode) {
-	found = sn.FindSub(key)
-	found.splay()
+	found = sn.findSub(key)
+	if found != nil {
+		found.splay()
+	}
 	return found
 }
 
@@ -380,7 +389,7 @@ func NewSplaySet(values ...int) *SplaySet {
 }
 
 func NewSplaySetNode(value int) *SplayNode {
-	return NewSplayNode(value, -1)
+	return NewSplayNode(value, SplaySetDefaultValue)
 }
 
 func (ss *SplaySet) String() string {
@@ -477,13 +486,14 @@ func (ss *SplayMap) Push(key int, value int) {
 	node := NewSplayMapNode(key, value)
 	if ss.root == nil {
 		ss.root = node
+		return
 	}
 	ss.root = ss.root.Insert(node)
 }
 
 func (ss *SplayMap) Remove(key int) int {
 	var removed *SplayNode
-	ss.root, removed = ss.root.Delete(NewSplayMapNode(key, -1))
+	ss.root, removed = ss.root.Delete(NewSplayMapNode(key, SplaySetDefaultValue))
 	if removed != nil {
 		return removed.value
 	}
@@ -504,6 +514,9 @@ func (ss *SplayMap) Values() (arr []int) {
 }
 
 func (ss *SplayMap) Size() int {
+	if ss.root == nil {
+		return 0
+	}
 	return ss.root.size
 }
 
@@ -528,9 +541,16 @@ func (ss *SplayMap) String() string {
 }
 
 func (ss *SplayMap) Ge(value int) int {
+	if ss.root == nil {
+		return 0
+	}
 	idx := ss.root.Ge(value)
-	ss.root = ss.root.FindAtSub(idx)
-	return ss.root.key
+	found := ss.root.findAtSub(idx)
+	if found != nil {
+		ss.root = found
+		return ss.root.key
+	}
+	return 0
 }
 
 func (ss *SplayMap) Gt(value int) int {
