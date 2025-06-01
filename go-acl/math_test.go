@@ -82,3 +82,28 @@ func FuzzGcd(f *testing.F) {
 		_ = Gcd(x, y)
 	})
 }
+
+func TestFactorial(t *testing.T) {
+	tests := []struct {
+		desc     string
+		x        int
+		mod      int
+		expected int
+	}{
+		{desc: "factorial 0", x: 0, mod: 7, expected: 1},
+		{desc: "factorial 1", x: 1, mod: 7, expected: 1},
+		{desc: "factorial 3", x: 3, mod: 7, expected: 6},
+		{desc: "factorial 5", x: 5, mod: 7, expected: 1}, // 5! = 120, 120 % 7 = 1
+		{desc: "negative x", x: -1, mod: 7, expected: 0},
+		{desc: "mod <= 1", x: 5, mod: 1, expected: 0},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.desc, func(t *testing.T) {
+			got := Factorial(tc.x, tc.mod)
+			if got != tc.expected {
+				t.Errorf("expected %d but got %d", tc.expected, got)
+			}
+		})
+	}
+}

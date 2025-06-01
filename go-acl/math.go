@@ -4,6 +4,12 @@ import "math"
 
 // return x! % mod with O(x)
 func Factorial(x, mod int) int {
+	if x < 0 || mod <= 1 {
+		return 0
+	}
+	if x == 0 || x == 1 {
+		return 1
+	}
 	ans := 1
 	for i := 2; i <= x; i++ {
 		ans = (ans * i) % mod
@@ -42,10 +48,18 @@ func Inv(x, mod int) int {
 
 // Gcd return greatest common divisor on O(log N)
 func Gcd(a, b int) int {
-	if b == 0 {
-		return a
+	// Handle negative numbers
+	if a < 0 {
+		a = -a
 	}
-	return Gcd(b, a%b)
+	if b < 0 {
+		b = -b
+	}
+	// Iterative implementation to avoid stack overflow
+	for b != 0 {
+		a, b = b, a%b
+	}
+	return a
 }
 
 // Lcm return least common multiple on O(log N)

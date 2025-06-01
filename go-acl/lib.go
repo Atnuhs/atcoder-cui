@@ -7,17 +7,24 @@ import (
 	"sort"
 )
 
-var (
-	In  = bufio.NewReaderSize(os.Stdin, 1<<20)
-	Out = bufio.NewWriterSize(os.Stdout, 1<<20)
-	Dbg = bufio.NewWriterSize(os.Stderr, 1<<20)
-)
-
 const (
 	MOD1 = 1000000007
 	MOD2 = 998244353
 	// INF is 10^18
 	INF = 1000000000000000000
+	
+	// Buffer size constants
+	BufferSize = 1 << 20
+	
+	// Error messages for data structures
+	ErrEmptyContainer = "operation on empty container"
+	ErrOutOfIndex     = "index out of range"
+)
+
+var (
+	In  = bufio.NewReaderSize(os.Stdin, BufferSize)
+	Out = bufio.NewWriterSize(os.Stdout, BufferSize)
+	Dbg = bufio.NewWriterSize(os.Stderr, BufferSize)
 )
 
 // Ordered はconstraints.OrderedがAtCoderで使えないので、代わりに使う
@@ -148,6 +155,16 @@ func Ss(n int) []string { return MakeSliceWith(n, S) }
 // Rss は文字列をn個読み込む
 func Rs(n int) [][]rune { return MakeSliceWith(n, R) }
 
+// formatSlice はスライスを文字列に変換する
+func formatSlice[T any](slice []T, formatter func(T) string) {
+	for i, x := range slice {
+		if i > 0 {
+			fmt.Fprint(Out, " ")
+		}
+		fmt.Fprint(Out, formatter(x))
+	}
+}
+
 // Ans は出力を行う
 func Ans(args ...any) {
 	for i, arg := range args {
@@ -155,26 +172,11 @@ func Ans(args ...any) {
 		case float64:
 			fmt.Fprintf(Out, "%.14f", v)
 		case []int:
-			for j, x := range v {
-				if j > 0 {
-					fmt.Fprint(Out, " ")
-				}
-				fmt.Fprint(Out, x)
-			}
+			formatSlice(v, func(x int) string { return fmt.Sprintf("%d", x) })
 		case []string:
-			for j, x := range v {
-				if j > 0 {
-					fmt.Fprint(Out, " ")
-				}
-				fmt.Fprint(Out, x)
-			}
+			formatSlice(v, func(x string) string { return x })
 		case []float64:
-			for j, x := range v {
-				if j > 0 {
-					fmt.Fprint(Out, " ")
-				}
-				fmt.Fprintf(Out, "%.14f", x)
-			}
+			formatSlice(v, func(x float64) string { return fmt.Sprintf("%.14f", x) })
 		default:
 			fmt.Fprint(Out, v)
 		}

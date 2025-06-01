@@ -24,7 +24,7 @@ func (pq *PQ[T]) Push(x T) {
 func (pq *PQ[T]) Pop() T {
 	n := len(pq.data)
 	if n == 0 {
-		panic("pop from empty queue")
+		panic(ErrEmptyContainer)
 	}
 	pq.swap(0, n-1)
 	val := pq.data[n-1]
@@ -35,7 +35,7 @@ func (pq *PQ[T]) Pop() T {
 
 func (pq *PQ[T]) Peek() T {
 	if pq.IsEmpty() {
-		panic("peek from empty queue")
+		panic(ErrEmptyContainer)
 	}
 	return pq.data[0]
 }

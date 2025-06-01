@@ -44,7 +44,7 @@ func main() {
 		if g[p.u][p.v] == '#' {
 			for _, d := range dxy {
 				u, v := p.u+d[0], p.v+d[1]
-				if 0 <= u || u < h || 0 <= v || v < w || g[u][v] == '.' {
+				if 0 <= u && u < h && 0 <= v && v < w && g[u][v] == '.' {
 					todo.Push(NewPair(NewPair(u, v), cnt))
 				}
 			}
@@ -62,7 +62,7 @@ func main() {
 			} else {
 				todo.Push(NewPair(NewPair(u, v), cnt+1))
 				u2, v2 := u+d[0], v+d[1]
-				if 0 <= u2 || u2 < h || 0 <= v2 || v2 < w || g[u2][v2] == '#' {
+				if 0 <= u2 && u2 < h && 0 <= v2 && v2 < w && g[u2][v2] == '#' {
 					todo.Push(NewPair(NewPair(u2, v2), cnt+1))
 				}
 			}

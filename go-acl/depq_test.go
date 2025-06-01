@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/Atnuhs/atcoder-cui/go-acl/testlib"
 )
 
 func Test_lIdx(t *testing.T) {
@@ -326,4 +327,100 @@ func TestDEPQ_PopMin(t *testing.T) {
 	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf("want(-), got(+)\n%s", diff)
 	}
+}
+
+func TestDEPQ_EmptyOperations(t *testing.T) {
+	tests := map[string]struct {
+		setup func() *DEPQ[int]
+		want  bool
+	}{
+		"empty queue": {
+			setup: func() *DEPQ[int] { return NewDEPQ[int]() },
+			want:  true,
+		},
+		"non-empty queue": {
+			setup: func() *DEPQ[int] { return NewDEPQ(1, 2, 3) },
+			want:  false,
+		},
+		"queue after popping all": {
+			setup: func() *DEPQ[int] {
+				pq := NewDEPQ(1)
+				pq.PopMin()
+				return pq
+			},
+			want: true,
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			pq := tc.setup()
+			got := pq.Empty()
+			testlib.AclAssert(t, tc.want, got)
+		})
+	}
+}
+
+func TestDEPQ_SizeOperations(t *testing.T) {
+	tests := map[string]struct {
+		setup func() *DEPQ[int]
+		want  int
+	}{
+		"empty": {
+			setup: func() *DEPQ[int] { return NewDEPQ[int]() },
+			want:  0,
+		},
+		"single element": {
+			setup: func() *DEPQ[int] { return NewDEPQ(42) },
+			want:  1,
+		},
+		"multiple elements": {
+			setup: func() *DEPQ[int] { return NewDEPQ(1, 2, 3, 4, 5) },
+			want:  5,
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			pq := tc.setup()
+			got := pq.Size()
+			testlib.AclAssert(t, tc.want, got)
+		})
+	}
+}
+
+func TestDEPQ_GetOperations(t *testing.T) {
+	pq := NewDEPQ(5, 1, 9, 3, 7)
+	
+	testlib.AclAssert(t, 1, pq.GetMin())
+	testlib.AclAssert(t, 9, pq.GetMax())
+	
+	// Verify getting doesn't modify the queue
+	testlib.AclAssert(t, 5, pq.Size())
+	testlib.AclAssert(t, 1, pq.GetMin())
+	testlib.AclAssert(t, 9, pq.GetMax())
+}
+
+func TestDEPQ_EdgeCasesOperations(t *testing.T) {
+	t.Run("single element operations", func(t *testing.T) {
+		pq := NewDEPQ(42)
+		testlib.AclAssert(t, 42, pq.GetMin())
+		testlib.AclAssert(t, 42, pq.GetMax())
+		
+		min := pq.PopMin()
+		testlib.AclAssert(t, 42, min)
+		testlib.AclAssert(t, true, pq.Empty())
+	})
+	
+	t.Run("two element operations", func(t *testing.T) {
+		pq := NewDEPQ(3, 1)
+		testlib.AclAssert(t, 1, pq.GetMin())
+		testlib.AclAssert(t, 3, pq.GetMax())
+		
+		max := pq.PopMax()
+		testlib.AclAssert(t, 3, max)
+		testlib.AclAssert(t, 1, pq.Size())
+		testlib.AclAssert(t, 1, pq.GetMin())
+		testlib.AclAssert(t, 1, pq.GetMax())
+	})
 }

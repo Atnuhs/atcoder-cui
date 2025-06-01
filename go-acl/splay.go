@@ -431,7 +431,7 @@ func (ss *SplaySet) IsEmpty() bool {
 func (ss *SplaySet) At(idx int) int {
 	found := ss.root.FindAt(idx)
 	if found == nil {
-		panic("out of index")
+		panic(ErrOutOfIndex)
 	}
 	ss.root = found
 	return ss.root.key

@@ -55,10 +55,16 @@ func (pq *DEPQ[T]) Push(x T) {
 }
 
 func (pq *DEPQ[T]) GetMax() T {
+	if pq.Empty() {
+		panic(ErrEmptyContainer)
+	}
 	return pq.values[0]
 }
 
 func (pq *DEPQ[T]) GetMin() T {
+	if pq.Empty() {
+		panic(ErrEmptyContainer)
+	}
 	if pq.Size() < 2 {
 		return pq.values[0]
 	}
@@ -66,31 +72,44 @@ func (pq *DEPQ[T]) GetMin() T {
 }
 
 func (pq *DEPQ[T]) PopMax() T {
-	ret := pq.GetMax()
-	pq.values[0] = pq.values[pq.Size()-1]
-	pq.values = pq.values[:pq.Size()-1]
-	idx := pq.down(0)
-	pq.up(idx)
+	if pq.Empty() {
+		panic(ErrEmptyContainer)
+	}
+	ret := pq.values[0]
+	lastIdx := pq.Size() - 1
+	pq.values[0] = pq.values[lastIdx]
+	pq.values = pq.values[:lastIdx]
+	if !pq.Empty() {
+		idx := pq.down(0)
+		pq.up(idx)
+	}
 	return ret
 }
 
 func (pq *DEPQ[T]) PopMin() T {
-	ret := pq.GetMin()
-	if pq.Size() < 2 {
-		pq.values = []T{}
+	if pq.Empty() {
+		panic(ErrEmptyContainer)
+	}
+	if pq.Size() == 1 {
+		ret := pq.values[0]
+		pq.values = pq.values[:0]
 		return ret
 	}
-	pq.values[1] = pq.values[pq.Size()-1]
-	pq.values = pq.values[:pq.Size()-1]
-	idx := pq.down(1)
-	pq.up(idx)
+	ret := pq.values[1]
+	lastIdx := pq.Size() - 1
+	pq.values[1] = pq.values[lastIdx]
+	pq.values = pq.values[:lastIdx]
+	if pq.Size() > 1 {
+		idx := pq.down(1)
+		pq.up(idx)
+	}
 	return ret
 }
 
 func (pq *DEPQ[T]) upAt(idx, root int) {
 	l, r := lIdx(idx), rIdx(idx)
 
-	// sould be value[l] >= value[r]
+	// should be value[l] >= value[r]
 	if r < pq.Size() && pq.values[l] < pq.values[r] {
 		pq.values[l], pq.values[r] = pq.values[r], pq.values[l]
 		idx ^= 1
