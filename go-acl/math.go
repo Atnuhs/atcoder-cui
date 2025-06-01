@@ -89,12 +89,22 @@ func Extrema[T Ordered](vals ...T) (T, T) {
 }
 
 func Max[T Ordered](vals ...T) T {
-	_, ma := Extrema(vals...)
+	ma := vals[0]
+	for _, v := range vals[1:] {
+		if v > ma {
+			ma = v
+		}
+	}
 	return ma
 }
 
 func Min[T Ordered](vals ...T) T {
-	mi, _ := Extrema(vals...)
+	mi := vals[0]
+	for _, v := range vals[1:] {
+		if v < mi {
+			mi = v
+		}
+	}
 	return mi
 }
 
@@ -117,13 +127,19 @@ func Abs(x int) int {
 
 // IsPrime is O(Sqrt(N))
 func IsPrime(x int) bool {
-	if x == 1 {
+	if x <= 1 {
+		return false
+	}
+	if x <= 3 {
+		return true
+	}
+	if x%2 == 0 || x%3 == 0 {
 		return false
 	}
 
 	rx := Sqrt(x)
-	for i := 2; i <= rx; i++ {
-		if x%i == 0 {
+	for i := 5; i <= rx; i += 6 {
+		if x%i == 0 || x%(i+2) == 0 {
 			return false
 		}
 	}
@@ -134,25 +150,38 @@ func IsPrime(x int) bool {
 // got, ret
 // 6, []Pair{{2,1}, {3.1}}
 func Factorize(x int) []*Pair[int, int] {
-	if x == 1 {
+	if x <= 1 {
 		return []*Pair[int, int]{}
 	}
 
-	rx := Sqrt(x)
-	n := x
 	ret := make([]*Pair[int, int], 0)
-	for i := 2; i <= rx; i++ {
-		if n%i != 0 {
-			continue
-		}
+	n := x
+
+	// Handle factor 2
+	if n%2 == 0 {
 		exp := 0
-		for n%i == 0 {
-			n /= i
+		for n%2 == 0 {
+			n /= 2
 			exp++
 		}
-		ret = append(ret, NewPair(i, exp))
+		ret = append(ret, NewPair(2, exp))
 	}
-	if n != 1 {
+
+	// Handle odd factors from 3 onwards
+	rx := Sqrt(n)
+	for i := 3; i <= rx; i += 2 {
+		if n%i == 0 {
+			exp := 0
+			for n%i == 0 {
+				n /= i
+				exp++
+			}
+			ret = append(ret, NewPair(i, exp))
+			rx = Sqrt(n) // Update rx after reducing n
+		}
+	}
+
+	if n > 1 {
 		ret = append(ret, NewPair(n, 1))
 	}
 	return ret
@@ -163,23 +192,39 @@ func Factorize(x int) []*Pair[int, int] {
 // 1 <= 1, 6, 210
 // -1 <= 2, 30, 140729
 func Mobius(x int) int {
-	ret := 1
-
-	rx := Sqrt(x)
-	n := x
-	for i := 2; i <= rx; i++ {
-		if n%i != 0 {
-			continue
-		}
-
-		if (n/i)%i == 0 {
-			return 0
-		}
-		n /= i
-		ret = -ret
+	if x <= 0 {
+		return 0
+	}
+	if x == 1 {
+		return 1
 	}
 
-	if n != 1 {
+	ret := 1
+	n := x
+
+	// Handle factor 2
+	if n%2 == 0 {
+		n /= 2
+		ret = -ret
+		if n%2 == 0 { // Square factor
+			return 0
+		}
+	}
+
+	// Handle odd factors
+	rx := Sqrt(n)
+	for i := 3; i <= rx; i += 2 {
+		if n%i == 0 {
+			n /= i
+			ret = -ret
+			if n%i == 0 { // Square factor
+				return 0
+			}
+			rx = Sqrt(n)
+		}
+	}
+
+	if n > 1 {
 		ret = -ret
 	}
 	return ret
@@ -189,16 +234,18 @@ func Mobius(x int) int {
 // 2 => 1, 2
 // 10 => 1, 2, 5, 10
 func Divisors(x int) []int {
-	ret := make([]int, 0)
+	if x <= 0 {
+		return []int{}
+	}
 
+	ret := make([]int, 0)
 	rx := Sqrt(x)
 	for i := 1; i <= rx; i++ {
-		if x%i != 0 {
-			continue
-		}
-		ret = append(ret, i)
-		if i != x/i {
-			ret = append(ret, x/i)
+		if x%i == 0 {
+			ret = append(ret, i)
+			if i != x/i {
+				ret = append(ret, x/i)
+			}
 		}
 	}
 	return ret

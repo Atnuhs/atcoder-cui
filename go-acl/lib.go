@@ -4,9 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"reflect"
 	"sort"
-	"strings"
 )
 
 var (
@@ -30,8 +28,8 @@ type Ordered interface {
 		~string
 }
 
-// ILF は長さnの配列を、関数fで初期化する
-func ILF[T any](n int, f func(i int) T) []T {
+// MakeSlice は長さnの配列を、関数fで初期化する
+func MakeSlice[T any](n int, f func(i int) T) []T {
 	ret := make([]T, n)
 	for i := range ret {
 		ret[i] = f(i)
@@ -39,38 +37,38 @@ func ILF[T any](n int, f func(i int) T) []T {
 	return ret
 }
 
-// IGF はh行w列の配列を、関数fで初期化する
-func IGF[T any](h, w int, f func(ih, iw int) T) [][]T {
-	return ILF(h, func(ih int) []T {
-		return ILF(w, func(iw int) T {
+// MakeGrid はh行w列の配列を、関数fで初期化する
+func MakeGrid[T any](h, w int, f func(ih, iw int) T) [][]T {
+	return MakeSlice(h, func(ih int) []T {
+		return MakeSlice(w, func(iw int) T {
 			return f(ih, iw)
 		})
 	})
 }
 
-// ILF2 は長さnの配列を、関数fで初期化する
-func ILF2[T any](n int, f func() T) []T { return ILF(n, func(_ int) T { return f() }) }
+// MakeSliceWith は長さnの配列を、関数fで初期化する
+func MakeSliceWith[T any](n int, f func() T) []T { return MakeSlice(n, func(_ int) T { return f() }) }
 
-// IGF2 はh行w列の配列を、関数fで初期化する
-func IGF2[T any](h, w int, f func() T) [][]T {
-	return IGF(h, w, func(_ int, _ int) T { return f() })
+// MakeGridWith はh行w列の配列を、関数fで初期化する
+func MakeGridWith[T any](h, w int, f func() T) [][]T {
+	return MakeGrid(h, w, func(_ int, _ int) T { return f() })
 }
 
-// IL は長さnの配列を、値vで初期化する
+// MakeSliceOf は長さnの配列を、値vで初期化する
 // vに配列を指定すると、すべてポインタが同じになる
-func IL[T any](n int, v T) []T {
-	return ILF(n, func(_ int) T { return v })
+func MakeSliceOf[T any](n int, v T) []T {
+	return MakeSlice(n, func(_ int) T { return v })
 }
 
-// IG はh行w列の配列を、値vで初期化する
+// MakeGridOf はh行w列の配列を、値vで初期化する
 // vに配列を指定すると、すべてポインタが同じになる
-func IG[T any](h, w int, v T) [][]T {
-	return IGF(h, w, func(_ int, _ int) T { return v })
+func MakeGridOf[T any](h, w int, v T) [][]T {
+	return MakeGrid(h, w, func(_ int, _ int) T { return v })
 }
 
-// IJF はn行のグラフをjagged配列で初期化する
-func IJ[T any](n int) [][]T {
-	return ILF(n, func(_ int) []T { return make([]T, 0) })
+// MakeJaggedSlice はn行のグラフをjagged配列で初期化する
+func MakeJaggedSlice[T any](n int) [][]T {
+	return MakeSlice(n, func(_ int) []T { return make([]T, 0) })
 }
 
 // Prepend は配列の先頭に値を追加する
@@ -139,27 +137,46 @@ func IIII() (int, int, int, int) {
 }
 
 // Is は整数をn個読み込む
-func Is(n int) []int { return ILF2(n, I) }
+func Is(n int) []int { return MakeSliceWith(n, I) }
 
 // Iss は整数をh行w列の配列として読み込む
-func Iss(h, w int) [][]int { return IGF2(h, w, I) }
+func Iss(h, w int) [][]int { return MakeGridWith(h, w, I) }
 
 // Sss は文字列をn個読み込む
-func Ss(n int) []string { return ILF2(n, S) }
+func Ss(n int) []string { return MakeSliceWith(n, S) }
 
 // Rss は文字列をn個読み込む
-func Rs(n int) [][]rune { return ILF2(n, R) }
+func Rs(n int) [][]rune { return MakeSliceWith(n, R) }
 
 // Ans は出力を行う
-func Ans(args ...interface{}) {
+func Ans(args ...any) {
 	for i, arg := range args {
-		if reflect.TypeOf(arg).Kind() == reflect.Slice {
-			fmt.Fprint(Out, strings.Trim(fmt.Sprint(arg), "[]"))
-			// float64の場合、小数点以下14桁まで出力
-		} else if reflect.TypeOf(arg).Kind() == reflect.Float64 {
-			fmt.Fprintf(Out, "%.14f", arg)
-		} else {
-			fmt.Fprint(Out, arg)
+		switch v := arg.(type) {
+		case float64:
+			fmt.Fprintf(Out, "%.14f", v)
+		case []int:
+			for j, x := range v {
+				if j > 0 {
+					fmt.Fprint(Out, " ")
+				}
+				fmt.Fprint(Out, x)
+			}
+		case []string:
+			for j, x := range v {
+				if j > 0 {
+					fmt.Fprint(Out, " ")
+				}
+				fmt.Fprint(Out, x)
+			}
+		case []float64:
+			for j, x := range v {
+				if j > 0 {
+					fmt.Fprint(Out, " ")
+				}
+				fmt.Fprintf(Out, "%.14f", x)
+			}
+		default:
+			fmt.Fprint(Out, v)
 		}
 		if i < len(args)-1 {
 			fmt.Fprint(Out, " ")
@@ -300,7 +317,7 @@ type Compress[T Ordered] struct {
 }
 
 func NewCompress[T Ordered](vals []T) *Compress[T] {
-	v := ILF(len(vals), func(i int) T { return vals[i] })
+	v := MakeSlice(len(vals), func(i int) T { return vals[i] })
 	sort.Slice(v, func(i, j int) bool { return v[i] < v[j] })
 	v = Uniq(v)
 

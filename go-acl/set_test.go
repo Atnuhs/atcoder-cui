@@ -241,7 +241,7 @@ func TestSplaySet_Le(t *testing.T) {
 }
 
 func BenchmarkSplaySet_Insert(b *testing.B) {
-	s := NewSplaySet(ILF(100000, func(i int) int { return rand.Intn(100000) })...)
+	s := NewSplaySet(MakeSlice(100000, func(i int) int { return rand.Intn(100000) })...)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		vPush, vRemove := rand.Intn(b.N), rand.Intn(b.N)
@@ -251,7 +251,7 @@ func BenchmarkSplaySet_Insert(b *testing.B) {
 }
 
 func BenchmarkSplaySet_Remove(b *testing.B) {
-	s := NewSplaySet(ILF(100000, func(i int) int { return rand.Intn(100000) })...)
+	s := NewSplaySet(MakeSlice(100000, func(i int) int { return rand.Intn(100000) })...)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		vPush, vRemove := rand.Intn(b.N), rand.Intn(b.N)
