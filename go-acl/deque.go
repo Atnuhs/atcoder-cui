@@ -87,6 +87,9 @@ func (d *Deque[T]) PopBack() (T, bool) {
 }
 
 func (d *Deque[T]) At(i int) T {
+	if i < 0 || i >= d.size() {
+		panic("deque: index out of range")
+	}
 	return d.buf[(d.l+i)&(len(d.buf)-1)]
 }
 

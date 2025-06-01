@@ -290,3 +290,43 @@ func TestDeque_PushFrontBugDetection(t *testing.T) {
 		t.Errorf("Expected PopFront to return 100, got %d", val)
 	}
 }
+
+func TestDeque_At_BoundsCheck(t *testing.T) {
+	d := NewDeque[int]()
+	
+	// 空のdequeでの境界チェック
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("Expected panic for At(0) on empty deque")
+		}
+	}()
+	d.At(0)
+}
+
+func TestDeque_At_NegativeIndex(t *testing.T) {
+	d := NewDeque[int]()
+	d.PushBack(1)
+	d.PushBack(2)
+	
+	// 負のインデックスでの境界チェック
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("Expected panic for At(-1)")
+		}
+	}()
+	d.At(-1)
+}
+
+func TestDeque_At_TooLargeIndex(t *testing.T) {
+	d := NewDeque[int]()
+	d.PushBack(1)
+	d.PushBack(2)
+	
+	// サイズを超えるインデックスでの境界チェック
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("Expected panic for At(2) when size is 2")
+		}
+	}()
+	d.At(2)
+}
