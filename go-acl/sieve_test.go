@@ -61,16 +61,16 @@ func TestEratosthenesSieve_Factorize(t *testing.T) {
 	testCases := []struct {
 		desc string
 		x    int
-		want []*Pair[int]
+		want []*Pair[int, int]
 	}{
-		{desc: "one", x: 1, want: []*Pair[int]{}},
-		{desc: "simple prime number", x: 2, want: []*Pair[int]{NewPair(2, 1)}},
-		{desc: "simple composite number", x: 12, want: []*Pair[int]{NewPair(2, 2), NewPair(3, 1)}},
-		{desc: "large prime number", x: 104729, want: []*Pair[int]{NewPair(104729, 1)}},
+		{desc: "one", x: 1, want: []*Pair[int, int]{}},
+		{desc: "simple prime number", x: 2, want: []*Pair[int, int]{NewPair(2, 1)}},
+		{desc: "simple composite number", x: 12, want: []*Pair[int, int]{NewPair(2, 2), NewPair(3, 1)}},
+		{desc: "large prime number", x: 104729, want: []*Pair[int, int]{NewPair(104729, 1)}},
 		{
 			desc: "large composite number",
 			x:    1260,
-			want: []*Pair[int]{NewPair(2, 2), NewPair(3, 2), NewPair(5, 1), NewPair(7, 1)},
+			want: []*Pair[int, int]{NewPair(2, 2), NewPair(3, 2), NewPair(5, 1), NewPair(7, 1)},
 		},
 	}
 

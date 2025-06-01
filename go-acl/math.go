@@ -2,6 +2,15 @@ package main
 
 import "math"
 
+// return x! % mod with O(x)
+func Factorial(x, mod int) int {
+	ans := 1
+	for i := 2; i <= x; i++ {
+		ans = (ans * i) % mod
+	}
+	return ans
+}
+
 // ModPow return x^e % mod
 func ModPow(x, e, mod int) int {
 	ret := 1
@@ -124,14 +133,14 @@ func IsPrime(x int) bool {
 // Factorize is O(Sqrt(N))
 // got, ret
 // 6, []Pair{{2,1}, {3.1}}
-func Factorize(x int) []*Pair[int] {
+func Factorize(x int) []*Pair[int, int] {
 	if x == 1 {
-		return []*Pair[int]{}
+		return []*Pair[int, int]{}
 	}
 
 	rx := Sqrt(x)
 	n := x
-	ret := make([]*Pair[int], 0)
+	ret := make([]*Pair[int, int], 0)
 	for i := 2; i <= rx; i++ {
 		if n%i != 0 {
 			continue
@@ -199,7 +208,7 @@ func Divisors(x int) []int {
 // 1 => 1
 // 2 => 2
 // 10 => 4
-func CountDivisors(pairs []*Pair[int]) int {
+func CountDivisors(pairs []*Pair[int, int]) int {
 	ans := 1
 	for _, pe := range pairs {
 		ans *= (pe.v + 1)

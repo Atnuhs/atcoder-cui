@@ -3,16 +3,17 @@ package main
 import "fmt"
 
 // Pair は2つの値を持つ構造体
-type Pair[T any] struct {
-	u, v T
+type Pair[A any, B any] struct {
+	u A
+	v B
 }
 
 // NewPair Pairを生成する
-func NewPair[T any](u, v T) *Pair[T] {
-	return &Pair[T]{u, v}
+func NewPair[A any, B any](u A, v B) *Pair[A, B] {
+	return &Pair[A, B]{u, v}
 }
 
 // String Pairの文字列を、空白区切りで返す
-func (p *Pair[T]) String() string {
+func (p *Pair[A, B]) String() string {
 	return fmt.Sprintf("%v %v", p.u, p.v)
 }

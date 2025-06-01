@@ -131,6 +131,13 @@ func III() (int, int, int) {
 	return ret1, ret2, ret3
 }
 
+// IIII は整数を4つ読み込む
+func IIII() (int, int, int, int) {
+	var ret1, ret2, ret3, ret4 int
+	fmt.Fscan(In, &ret1, &ret2, &ret3, &ret4)
+	return ret1, ret2, ret3, ret4
+}
+
 // Is は整数をn個読み込む
 func Is(n int) []int { return ILF2(n, I) }
 
@@ -203,21 +210,88 @@ func PopFront[T any](a *[]T) T {
 	return ret
 }
 
-func Reduce[S any, T any](src []S, f func(T, S) T, acc T) T {
+func Reduce[A any, B any](src []A, f func(A, B) B, acc B) B {
 	ret := acc
 	for _, v := range src {
-		ret = f(ret, v)
+		ret = f(v, ret)
+	}
+	return ret
+}
+
+func ReduceI[A any, B any](src []A, f func(int, A, B) B, acc B) B {
+	ret := acc
+	for i, v := range src {
+		ret = f(i, v, ret)
+	}
+	return ret
+}
+
+func Reduce2D[A any, B any](src [][]A, f func(A, B) B, acc B) B {
+	ret := acc
+	for _, row := range src {
+		for _, v := range row {
+			ret = f(v, ret)
+		}
 	}
 	return ret
 }
 
 func Uniq[T Ordered](vals []T) []T {
-	return Reduce(vals, func(acc []T, val T) []T {
+	return Reduce(vals, func(val T, acc []T) []T {
 		if len(acc) == 0 || acc[len(acc)-1] != val {
 			acc = append(acc, val)
 		}
 		return acc
 	}, make([]T, 0, len(vals)))
+}
+
+func Filter[T any](vals []T, f func(val T) bool) []T {
+	return Reduce(vals, func(val T, acc []T) []T {
+		if f(val) {
+			return append(acc, val)
+		}
+		return acc
+	}, make([]T, 0, len(vals)))
+}
+
+func FilterI[T any](vals []T, f func(i int, val T) bool) []T {
+	return ReduceI(vals, func(i int, val T, acc []T) []T {
+		if f(i, val) {
+			return append(acc, val)
+		}
+		return acc
+	}, make([]T, 0, len(vals)))
+}
+
+func Map[S any, T any](src []S, f func(S) T) []T {
+	return Reduce(src, func(val S, acc []T) []T {
+		return append(acc, f(val))
+	}, make([]T, 0, len(src)))
+}
+
+func MapI[S any, T any](src []S, f func(int, S) T) []T {
+	return ReduceI(src, func(i int, val S, acc []T) []T {
+		return append(acc, f(i, val))
+	}, make([]T, 0, len(src)))
+}
+
+func RotateCW90[T any](src [][]T) [][]T {
+	if len(src) == 0 || len(src[0]) == 0 {
+		return nil
+	}
+	h, w := len(src), len(src[0])
+
+	ret := make([][]T, w)
+	for i := range ret {
+		ret[i] = make([]T, h)
+	}
+	for ih := range src {
+		for iw := range src[ih] {
+			jh, jw := iw, h-1-ih
+			ret[jh][jw] = src[ih][iw]
+		}
+	}
+	return ret
 }
 
 type Compress[T Ordered] struct {
