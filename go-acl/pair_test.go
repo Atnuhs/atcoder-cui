@@ -32,8 +32,8 @@ func TestNewPair(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			got := NewPair(tc.u, tc.v)
-			testlib.AclAssert(t, tc.want.u, got.u)
-			testlib.AclAssert(t, tc.want.v, got.v)
+			testlib.AclAssert(t, tc.want.U, got.U)
+			testlib.AclAssert(t, tc.want.V, got.V)
 		})
 	}
 }

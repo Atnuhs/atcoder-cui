@@ -28,7 +28,7 @@ func ModPow(x, e, mod int) int {
 	if e < 0 {
 		return 0 // 負の指数は扱わない
 	}
-	
+
 	ret := 1
 	x %= mod
 	for e > 0 {
@@ -283,7 +283,7 @@ func Divisors(x int) []int {
 func CountDivisors(pairs []*Pair[int, int]) int {
 	ans := 1
 	for _, pe := range pairs {
-		ans *= (pe.v + 1)
+		ans *= (pe.V + 1)
 	}
 	return ans
 }

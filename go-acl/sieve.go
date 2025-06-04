@@ -102,8 +102,8 @@ func (sv *EratosthenesSieve) Divisors(x int) []int {
 		n := len(ret)
 		for i := 0; i < n; i++ {
 			v := 1
-			for j := 0; j < pe.v; j++ {
-				v *= pe.u
+			for j := 0; j < pe.V; j++ {
+				v *= pe.U
 				ret = append(ret, ret[i]*v)
 			}
 		}
