@@ -12,10 +12,10 @@ const (
 	MOD2 = 998244353
 	// INF is 10^18
 	INF = 1000000000000000000
-	
+
 	// Buffer size constants
 	BufferSize = 1 << 20
-	
+
 	// Error messages for data structures
 	ErrEmptyContainer = "operation on empty container"
 	ErrOutOfIndex     = "index out of range"
@@ -33,6 +33,10 @@ type Ordered interface {
 		~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr |
 		~float32 | ~float64 |
 		~string
+}
+
+func Rep(n int) []struct{} {
+	return make([]struct{}, n)
 }
 
 // MakeSlice は長さnの配列を、関数fで初期化する
@@ -81,26 +85,6 @@ func MakeJaggedSlice[T any](n int) [][]T {
 // Prepend は配列の先頭に値を追加する
 func Prepend[T any](arr []T, vars ...T) []T {
 	return append(vars, arr...)
-}
-
-// All は配列のすべての要素が条件を満たすかどうかを判定する
-func All[T any](vals []T, f func(i int, v T) bool) bool {
-	for i, v := range vals {
-		if !f(i, v) {
-			return false
-		}
-	}
-	return true
-}
-
-// Any は配列のいずれかの要素が条件を満たすかどうかを判定する
-func Any[T any](vals []T, f func(i int, v T) bool) bool {
-	for i, v := range vals {
-		if f(i, v) {
-			return true
-		}
-	}
-	return false
 }
 
 // S は文字列を読み込む
@@ -211,6 +195,26 @@ func YesNoFunc(f func() bool) {
 	YesNo(f())
 }
 
+// All は配列のすべての要素が条件を満たすかどうかを判定する
+func All[T any](vals []T, f func(i int, v T) bool) bool {
+	for i, v := range vals {
+		if !f(i, v) {
+			return false
+		}
+	}
+	return true
+}
+
+// Any は配列のいずれかの要素が条件を満たすかどうかを判定する
+func Any[T any](vals []T, f func(i int, v T) bool) bool {
+	for i, v := range vals {
+		if f(i, v) {
+			return true
+		}
+	}
+	return false
+}
+
 // PopBack はO(1)で配列の末尾を削除して返す
 func PopBack[T any](a *[]T) T {
 	ret := (*a)[len(*a)-1]
@@ -225,7 +229,15 @@ func PopFront[T any](a *[]T) T {
 	return ret
 }
 
-func Reduce[A any, B any](src []A, f func(A, B) B, acc B) B {
+func UnReduce[A, B any](a A, f func(A) (A, *B)) []B {
+	nextA, elem := f(a)
+	if elem == nil {
+		return nil
+	}
+	return append([]B{*elem}, UnReduce(nextA, f)...)
+}
+
+func Reduce[A any, B any](src []A, f func(val A, acc B) B, acc B) B {
 	ret := acc
 	for _, v := range src {
 		ret = f(v, ret)
@@ -233,22 +245,74 @@ func Reduce[A any, B any](src []A, f func(A, B) B, acc B) B {
 	return ret
 }
 
-func ReduceI[A any, B any](src []A, f func(int, A, B) B, acc B) B {
-	ret := acc
-	for i, v := range src {
-		ret = f(i, v, ret)
-	}
-	return ret
+func Scan[A, B any](vals []A, init B, f func(B, A) B) []B {
+	acc := make([]B, 0, len(vals)+1)
+	acc = append(acc, init)
+	return Reduce(vals, func(val A, acc []B) []B {
+		next := f(acc[len(acc)-1], val)
+		return append(acc, next)
+	}, acc)
 }
 
-func Reduce2D[A any, B any](src [][]A, f func(A, B) B, acc B) B {
-	ret := acc
-	for _, row := range src {
-		for _, v := range row {
-			ret = f(v, ret)
-		}
+func Map[A any, B any](vals []A, f func(val A) B) []B {
+	return Reduce(vals, func(val A, acc []B) []B {
+		return append(acc, f(val))
+	}, make([]B, 0, len(vals)))
+}
+
+// MapAccumLは状態Sを持った状態で、[]A -> []Bの写像作成し状態Sと[]Bを返す
+func MapAccumL[S, A, B any](vals []A, acc S, f func(S, A) (S, B)) (S, []B) {
+	type pair Pair[S, []B]
+	ret := Reduce(vals, func(val A, acc pair) pair {
+		newS, y := f(acc.U, val)
+		return pair{newS, append(acc.V, y)}
+	}, pair{acc, nil})
+	return ret.U, ret.V
+}
+
+// IterateNはx := f(x)を0回~N回繰り返した結果を配列で返す関数
+func IterateN[T any](x0 T, n int, f func(T) T) []T {
+	_, ys := MapAccumL(Rep(n), x0, func(state T, _ struct{}) (T, T) {
+		cur := state
+		state = f(state)
+		return state, cur
+	})
+	return ys
+}
+
+// Rangeはnを引数で、[0, 1, 2, ..., n-1]の配列を返す
+func Range(n int) []int {
+	return IterateN(0, n, func(x int) int { return x + 1 })
+}
+
+// ZipWithは[]Aと[]Bから、(A, B) => Cの関数で[]Cを作る
+func ZipWith[A, B, C any](as []A, bs []B, f func(A, B) C) []C {
+	n := Min(len(as), len(bs))
+	_, ys := MapAccumL(Rep(n), 0, func(i int, _ struct{}) (int, C) {
+		return i + 1, f(as[i], bs[i])
+	})
+	return ys
+}
+
+// Pairwiseはvals []Aの隣り合った要素(v_i, v_i+1)からRを生成する関数で、[]Bを返す
+func Pairwise[A, B any](vals []A, f func(A, A) B) []B {
+	if len(vals) < 2 {
+		return nil
 	}
-	return ret
+	return ZipWith(vals[:len(vals)-1], vals[1:], f)
+}
+
+// Windowは[]Tの各要素で、幅kのウィンドウを生成する。
+// vals = [1,2,3,4,5], k=3 => [1,2,3], [2,3,4], [3,4,5]
+func Window[T any](vals []T, k int) [][]T {
+	if k <= 0 || len(vals) < k {
+		return nil
+	}
+	m := len(vals) - k + 1
+	init := make([][]T, 0, m)
+	return Reduce(Range(m), func(i int, acc [][]T) [][]T {
+		return append(acc, vals[i:i+k])
+	}, init)
 }
 
 func Uniq[T Ordered](vals []T) []T {
@@ -269,25 +333,13 @@ func Filter[T any](vals []T, f func(val T) bool) []T {
 	}, make([]T, 0, len(vals)))
 }
 
-func FilterI[T any](vals []T, f func(i int, val T) bool) []T {
-	return ReduceI(vals, func(i int, val T, acc []T) []T {
-		if f(i, val) {
-			return append(acc, val)
+func Count[T any](vals []T, f func(val T) bool) int {
+	return Reduce(vals, func(val T, acc int) int {
+		if f(val) {
+			return acc + 1
 		}
 		return acc
-	}, make([]T, 0, len(vals)))
-}
-
-func Map[S any, T any](src []S, f func(S) T) []T {
-	return Reduce(src, func(val S, acc []T) []T {
-		return append(acc, f(val))
-	}, make([]T, 0, len(src)))
-}
-
-func MapI[S any, T any](src []S, f func(int, S) T) []T {
-	return ReduceI(src, func(i int, val S, acc []T) []T {
-		return append(acc, f(i, val))
-	}, make([]T, 0, len(src)))
+	}, 0)
 }
 
 func RotateCW90[T any](src [][]T) [][]T {
@@ -307,6 +359,18 @@ func RotateCW90[T any](src [][]T) [][]T {
 		}
 	}
 	return ret
+}
+
+func Bisect(ok, ng int, pred func(int) bool) int {
+	for Abs(ng-ok) > 1 {
+		mid := (ok + ng) >> 1
+		if pred(mid) {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+	return ok
 }
 
 type Compress[T Ordered] struct {
