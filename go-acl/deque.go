@@ -30,13 +30,12 @@ func (d *Deque[T]) isFull() bool {
 }
 
 func (d *Deque[T]) grow() {
+	size := d.size()
+
 	old := d.buf
 	n := len(old) << 1
 	d.buf = make([]T, n)
-	
-	// 現在のサイズを計算
-	size := d.size()
-	
+
 	// データをコピー
 	if d.l <= d.r {
 		// 連続している場合
@@ -46,7 +45,7 @@ func (d *Deque[T]) grow() {
 		p := copy(d.buf, old[d.l:])
 		copy(d.buf[p:], old[:d.r])
 	}
-	
+
 	d.l = 0
 	d.r = size
 }
@@ -56,7 +55,7 @@ func (d *Deque[T]) PushFront(v T) {
 		d.grow()
 	}
 	d.l = d.prev(d.l)
-	d.buf[d.l] = v  // ← 修正: 値を設定
+	d.buf[d.l] = v // ← 修正: 値を設定
 }
 
 func (d *Deque[T]) PushBack(v T) {
