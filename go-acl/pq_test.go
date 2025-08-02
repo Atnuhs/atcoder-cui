@@ -6,7 +6,7 @@ import (
 )
 
 func TestPQ(t *testing.T) {
-	p := NewPQOrdered[int]()
+	p := NewPQ[int]()
 
 	values := []int{3, 4, 1, 2, 5, 8, 7, 6, -121}
 	for _, v := range values {

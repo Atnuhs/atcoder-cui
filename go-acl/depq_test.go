@@ -1,10 +1,12 @@
 package main
 
 import (
+	"fmt"
+	"math/rand"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/Atnuhs/atcoder-cui/go-acl/testlib"
+	"github.com/google/go-cmp/cmp"
 )
 
 func Test_lIdx(t *testing.T) {
@@ -80,16 +82,26 @@ func Fuzz_rIdx(f *testing.F) {
 }
 
 func Test_pIdx(t *testing.T) {
-	tests := map[string]struct {
+	tests := []struct {
 		idx  int
 		want int
 	}{
-		"odd":  {idx: 5, want: 0},
-		"even": {idx: 6, want: 2},
+		{2, 0},
+		{3, 0},
+		{4, 0},
+		{5, 0},
+		{6, 2},
+		{7, 2},
+		{8, 2},
+		{9, 2},
+		{10, 4},
+		{13, 4},
+		{14, 6},
+		{17, 6},
 	}
 
-	for name, tc := range tests {
-		t.Run(name, func(t *testing.T) {
+	for i, tc := range tests {
+		t.Run(fmt.Sprintf("test-%d", i), func(t *testing.T) {
 			got := pIdx(tc.idx)
 			if tc.want != got {
 				t.Errorf("want %d but got %d", tc.want, got)
@@ -104,7 +116,7 @@ func Fuzz_pIdx(f *testing.F) {
 	f.Add(INF)
 
 	f.Fuzz(func(t *testing.T, idx int) {
-		if idx < 2 {
+		if idx < 2 || idx > INF {
 			return
 		}
 
@@ -139,88 +151,22 @@ func Test_cIdx(t *testing.T) {
 	}
 }
 
-func TestDEPQ_up(t *testing.T) {
-	tests := map[string]struct {
-		values []int
-		idx    int
-		want   []int
-	}{
-		"target r-r, less than pr": {values: []int{10, 5, 7, 6, 6, 4}, idx: 5, want: []int{10, 4, 7, 6, 6, 5}},
-		"target r-r, equal to pr":  {values: []int{10, 5, 7, 6, 6, 5}, idx: 5, want: []int{10, 5, 7, 6, 6, 5}},
-		"target r-r, more than pr": {values: []int{10, 5, 7, 6, 6, 6}, idx: 5, want: []int{10, 5, 7, 6, 6, 6}},
+func Fuzz_cIdx(f *testing.F) {
+	f.Add(2)
+	f.Add(3)
+	f.Add(INF)
 
-		"target r-r, less than pl": {values: []int{10, 5, 7, 6, 6, 9}, idx: 5, want: []int{10, 5, 7, 6, 9, 6}},
-		"target r-r, equal to pl":  {values: []int{10, 5, 7, 6, 6, 10}, idx: 5, want: []int{10, 5, 7, 6, 10, 6}},
-		"target r-r, more than pl": {values: []int{10, 5, 7, 6, 6, 11}, idx: 5, want: []int{11, 5, 7, 6, 10, 6}},
+	f.Fuzz(func(t *testing.T, idx int) {
+		if idx < 2 || idx > INF {
+			return
+		}
 
-		"target r-l, less than pr": {values: []int{10, 5, 7, 6, 4, 6}, idx: 4, want: []int{10, 4, 7, 6, 6, 5}},
-		"target r-l, equal to pr":  {values: []int{10, 5, 7, 6, 5, 6}, idx: 4, want: []int{10, 5, 7, 6, 6, 5}},
-		"target r-l, more than pr": {values: []int{10, 5, 7, 6, 6, 6}, idx: 4, want: []int{10, 5, 7, 6, 6, 6}},
-
-		"target r-l, less than pl": {values: []int{10, 5, 7, 6, 9, 6}, idx: 4, want: []int{10, 5, 7, 6, 9, 6}},
-		"target r-l, equal to pl":  {values: []int{10, 5, 7, 6, 10, 6}, idx: 4, want: []int{10, 5, 7, 6, 10, 6}},
-		"target r-l, more than pl": {values: []int{10, 5, 7, 6, 11, 6}, idx: 4, want: []int{11, 5, 7, 6, 10, 6}},
-
-		"target l-r, less than pr": {values: []int{10, 5, 7, 4, 6, 5}, idx: 3, want: []int{10, 4, 7, 5, 6, 5}},
-		"target l-r, equal to pr":  {values: []int{10, 5, 7, 5, 6, 5}, idx: 3, want: []int{10, 5, 7, 5, 6, 5}},
-		"target l-r, more than pr": {values: []int{10, 5, 7, 6, 6, 5}, idx: 3, want: []int{10, 5, 7, 6, 6, 5}},
-
-		"target l-r, less than pl": {values: []int{10, 5, 7, 9, 6, 5}, idx: 3, want: []int{10, 5, 9, 7, 6, 5}},
-		"target l-r, equal to pl":  {values: []int{10, 5, 7, 10, 6, 5}, idx: 3, want: []int{10, 5, 10, 7, 6, 5}},
-		"target l-r, more than pl": {values: []int{10, 5, 7, 11, 6, 5}, idx: 3, want: []int{11, 5, 10, 7, 6, 5}},
-
-		"target l-l, less than pr": {values: []int{10, 5, 4, 6, 6, 5}, idx: 2, want: []int{10, 4, 6, 5, 6, 5}},
-		"target l-l, equal to pr":  {values: []int{10, 5, 5, 6, 6, 5}, idx: 2, want: []int{10, 5, 6, 5, 6, 5}},
-		"target l-l, more than pr": {values: []int{10, 5, 6, 6, 6, 5}, idx: 2, want: []int{10, 5, 6, 6, 6, 5}},
-
-		"target l-l, less than pl": {values: []int{10, 5, 9, 6, 6, 5}, idx: 2, want: []int{10, 5, 9, 6, 6, 5}},
-		"target l-l, equal to pl":  {values: []int{10, 5, 10, 6, 6, 5}, idx: 2, want: []int{10, 5, 10, 6, 6, 5}},
-		"target l-l, more than pl": {values: []int{10, 5, 11, 6, 6, 5}, idx: 2, want: []int{11, 5, 10, 6, 6, 5}},
-	}
-
-	for name, tc := range tests {
-		t.Run(name, func(t *testing.T) {
-			pq := &DEPQ[int]{values: tc.values}
-			pq.up(tc.idx)
-			got := pq.values
-			if diff := cmp.Diff(tc.want, got); diff != "" {
-				t.Errorf("want(-), got(+)\n%s", diff)
-			}
-		})
-	}
-}
-
-func TestDEPQ_down(t *testing.T) {
-	tests := map[string]struct {
-		values []int
-		idx    int
-		want   []int
-	}{
-		"min heap, p > cl, p < cr, cl < cr": {values: []int{10, 5, 7, 1, 6, 5}, idx: 1, want: []int{10, 1, 7, 5, 6, 5}},
-		"min heap, p < cl, p > cr, cl > cr": {values: []int{10, 5, 7, 6, 6, 1}, idx: 1, want: []int{10, 1, 7, 6, 6, 5}},
-		"min heap, p < cl, p < cr, cl < cr": {values: []int{10, 5, 7, 6, 6, 7}, idx: 1, want: []int{10, 5, 7, 6, 6, 7}},
-		"min heap, p < cl, p < cr, cl > cr": {values: []int{10, 5, 7, 7, 6, 6}, idx: 1, want: []int{10, 5, 7, 7, 6, 6}},
-		"min heap, p > cl, p > cr, cl < cr": {values: []int{10, 5, 7, 1, 6, 2}, idx: 1, want: []int{10, 1, 7, 5, 6, 2}},
-		"min heap, p > cl, p > cr, cl > cr": {values: []int{10, 5, 7, 2, 6, 1}, idx: 1, want: []int{10, 1, 7, 2, 6, 5}},
-
-		"max heap, p > cl, p < cr, cl < cr": {values: []int{10, 5, 7, 6, 20, 5}, idx: 0, want: []int{20, 5, 7, 6, 10, 5}},
-		"max heap, p < cl, p > cr, cl > cr": {values: []int{10, 5, 20, 6, 6, 5}, idx: 0, want: []int{20, 5, 10, 6, 6, 5}},
-		"max heap, p < cl, p < cr, cl < cr": {values: []int{10, 5, 20, 6, 30, 5}, idx: 0, want: []int{30, 5, 20, 6, 10, 5}},
-		"max heap, p < cl, p < cr, cl > cr": {values: []int{10, 5, 30, 6, 20, 5}, idx: 0, want: []int{30, 5, 10, 6, 20, 5}},
-		"max heap, p > cl, p > cr, cl < cr": {values: []int{10, 5, 7, 6, 9, 5}, idx: 0, want: []int{10, 5, 7, 6, 9, 5}},
-		"max heap, p > cl, p > cr, cl > cr": {values: []int{10, 5, 7, 6, 6, 5}, idx: 0, want: []int{10, 5, 7, 6, 6, 5}},
-	}
-
-	for name, tc := range tests {
-		t.Run(name, func(t *testing.T) {
-			pq := &DEPQ[int]{values: tc.values}
-			pq.down(tc.idx)
-			got := pq.values
-			if diff := cmp.Diff(tc.want, got); diff != "" {
-				t.Errorf("want(-), got(+)\n%s", diff)
-			}
-		})
-	}
+		want := 2*(idx+1) - idx%2
+		got := cIdx(idx)
+		if want != got {
+			t.Errorf("idx: %d, want: %d, got: %d", idx, want, got)
+		}
+	})
 }
 
 func check_heap[T Ordered](t *testing.T, pq *DEPQ[T]) {
@@ -391,14 +337,75 @@ func TestDEPQ_SizeOperations(t *testing.T) {
 
 func TestDEPQ_GetOperations(t *testing.T) {
 	pq := NewDEPQ(5, 1, 9, 3, 7)
-	
+
 	testlib.AclAssert(t, 1, pq.GetMin())
 	testlib.AclAssert(t, 9, pq.GetMax())
-	
+
 	// Verify getting doesn't modify the queue
 	testlib.AclAssert(t, 5, pq.Size())
 	testlib.AclAssert(t, 1, pq.GetMin())
 	testlib.AclAssert(t, 9, pq.GetMax())
+}
+
+func FuzzNewDEPQ(f *testing.F) {
+	f.Add(10)
+	f.Add(1_000_000)
+	f.Fuzz(func(t *testing.T, a int) {
+		if a <= 0 || 1_000_000 < a {
+			return
+		}
+		arr := MakeSliceWith(a, func() int { return rand.Intn(INF) })
+		dpq := NewDEPQ(arr...)
+		check_heap(t, dpq)
+	})
+}
+
+func FuzzDEPQ(f *testing.F) {
+	f.Add(10)
+	f.Add(1_000_000)
+	f.Fuzz(func(t *testing.T, n int) {
+		if n <= 0 || 1_000 < n {
+			return
+		}
+		arr := MakeSliceWith(n, func() int { return rand.Intn(1_000) })
+		mi, ma := arr[0], arr[0]
+		dpq := NewDEPQ[int]()
+
+		// Insert to heap test
+		for _, v := range arr {
+			dpq.Push(v)
+			check_heap(t, dpq)
+			mi = Min(mi, v)
+			ma = Max(ma, v)
+
+			if gmi := dpq.GetMin(); gmi != mi {
+				t.Fatalf("want %d but got %d", mi, gmi)
+			}
+			if gma := dpq.GetMax(); gma != ma {
+				t.Fatalf("want %d but got %d", ma, gma)
+			}
+		}
+
+		// PopTest
+		for !dpq.Empty() {
+			q := rand.Intn(2)
+			switch q {
+			case 0:
+				gma := dpq.PopMax()
+				if gma > ma {
+					t.Fatalf("shoudl be <= ma: %d but got %d", ma, gma)
+				}
+				ma = gma
+			case 1:
+				gmi := dpq.PopMin()
+				if gmi < mi {
+					t.Fatalf("should be >= mi: %d but got %d", mi, gmi)
+				}
+				mi = gmi
+			}
+			check_heap(t, dpq)
+		}
+	})
 }
 
 func TestDEPQ_EdgeCasesOperations(t *testing.T) {
@@ -406,21 +413,41 @@ func TestDEPQ_EdgeCasesOperations(t *testing.T) {
 		pq := NewDEPQ(42)
 		testlib.AclAssert(t, 42, pq.GetMin())
 		testlib.AclAssert(t, 42, pq.GetMax())
-		
+
 		min := pq.PopMin()
 		testlib.AclAssert(t, 42, min)
 		testlib.AclAssert(t, true, pq.Empty())
 	})
-	
+
 	t.Run("two element operations", func(t *testing.T) {
 		pq := NewDEPQ(3, 1)
 		testlib.AclAssert(t, 1, pq.GetMin())
 		testlib.AclAssert(t, 3, pq.GetMax())
-		
+
 		max := pq.PopMax()
 		testlib.AclAssert(t, 3, max)
 		testlib.AclAssert(t, 1, pq.Size())
 		testlib.AclAssert(t, 1, pq.GetMin())
 		testlib.AclAssert(t, 1, pq.GetMax())
 	})
+}
+
+func BenchmarkDEPQ_PushPop(b *testing.B) {
+	b.ReportAllocs()
+	const m = 1_000_000
+	rng := rand.New(rand.NewSource(1))
+	vs := MakeSliceWith(m, func() int { return rng.Int() })
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		pq := NewDEPQ[int]()
+		for _, v := range vs {
+			pq.Push(v)
+		}
+		for !pq.Empty() {
+			_ = pq.PopMin()
+			if !pq.Empty() {
+				_ = pq.PopMax()
+			}
+		}
+	}
 }

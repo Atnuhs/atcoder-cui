@@ -1,22 +1,28 @@
 package main
 
-// lIdx　は左の子ノードのインデックスを返す
+import "fmt"
+
+// lIdxは左の兄弟
+// return (idx / 2) * 2
 func lIdx(idx int) int {
 	return idx & ^1
 }
 
-// rIdx　は右の子ノードのインデックスを返す
+// rIdxは右の兄弟
+// return lIdx(idx) + 1
 func rIdx(idx int) int {
 	return idx | 1
 }
 
-// pIdx　は親ノードのインデックスを返す
+// pIdxは親の左兄弟
 func pIdx(idx int) int {
 	return ((idx >> 1) - 1) & ^1
 }
 
-// cIdx　は子ノードのインデックスを返す
+// cIdxは同側ヒープの最初の子
 func cIdx(idx int) int {
+	// 1101 -> 110 / 1 -> 11011
+	// 10 -> 1 / 0 -> 110
 	return (idx & ^1)<<1 | 2 | idx&1
 }
 
@@ -31,14 +37,112 @@ func NewDEPQ[T Ordered](values ...T) *DEPQ[T] {
 	pq := &DEPQ[T]{
 		values: values,
 	}
-	for i := pq.Size() - 1; i >= 0; i-- {
-		if i&1 == 1 && pq.values[i-1] < pq.values[i] {
-			pq.values[i-1], pq.values[i] = pq.values[i], pq.values[i-1]
+
+	// Nodeの大小関係をそろえる
+	for i := lIdx(pq.Size() - 1); i >= 0; i -= 2 {
+		if i+1 < pq.Size() && pq.values[i] < pq.values[i+1] {
+			pq.swap(i, i+1)
 		}
-		idx := pq.down(i)
-		pq.upAt(idx, i)
+	}
+
+	// 親を葉側からdownしていく
+	for i := pIdx(pq.Size() - 1); i >= 0; i -= 2 {
+		pq.downMax(i)
+		pq.downMin(i + 1)
 	}
 	return pq
+}
+
+func (pq *DEPQ[T]) swap(i, j int) {
+	pq.values[i], pq.values[j] = pq.values[j], pq.values[i]
+}
+
+func (pq *DEPQ[T]) up(i int) {
+	for {
+		l, r := lIdx(i), rIdx(i)
+		if r < pq.Size() && pq.values[l] < pq.values[r] {
+			pq.swap(l, r)
+			i ^= 1
+		}
+
+		// 末尾で奇数番目の場合
+		if i&1 == 0 && i == pq.Size()-1 && i >= 2 {
+			mp := pIdx(i) + 1
+			if pq.values[i] < pq.values[mp] {
+				pq.swap(i, mp)
+				i = mp
+			}
+		}
+
+		if i < 2 {
+			return
+		}
+
+		p := pIdx(i) | (i & 1)
+		var ok bool
+		if p&1 == 0 {
+			ok = pq.values[p] > pq.values[i]
+		} else {
+			ok = pq.values[p] < pq.values[i]
+		}
+		if ok {
+			return
+		}
+		pq.swap(i, p)
+		i = p
+	}
+}
+
+func (pq *DEPQ[T]) downMax(i int) {
+	if i&1 == 1 {
+		panic(fmt.Sprintf("i should be even: i=%d", i))
+	}
+	for {
+		lc, rc := cIdx(i), cIdx(i)+2
+		if lc >= pq.Size() {
+			return
+		}
+		big := lc
+		if rc < pq.Size() && pq.values[rc] > pq.values[lc] {
+			big = rc
+		}
+
+		if pq.values[i] > pq.values[big] {
+			return
+		}
+		pq.swap(i, big)
+		bl, br := lIdx(big), rIdx(big)
+		if br < pq.Size() && pq.values[bl] < pq.values[br] {
+			pq.swap(bl, br)
+		}
+		i = bl
+	}
+}
+
+func (pq *DEPQ[T]) downMin(i int) {
+	if i&1 == 0 {
+		panic(fmt.Sprintf("i should be odd: i=%d", i))
+	}
+	for {
+		lc, rc := cIdx(i), cIdx(i)+2
+		if lc >= pq.Size() {
+			return
+		}
+		small := lc
+		if rc < pq.Size() && pq.values[rc] < pq.values[lc] {
+			small = rc
+		}
+
+		if pq.values[i] < pq.values[small] {
+			return
+		}
+		pq.swap(i, small)
+		bl, br := lIdx(small), rIdx(small)
+		if br < pq.Size() && pq.values[bl] < pq.values[br] {
+			pq.swap(bl, br)
+		}
+		i = br
+	}
 }
 
 func (pq *DEPQ[T]) Size() int {
@@ -76,13 +180,9 @@ func (pq *DEPQ[T]) PopMax() T {
 		panic(ErrEmptyContainer)
 	}
 	ret := pq.values[0]
-	lastIdx := pq.Size() - 1
-	pq.values[0] = pq.values[lastIdx]
-	pq.values = pq.values[:lastIdx]
-	if !pq.Empty() {
-		idx := pq.down(0)
-		pq.up(idx)
-	}
+	pq.values[0] = pq.values[pq.Size()-1]
+	pq.values = pq.values[:pq.Size()-1]
+	pq.downMax(0)
 	return ret
 }
 
@@ -96,61 +196,8 @@ func (pq *DEPQ[T]) PopMin() T {
 		return ret
 	}
 	ret := pq.values[1]
-	lastIdx := pq.Size() - 1
-	pq.values[1] = pq.values[lastIdx]
-	pq.values = pq.values[:lastIdx]
-	if pq.Size() > 1 {
-		idx := pq.down(1)
-		pq.up(idx)
-	}
+	pq.values[1] = pq.values[pq.Size()-1]
+	pq.values = pq.values[:pq.Size()-1]
+	pq.downMin(1)
 	return ret
-}
-
-func (pq *DEPQ[T]) upAt(idx, root int) {
-	l, r := lIdx(idx), rIdx(idx)
-
-	// should be value[l] >= value[r]
-	if r < pq.Size() && pq.values[l] < pq.values[r] {
-		pq.values[l], pq.values[r] = pq.values[r], pq.values[l]
-		idx ^= 1
-	}
-
-	for p := pIdx(idx); idx > root && pq.values[p] < pq.values[idx]; idx, p = p, pIdx(p) {
-		// max heap
-		pq.values[idx], pq.values[p] = pq.values[p], pq.values[idx]
-	}
-
-	for p := pIdx(idx) | 1; idx > root && pq.values[p] > pq.values[idx]; idx, p = p, pIdx(p)|1 {
-		// min heap
-		pq.values[idx], pq.values[p] = pq.values[p], pq.values[idx]
-	}
-}
-
-func (pq *DEPQ[T]) up(idx int) {
-	pq.upAt(idx, 1)
-}
-
-func (pq *DEPQ[T]) down(idx int) int {
-	if idx&1 == 1 {
-		// min heap
-		for c := cIdx(idx); c < pq.Size(); idx, c = c, cIdx(c) {
-			if c+2 < pq.Size() && pq.values[c] > pq.values[c+2] {
-				c += 2
-			}
-			if pq.values[c] < pq.values[idx] {
-				pq.values[idx], pq.values[c] = pq.values[c], pq.values[idx]
-			}
-		}
-	} else {
-		// max heap
-		for c := cIdx(idx); c < pq.Size(); idx, c = c, cIdx(c) {
-			if c+2 < pq.Size() && pq.values[c] < pq.values[c+2] {
-				c += 2
-			}
-			if pq.values[c] > pq.values[idx] {
-				pq.values[idx], pq.values[c] = pq.values[c], pq.values[idx]
-			}
-		}
-	}
-	return idx
 }

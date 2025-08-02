@@ -6,25 +6,27 @@ import (
 	"testing"
 )
 
-func TestEratosthenesSieve_IsPrime(t *testing.T) {
-	maxX := 3 * 100000
-	testCases := []struct {
-		desc string
-		x    int
-		want bool
-	}{
-		{desc: "one", x: 1, want: false},
-		{desc: "small prime", x: 2, want: true},
-		{desc: "small not prime", x: 4, want: false},
-		{desc: "prime?", x: 57, want: false},
-		{desc: "large prime", x: 104729, want: true},
-		{desc: "large not prime", x: 111111, want: false},
-	}
-	sv := NewSieve(maxX)
+var primeTableTestCase = []struct {
+	desc string
+	x    int
+	want bool
+}{
+	{desc: "one", x: 1, want: false},
+	{desc: "small prime", x: 2, want: true},
+	{desc: "small not prime", x: 4, want: false},
+	{desc: "prime?", x: 57, want: false},
+	{desc: "large prime", x: 104729, want: true},
+	{desc: "large not prime", x: 111111, want: false},
+}
 
-	for _, tc := range testCases {
+func TestSieve(t *testing.T) {
+	maxX := 3 * 100000
+	sv := NewSieve(maxX)
+	t.Log(sv[:100])
+
+	for _, tc := range primeTableTestCase {
 		t.Run(tc.desc, func(t *testing.T) {
-			got := sv.IsPrime(tc.x)
+			got := sv[tc.x]
 			if got != tc.want {
 				t.Errorf("%d is Prime?, expected %t, but got %t", tc.x, tc.want, got)
 			}
@@ -32,9 +34,42 @@ func TestEratosthenesSieve_IsPrime(t *testing.T) {
 	}
 }
 
-func FuzzEratosthenesSieve_IsPrime(f *testing.F) {
+func TestSieve_Primes(t *testing.T) {
 	maxX := 3 * 100000
 	sv := NewSieve(maxX)
+	ps := sv.Primes()
+
+	csv := Count(sv, func(val bool) bool { return val })
+	if csv != len(ps) {
+		t.Errorf("Count Primes want: %d, got: %d", csv, len(ps))
+	}
+
+	for _, p := range ps {
+		if !sv[p] {
+			t.Errorf("%d should be prime but %t", p, sv[p])
+		}
+	}
+}
+
+func TestMinFactor_IsPrime(t *testing.T) {
+	maxX := 3 * 100000
+	mf := NewMinFactor(maxX)
+	t.Log(mf[:100])
+
+	for _, tc := range primeTableTestCase {
+		t.Run(tc.desc, func(t *testing.T) {
+			got := mf.IsPrime(tc.x)
+			if got != tc.want {
+				t.Errorf("%d is Prime?, expected %t, but got %t", tc.x, tc.want, got)
+			}
+		})
+	}
+}
+
+func FuzzMinFactor_IsPrime(f *testing.F) {
+	maxX := 3 * 100000
+	mf := NewMinFactor(maxX)
+	mu := NewSieve(maxX)
 	f.Add(0)
 	f.Add(1)
 	f.Add(9)
@@ -48,15 +83,20 @@ func FuzzEratosthenesSieve_IsPrime(f *testing.F) {
 		// Perform prime number determination in two different ways
 		// method1 O(sqrt(N))
 		ret1 := IsPrime(a)
-		// method2 EratosthenesSieve
-		ret2 := sv.IsPrime(a)
+		// method2 MinFactor
+		ret2 := mf.IsPrime(a)
+		// method3 Eratosthenes
+		ret3 := mu[a]
 		if ret1 != ret2 {
-			t.Errorf("%d is Prime?, method1: %t, but method2 %t", a, ret1, ret2)
+			t.Errorf("%d is Prime?, 試し割り: %t, but MinFactor %t", a, ret1, ret2)
+		}
+		if ret1 != ret3 {
+			t.Errorf("%d is Prime?, 試し割り: %t, but Sieve %t", a, ret1, ret3)
 		}
 	})
 }
 
-func TestEratosthenesSieve_Factorize(t *testing.T) {
+func TestMinFactor_Factorize(t *testing.T) {
 	maxX := 3 * 100000
 	testCases := []struct {
 		desc string
@@ -74,11 +114,11 @@ func TestEratosthenesSieve_Factorize(t *testing.T) {
 		},
 	}
 
-	sv := NewSieve(maxX)
+	mf := NewMinFactor(maxX)
 
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			got := sv.Factorize(tc.x)
+			got := mf.Factorize(tc.x)
 			if !reflect.DeepEqual(tc.want, got) {
 				t.Errorf("factorize %d result, expected %v, but got %v", tc.x, tc.want, got)
 			}
@@ -86,9 +126,9 @@ func TestEratosthenesSieve_Factorize(t *testing.T) {
 	}
 }
 
-func FuzzEratosthenesSieve_Factorize(f *testing.F) {
+func FuzzMinFactor_Factorize(f *testing.F) {
 	maxX := 3 * 100000
-	sv := NewSieve(maxX)
+	mf := NewMinFactor(maxX)
 	f.Add(0)
 	f.Add(1)
 	f.Add(9)
@@ -102,14 +142,14 @@ func FuzzEratosthenesSieve_Factorize(f *testing.F) {
 		// method1 O(sqrt(N))
 		ret1 := Factorize(a)
 		// method2 EratosthenesSieve
-		ret2 := sv.Factorize(a)
+		ret2 := mf.Factorize(a)
 		if !reflect.DeepEqual(ret1, ret2) {
 			t.Errorf("factorize %d, method1: %v, but method2 %v", a, ret1, ret2)
 		}
 	})
 }
 
-func TestEratosthenesSieve_Divisors(t *testing.T) {
+func TestMinFactor_Divisors(t *testing.T) {
 	maxX := 3 * 100000
 	testCases := []struct {
 		desc string
@@ -122,11 +162,11 @@ func TestEratosthenesSieve_Divisors(t *testing.T) {
 		{desc: "large prime number", x: 104729, want: []int{1, 104729}},
 	}
 
-	sv := NewSieve(maxX)
+	mf := NewMinFactor(maxX)
 
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			got := sv.Divisors(tc.x)
+			got := mf.Divisors(tc.x)
 			sort.Ints(got)
 			sort.Ints(tc.want)
 			if !reflect.DeepEqual(tc.want, got) {
@@ -136,9 +176,9 @@ func TestEratosthenesSieve_Divisors(t *testing.T) {
 	}
 }
 
-func FuzzEratosthenesSieve_Divisors(f *testing.F) {
+func FuzzMinFactor_Divisors(f *testing.F) {
 	maxX := 3 * 100000
-	sv := NewSieve(maxX)
+	mf := NewMinFactor(maxX)
 	f.Add(0)
 	f.Add(1)
 	f.Add(9)
@@ -152,63 +192,11 @@ func FuzzEratosthenesSieve_Divisors(f *testing.F) {
 		// method1 O(sqrt(N))
 		ret1 := Divisors(a)
 		// method2 EratosthenesSieve
-		ret2 := sv.Divisors(a)
+		ret2 := mf.Divisors(a)
 		sort.Ints(ret1)
 		sort.Ints(ret2)
 		if !reflect.DeepEqual(ret1, ret2) {
 			t.Errorf("enumerate %d divisors, method1: %v, but method2 %v", a, ret1, ret2)
-		}
-	})
-}
-
-func TestEratosthenesSieve_Mobius(t *testing.T) {
-	maxX := 3 * 100000
-	testCases := []struct {
-		desc string
-		x    int
-		want int
-	}{
-		{desc: "one", x: 1, want: 1},
-		{desc: "simple prime number", x: 2, want: -1},
-		{desc: "simple composite number", x: 6, want: 1},
-		{desc: "simple composite number", x: 30, want: -1},
-		{desc: "simple composite number", x: 4, want: 0},
-		{desc: "simple composite number", x: 12, want: 0},
-		{desc: "large prime number", x: 104729, want: -1},
-	}
-
-	sv := NewSieve(maxX)
-
-	for _, tc := range testCases {
-		t.Run(tc.desc, func(t *testing.T) {
-			got := sv.Mobius(tc.x)
-
-			if tc.want != got {
-				t.Errorf("%d Mebius function, expected %d, but got %d", tc.x, tc.want, got)
-			}
-		})
-	}
-}
-
-func FuzzEratosthenesSieve_Mobius(f *testing.F) {
-	maxX := 3 * 100000
-	sv := NewSieve(maxX)
-	f.Add(0)
-	f.Add(1)
-	f.Add(9)
-	f.Add(123456)
-	f.Add(1000000007)
-	f.Fuzz(func(t *testing.T, a int) {
-		if 1 > a || a > maxX {
-			return
-		}
-		// Mobius function in two different ways
-		// method1 O(sqrt(N))
-		ret1 := Mobius(a)
-		// method2 EratosthenesSieve
-		ret2 := sv.Mobius(a)
-		if ret1 != ret2 {
-			t.Errorf("%d mobius function, method1: %v, but method2 %v", a, ret1, ret2)
 		}
 	})
 }
@@ -226,11 +214,11 @@ func TestCountDivisors(t *testing.T) {
 		{desc: "large prime number", x: 104729, want: 2},
 	}
 
-	sv := NewSieve(maxX)
+	mf := NewMinFactor(maxX)
 
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			f := sv.Factorize(tc.x)
+			f := mf.Factorize(tc.x)
 			got := CountDivisors(f)
 
 			if tc.want != got {
@@ -242,7 +230,7 @@ func TestCountDivisors(t *testing.T) {
 
 func FuzzCountDivisors(f *testing.F) {
 	maxX := 3 * 100000
-	sv := NewSieve(maxX)
+	mf := NewMinFactor(maxX)
 	f.Add(0)
 	f.Add(1)
 	f.Add(9)
@@ -261,14 +249,14 @@ func FuzzCountDivisors(f *testing.F) {
 			},
 			// get len enumerate divisors with eratosthenes sieve
 			func(x int) int {
-				return len(sv.Divisors(x))
+				return len(mf.Divisors(x))
 			},
 			// get len from Factiroze
 			func(x int) int {
 				return CountDivisors(Factorize(x))
 			},
 			// get len from Factorize with sieve
-			sv.CountDivisors,
+			mf.CountDivisors,
 		}
 
 		for i, method1 := range methods {
@@ -277,11 +265,9 @@ func FuzzCountDivisors(f *testing.F) {
 				method2 := methods[j]
 				got2 := method2(a)
 				t.Logf(
-					"%d num divisors, method1: %v:%v, but method2 %v:%v",
+					"%d num divisors, method1: %d, but method2 %d",
 					a,
-					method1,
 					got1,
-					method2,
 					got2,
 				)
 				if !reflect.DeepEqual(got1, got2) {
@@ -295,6 +281,58 @@ func FuzzCountDivisors(f *testing.F) {
 					)
 				}
 			}
+		}
+	})
+}
+
+func TestMobius(t *testing.T) {
+	maxX := 3 * 100000
+	testCases := []struct {
+		desc string
+		x    int
+		want int
+	}{
+		{desc: "one", x: 1, want: 1},
+		{desc: "simple prime number", x: 2, want: -1},
+		{desc: "simple composite number", x: 6, want: 1},
+		{desc: "simple composite number", x: 30, want: -1},
+		{desc: "simple composite number", x: 4, want: 0},
+		{desc: "simple composite number", x: 12, want: 0},
+		{desc: "large prime number", x: 104729, want: -1},
+	}
+
+	mu := NewMobiusTable(maxX)
+
+	for _, tc := range testCases {
+		t.Run(tc.desc, func(t *testing.T) {
+			got := mu[tc.x]
+
+			if tc.want != got {
+				t.Errorf("%d Mebius function, expected %d, but got %d", tc.x, tc.want, got)
+			}
+		})
+	}
+}
+
+func FuzzMobius(f *testing.F) {
+	maxX := 3 * 100000
+	mu := NewMobiusTable(maxX)
+	f.Add(0)
+	f.Add(1)
+	f.Add(9)
+	f.Add(123456)
+	f.Add(1000000007)
+	f.Fuzz(func(t *testing.T, a int) {
+		if 1 > a || a > maxX {
+			return
+		}
+		// Mobius function in two different ways
+		// method1 O(sqrt(N))
+		ret1 := Mobius(a)
+		// method2 EratosthenesSieve
+		ret2 := mu[a]
+		if ret1 != ret2 {
+			t.Errorf("%d mobius function, method1: %v, but method2 %v", a, ret1, ret2)
 		}
 	})
 }

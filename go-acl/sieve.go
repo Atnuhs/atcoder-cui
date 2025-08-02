@@ -1,75 +1,88 @@
 package main
 
-// EratosthenesSieve はエラトステネスの篩の実装
-type EratosthenesSieve struct {
-	isPrime   []bool
-	minFactor []int
-	mobius    []int
-}
+import "math"
 
-// NewSieve はO(N loglog N)でエラトステネスの篩を初期化する
-func NewSieve(n int) *EratosthenesSieve {
-	isPrime := make([]bool, n+1)
-	minFactor := make([]int, n+1)
-	mobius := make([]int, n+1)
+// Sieve はiが素数かをboolで持つテーブル
+type Sieve []bool
 
-	for i := range isPrime {
-		isPrime[i] = true
-		minFactor[i] = -1
-		mobius[i] = 1
-	}
+// NewSieve はエラトステネスの篩の実装でテーブルを生成する
+func NewSieve(n int) Sieve {
+	isPrime := MakeSliceOf(n+1, true)
 
 	isPrime[0] = false
 	isPrime[1] = false
-	minFactor[1] = 1
-
 	// sieve
-	for i := range isPrime {
+	for i := 2; i*i <= n; i++ {
 		if !isPrime[i] {
 			continue
 		}
-
-		minFactor[i] = i
-		mobius[i] = -1
-
-		for j := i * 2; j <= n; j += i {
+		for j := i * i; j <= n; j += i {
 			isPrime[j] = false
+		}
+	}
+	return Sieve(isPrime)
+}
 
-			if minFactor[j] == -1 {
-				minFactor[j] = i
+func (sv Sieve) Primes() []int {
+	n := len(sv) - 1
+	m := func() int {
+		if n < 17 {
+			return [...]int{0, 0, 1, 2, 2, 3, 3, 4, 4, 4, 4, 5, 5, 6, 6, 6, 6}[n]
+		}
+		return int(1.3*float64(n)/math.Log(float64(n))) + 1
+	}()
+	ret := make([]int, 0, m)
+	for i := 2; i <= n; i++ {
+		if sv[i] {
+			ret = append(ret, i)
+		}
+	}
+	return ret
+}
+
+// MinFactorTable はある値xについてその最小の素因数を返すテーブル
+type MinFactorTable []int
+
+// NewMinFactor はO(N loglog N)でエラトステネスの篩の仕組みでminFactorテーブルを生成する
+func NewMinFactor(n int) MinFactorTable {
+	mf := make(MinFactorTable, n+1)
+	mf[1] = 1
+	for p := 2; p <= n; p++ {
+		if mf[p] == 0 {
+			mf[p] = p
+			// p*pがオーバーフローする場合…あんまなさそう？
+			if p > n/p {
+				continue
 			}
-
-			if (j/i)%i == 0 {
-				mobius[j] = 0
-			} else {
-				mobius[j] = -mobius[j]
+			for j := p * p; j <= n; j += p {
+				if mf[j] == 0 {
+					mf[j] = p
+				}
 			}
 		}
 	}
-	return &EratosthenesSieve{
-		isPrime:   isPrime,
-		minFactor: minFactor,
-		mobius:    mobius,
-	}
+	return mf
+
 }
 
 // IsPrime はO(1)で素数かどうかを判定する
-func (sv *EratosthenesSieve) IsPrime(x int) bool {
-	return sv.isPrime[x]
+func (mf MinFactorTable) IsPrime(x int) bool {
+	if x == 1 {return false}
+	return mf[x] == x
 }
 
-// Factorize は O(Sqrt(N))で素因数分解を行う
+// Factorize は O(log x)で素因数分解を行う
 // 返り値は素因数とその指数のPairのスライス
 // 例）got, ret
 // 6, []Pair{{2,1}, {3.1}}
-func (sv *EratosthenesSieve) Factorize(x int) []*Pair[int, int] {
+func (mf MinFactorTable) Factorize(x int) []*Pair[int, int] {
 	ret := make([]*Pair[int, int], 0)
 	n := x
 	for n > 1 {
-		p := sv.minFactor[n]
+		p := mf[n]
 		exp := 0
 
-		for sv.minFactor[n] == p {
+		for mf[n] == p {
 			n /= p
 			exp++
 		}
@@ -78,26 +91,13 @@ func (sv *EratosthenesSieve) Factorize(x int) []*Pair[int, int] {
 	return ret
 }
 
-// Mobius はO(sqrt(n))でメビウス関数を計算する
-// メビウス関数は、整数nに対して以下のように定義される
-// 0 <= n: nが平方数で割り切れる場合
-// 1 or -1 <= (-1)^k: nがk個の異なる素因数を持つ場合
-// 具体的には以下のような値となる
-// 0 <= 4, 12, 18, 50: 平方数で割り切れる
-// 1 <= 1, 6, 210: 偶数個の素因数を持つ
-// -1 <= 2, 30, 140729 : 奇数個の素因数を持つ
-// 約数系包除原理で使う
-func (sv *EratosthenesSieve) Mobius(x int) int {
-	return sv.mobius[x]
-}
-
-// Divisors is O(sqrt(n)) returns
+// Divisors is O(log x) returns
 // 2 => 1, 2
 // 10 => 1, 2, 5, 10
-func (sv *EratosthenesSieve) Divisors(x int) []int {
+func (mf *MinFactorTable) Divisors(x int) []int {
 	ret := []int{1}
 
-	f := sv.Factorize(x)
+	f := mf.Factorize(x)
 	for _, pe := range f {
 		n := len(ret)
 		for i := 0; i < n; i++ {
@@ -111,10 +111,39 @@ func (sv *EratosthenesSieve) Divisors(x int) []int {
 	return ret
 }
 
-// CountDivisors is O(1) returns len(sv.Divisors(x))
+// CountDivisors is O(log x + len(sv.Divisors(x))) returns len(sv.Divisors(x))
 // 1 => 1
 // 2 => 2
 // 10 => 4
-func (sv *EratosthenesSieve) CountDivisors(x int) int {
-	return CountDivisors(sv.Factorize(x))
+func (mf *MinFactorTable) CountDivisors(x int) int {
+	return CountDivisors(mf.Factorize(x))
 }
+
+// Mobius はO(1)でメビウス関数を計算する
+// メビウス関数は、整数nに対して以下のように定義される
+// 0 <= n: nが平方数で割り切れる場合
+// 1 or -1 <= (-1)^k: nがk個の異なる素因数を持つ場合
+// 具体的には以下のような値となる
+// 0 <= 4, 12, 18, 50: 平方数で割り切れる
+// 1 <= 1, 6, 210: 偶数個の素因数を持つ
+// -1 <= 2, 30, 140729 : 奇数個の素因数を持つ
+// 約数系包除原理で使う
+func NewMobiusTable(n int) []int {
+	mf := NewMinFactor(n)
+	mu := MakeSliceOf(n+1, 1)
+	mu[1] = 1
+	for x := 2; x <= n; x++ {
+		p := mf[x]
+		y := x / p
+		if y%p == 0 {
+			mu[x] = 0
+		} else {
+			mu[x] = -mu[y]
+		}
+	}
+	return mu
+}
+
+// SegmentedSieveは
+// 幅の狭い区間[L, R]に対して、D=R-Lとしたとき、
+// 構築 O(Sqrt(R) log log R + D loglog R)で櫛を生成することができる

@@ -8,11 +8,11 @@ type PQ[T any] struct {
 	less LessFunc[T]
 }
 
-func NewPQ[T any](less LessFunc[T]) *PQ[T] {
+func NewPQF[T any](less LessFunc[T]) *PQ[T] {
 	return &PQ[T]{data: []T{}, less: less}
 }
 
-func NewPQOrdered[T Ordered]() *PQ[T] {
+func NewPQ[T Ordered]() *PQ[T] {
 	return &PQ[T]{data: []T{}, less: func(a, b T) bool { return a < b }}
 }
 
