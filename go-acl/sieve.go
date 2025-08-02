@@ -71,7 +71,9 @@ func NewMinFactor(n int) MinFactorTable {
 
 // IsPrime はO(1)で素数かどうかを判定する
 func (mf MinFactorTable) IsPrime(x int) bool {
-	if x == 1 {return false}
+	if x == 1 {
+		return false
+	}
 	return mf[x] == x
 }
 
@@ -155,5 +157,44 @@ func (mu MobiusTable) Mobius(x int) int {
 }
 
 // SegmentedSieveは
+type SegmentedSieve struct {
+	start   int
+	isPrime Sieve
+}
+
 // 幅の狭い区間[L, R]に対して、D=R-Lとしたとき、
-// 構築 O(Sqrt(R) log log R + D loglog R)で櫛を生成することができる
+// 構築 O(Sqrt(R) log log R + D loglog R)で篩を生成することができる
+func NewSegmentedSieve(lo, hi int) *SegmentedSieve {
+	if lo >= hi {
+		return nil
+	}
+	sqrtHi := Sqrt(hi) + 1
+	sv1 := NewSieve(sqrtHi)
+
+	m := hi - lo + 1
+	isPrime := MakeSliceOf(m, true)
+
+	for p := range sv1 {
+		if !sv1.IsPrime(p) {
+			continue
+		}
+
+		// l は lo 以上の最小のpの倍数
+		l := ((lo + p - 1) / p) * p
+		if l == p {
+			l = p * p
+		}
+		for i := l; i <= hi; i += p {
+			isPrime[i-lo] = false
+		}
+	}
+	return &SegmentedSieve{
+		start:   lo,
+		isPrime: isPrime,
+	}
+}
+
+func (sv *SegmentedSieve) IsPrime(x int) bool {
+	i := x - sv.start
+	return sv.isPrime[i]
+}

@@ -336,3 +336,59 @@ func FuzzMobius(f *testing.F) {
 		}
 	})
 }
+
+func TestSegmentedSieve(t *testing.T) {
+	testcase := map[string]struct {
+		lo, hi int
+	}{
+		"small":  {lo: 2, hi: 10},
+		"medium": {lo: 1000000, hi: 2000000},
+		"large":  {lo: 10_000_000_000, hi: 10_000_100_000},
+	}
+
+	for name, tc := range testcase {
+		t.Run(name, func(t *testing.T) {
+			sv := NewSegmentedSieve(tc.lo, tc.hi)
+
+			for i := tc.lo; i <= tc.hi; i++ {
+				got := sv.IsPrime(i)
+				want := IsPrime(i)
+
+				if got != want {
+					t.Errorf("%d is Prime? => want: %t, got: %t", i, want, got)
+				}
+			}
+		})
+	}
+}
+
+func FuzzSegmentedSieve(f *testing.F) {
+	MaxHi := 1_000_000_000_000
+	MaxL := 1_000_000
+
+	f.Add(2, 10)
+	f.Add(1000, 2000)
+	f.Add(10_000_000_000, 10_000_100_000)
+	f.Fuzz(func(t *testing.T, lo, hi int) {
+		if lo <= 2 || hi < lo {
+			return
+		}
+		if hi > MaxHi {
+			return
+		}
+		l := hi - lo
+		if l < 1 || l > MaxL {
+			return
+		}
+
+		ssv := NewSegmentedSieve(lo, hi)
+		for i := lo; i <= hi; i++ {
+			got := ssv.IsPrime(i)
+			want := IsPrime(i)
+
+			if got != want {
+				t.Errorf("[lo=%d,hi=%d] %d is Prime? => want: %t, got: %t", lo, hi, i, want, got)
+			}
+		}
+	})
+}
