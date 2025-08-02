@@ -26,7 +26,7 @@ func TestSieve(t *testing.T) {
 
 	for _, tc := range primeTableTestCase {
 		t.Run(tc.desc, func(t *testing.T) {
-			got := sv[tc.x]
+			got := sv.IsPrime(tc.x)
 			if got != tc.want {
 				t.Errorf("%d is Prime?, expected %t, but got %t", tc.x, tc.want, got)
 			}
@@ -45,7 +45,7 @@ func TestSieve_Primes(t *testing.T) {
 	}
 
 	for _, p := range ps {
-		if !sv[p] {
+		if !sv.IsPrime(p) {
 			t.Errorf("%d should be prime but %t", p, sv[p])
 		}
 	}
@@ -69,7 +69,7 @@ func TestMinFactor_IsPrime(t *testing.T) {
 func FuzzMinFactor_IsPrime(f *testing.F) {
 	maxX := 3 * 100000
 	mf := NewMinFactor(maxX)
-	mu := NewSieve(maxX)
+	sv := NewSieve(maxX)
 	f.Add(0)
 	f.Add(1)
 	f.Add(9)
@@ -86,7 +86,7 @@ func FuzzMinFactor_IsPrime(f *testing.F) {
 		// method2 MinFactor
 		ret2 := mf.IsPrime(a)
 		// method3 Eratosthenes
-		ret3 := mu[a]
+		ret3 := sv.IsPrime(a)
 		if ret1 != ret2 {
 			t.Errorf("%d is Prime?, 試し割り: %t, but MinFactor %t", a, ret1, ret2)
 		}
@@ -305,7 +305,7 @@ func TestMobius(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			got := mu[tc.x]
+			got := mu.Mobius(tc.x)
 
 			if tc.want != got {
 				t.Errorf("%d Mebius function, expected %d, but got %d", tc.x, tc.want, got)
@@ -330,7 +330,7 @@ func FuzzMobius(f *testing.F) {
 		// method1 O(sqrt(N))
 		ret1 := Mobius(a)
 		// method2 EratosthenesSieve
-		ret2 := mu[a]
+		ret2 := mu.Mobius(a)
 		if ret1 != ret2 {
 			t.Errorf("%d mobius function, method1: %v, but method2 %v", a, ret1, ret2)
 		}

@@ -23,6 +23,10 @@ func NewSieve(n int) Sieve {
 	return Sieve(isPrime)
 }
 
+func (sv Sieve) IsPrime(x int) bool {
+	return sv[x]
+}
+
 func (sv Sieve) Primes() []int {
 	n := len(sv) - 1
 	m := func() int {
@@ -119,7 +123,7 @@ func (mf *MinFactorTable) CountDivisors(x int) int {
 	return CountDivisors(mf.Factorize(x))
 }
 
-// Mobius はO(1)でメビウス関数を計算する
+// MobiusTable はメビウス関数μ(x)の値を持つテーブル
 // メビウス関数は、整数nに対して以下のように定義される
 // 0 <= n: nが平方数で割り切れる場合
 // 1 or -1 <= (-1)^k: nがk個の異なる素因数を持つ場合
@@ -128,7 +132,9 @@ func (mf *MinFactorTable) CountDivisors(x int) int {
 // 1 <= 1, 6, 210: 偶数個の素因数を持つ
 // -1 <= 2, 30, 140729 : 奇数個の素因数を持つ
 // 約数系包除原理で使う
-func NewMobiusTable(n int) []int {
+type MobiusTable []int
+
+func NewMobiusTable(n int) MobiusTable {
 	mf := NewMinFactor(n)
 	mu := MakeSliceOf(n+1, 1)
 	mu[1] = 1
@@ -141,7 +147,11 @@ func NewMobiusTable(n int) []int {
 			mu[x] = -mu[y]
 		}
 	}
-	return mu
+	return MobiusTable(mu)
+}
+
+func (mu MobiusTable) Mobius(x int) int {
+	return mu[x]
 }
 
 // SegmentedSieveは
