@@ -73,7 +73,11 @@ func NewSegmentTree[T any](arr []T, mo *Monoid[T]) *SegmentTree[T] {
 		n *= 2
 	}
 
-	data := MakeSlice(2*n-1, func(i int) T { return mo.E })
+	data := Make1D[T](2*n - 1)
+	for i := range data {
+		data[i] = mo.E
+	}
+
 	for i := range arr {
 		j := i + n - 1
 		data[j] = arr[i]

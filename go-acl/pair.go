@@ -49,11 +49,23 @@ func (p *Pos) Neighbors8() []*Pos {
 }
 
 func (p *Pos) Neighbors4In(w, h int) []*Pos {
-	return Filter(p.Neighbors4(), func(p *Pos) bool { return InGrid(p, h, w) })
+	ret := make([]*Pos, 0, 4)
+	for _, p := range p.Neighbors4() {
+		if InGrid(p, h, w) {
+			ret = append(ret, p)
+		}
+	}
+	return ret
 }
 
 func (p *Pos) Neighbors8In(w, h int) []*Pos {
-	return Filter(p.Neighbors8(), func(p *Pos) bool { return InGrid(p, h, w) })
+	ret := make([]*Pos, 0, 8)
+	for _, p := range p.Neighbors8() {
+		if InGrid(p, h, w) {
+			ret = append(ret, p)
+		}
+	}
+	return ret
 }
 
 func InGrid(p *Pos, h, w int) bool {

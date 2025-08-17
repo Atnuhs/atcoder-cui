@@ -39,7 +39,13 @@ func TestSieve_Primes(t *testing.T) {
 	sv := NewSieve(maxX)
 	ps := sv.Primes()
 
-	csv := Count(sv, func(val bool) bool { return val })
+	csv := 0
+	for _, v := range sv {
+		if v {
+			csv++
+		}
+	}
+
 	if csv != len(ps) {
 		t.Errorf("Count Primes want: %d, got: %d", csv, len(ps))
 	}

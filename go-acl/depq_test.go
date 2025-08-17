@@ -354,7 +354,10 @@ func FuzzNewDEPQ(f *testing.F) {
 		if a <= 0 || 1_000_000 < a {
 			return
 		}
-		arr := MakeSliceWith(a, func() int { return rand.Intn(INF) })
+		arr := Make1D[int](a)
+		for i := range arr {
+			arr[i] = rand.Intn(INF)
+		}
 		dpq := NewDEPQ(arr...)
 		check_heap(t, dpq)
 	})
@@ -367,7 +370,10 @@ func FuzzDEPQ(f *testing.F) {
 		if n <= 0 || 1_000 < n {
 			return
 		}
-		arr := MakeSliceWith(n, func() int { return rand.Intn(1_000) })
+		arr := Make1D[int](n)
+		for i := range arr {
+			arr[i] = rand.Intn(1_000)
+		}
 		mi, ma := arr[0], arr[0]
 		dpq := NewDEPQ[int]()
 
@@ -436,7 +442,10 @@ func BenchmarkDEPQ_PushPop(b *testing.B) {
 	b.ReportAllocs()
 	const m = 1_000_000
 	rng := rand.New(rand.NewSource(1))
-	vs := MakeSliceWith(m, func() int { return rng.Int() })
+	vs := Make1D[int](m)
+	for i := range vs {
+		vs[i] = rng.Int()
+	}
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		pq := NewDEPQ[int]()

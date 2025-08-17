@@ -7,7 +7,10 @@ type Sieve []bool
 
 // NewSieve はエラトステネスの篩の実装でテーブルを生成する
 func NewSieve(n int) Sieve {
-	isPrime := MakeSliceOf(n+1, true)
+	isPrime := Make1D[bool](n + 1)
+	for i := range isPrime {
+		isPrime[i] = true
+	}
 
 	isPrime[0] = false
 	isPrime[1] = false
@@ -138,7 +141,11 @@ type MobiusTable []int
 
 func NewMobiusTable(n int) MobiusTable {
 	mf := NewMinFactor(n)
-	mu := MakeSliceOf(n+1, 1)
+	mu := Make1D[int](n + 1)
+	for i := range mu {
+		mu[i] = 1
+	}
+
 	mu[1] = 1
 	for x := 2; x <= n; x++ {
 		p := mf[x]
@@ -172,7 +179,10 @@ func NewSegmentedSieve(lo, hi int) *SegmentedSieve {
 	sv1 := NewSieve(sqrtHi)
 
 	m := hi - lo + 1
-	isPrime := MakeSliceOf(m, true)
+	isPrime := Make1D[bool](m)
+	for i := range isPrime {
+		isPrime[i] = true
+	}
 
 	for p := range sv1 {
 		if !sv1.IsPrime(p) {

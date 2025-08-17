@@ -39,68 +39,31 @@ func InRange(x, l, r int) bool {
 	return l <= x && x < r
 }
 
-func Rep(n int) []struct{} {
-	return make([]struct{}, n)
-}
-
-// MakeSlice は長さnの配列を、関数fで初期化する
-func MakeSlice[T any](n int, f func(i int) T) []T {
-	ret := make([]T, n)
-	for i := range ret {
-		ret[i] = f(i)
-	}
-	return ret
-}
-
-// MakeGrid はh行w列の配列を、関数fで初期化する
-func MakeGrid[T any](h, w int, f func(ih, iw int) T) [][]T {
-	return MakeSlice(h, func(ih int) []T {
-		return MakeSlice(w, func(iw int) T {
-			return f(ih, iw)
-		})
-	})
-}
-
-// MakeSliceWith は長さnの配列を、関数fで初期化する
-func MakeSliceWith[T any](n int, f func() T) []T { return MakeSlice(n, func(_ int) T { return f() }) }
-
-// MakeGridWith はh行w列の配列を、関数fで初期化する
-func MakeGridWith[T any](h, w int, f func() T) [][]T {
-	return MakeGrid(h, w, func(_ int, _ int) T { return f() })
-}
-
-// MakeSliceOf は長さnの配列を、値vで初期化する
-// vに配列を指定すると、すべてポインタが同じになる
-func MakeSliceOf[T any](n int, v T) []T {
-	return MakeSlice(n, func(_ int) T { return v })
-}
-
-// MakeGridOf はh行w列の配列を、値vで初期化する
-// vに配列を指定すると、すべてポインタが同じになる
-func MakeGridOf[T any](h, w int, v T) [][]T {
-	return MakeGrid(h, w, func(_ int, _ int) T { return v })
-}
-
-func MakeSliceEmpty[T any](n int) []T {
+// Make1D は長さnの配列を、関数fで初期化する
+func Make1D[T any](n int) []T {
 	return make([]T, n)
 }
 
-func MakeGridEmpty[T any](h, w int) [][]T {
-	ret := make([][]T, h)
+// Make2D はh行w列の配列を、関数fで初期化する
+func Make2D[T any](n1, n2 int) [][]T {
+	ret := make([][]T, n1)
 	for i := range ret {
-		ret[i] = make([]T, w)
+		ret[i] = make([]T, n2)
 	}
 	return ret
 }
 
-// MakeJaggedSlice はn行のグラフをjagged配列で初期化する
-func MakeJaggedSlice[T any](n int) [][]T {
-	return MakeSlice(n, func(_ int) []T { return make([]T, 0) })
+func Make3D[T any](n1, n2, n3 int) [][][]T {
+	ret := make([][][]T, n1)
+	for i := range ret {
+		ret[i] = Make2D[T](n2, n3)
+	}
+	return ret
 }
 
-// Prepend は配列の先頭に値を追加する
-func Prepend[T any](arr []T, vars ...T) []T {
-	return append(vars, arr...)
+// MakeJag は長さNのJagged配列を生成する
+func MakeJag[T any](n int) [][]T {
+	return Make2D[T](n, 0)
 }
 
 // S は文字列を読み込む
@@ -113,6 +76,12 @@ func S() string {
 // R は文字列を[]runeとして読み込む
 func R() []rune {
 	return []rune(S())
+}
+
+func F() float64 {
+	var ret float64
+	fmt.Fscan(In, &ret)
+	return ret
 }
 
 // I は整数を読み込む
@@ -144,16 +113,50 @@ func IIII() (int, int, int, int) {
 }
 
 // Is は整数をn個読み込む
-func Is(n int) []int { return MakeSliceWith(n, I) }
+func Is(n int) []int {
+	ret := make([]int, n)
+	for i := range ret {
+		fmt.Fscan(In, &ret[i])
+	}
+	return ret
+}
 
 // Iss は整数をh行w列の配列として読み込む
-func Iss(h, w int) [][]int { return MakeGridWith(h, w, I) }
+func Iss(h, w int) [][]int {
+	ret := Make2D[int](h, w)
+	for i := range ret {
+		for j := range ret[i] {
+			fmt.Fscan(In, &ret[i][j])
+		}
+	}
+	return ret
+}
 
 // Sss は文字列をn個読み込む
-func Ss(n int) []string { return MakeSliceWith(n, S) }
+func Ss(n int) []string {
+	ret := Make1D[string](n)
+	for i := range ret {
+		fmt.Fscan(In, &ret[i])
+	}
+	return ret
+}
 
 // Rss は文字列をn個読み込む
-func Rs(n int) [][]rune { return MakeSliceWith(n, R) }
+func Rs(n int) [][]rune {
+	ret := make([][]rune, n)
+	for i := range ret {
+		ret[i] = R()
+	}
+	return ret
+}
+
+func Fs(n int) []float64 {
+	ret := make([]float64, n)
+	for i := range ret {
+		fmt.Fscan(In, &ret[i])
+	}
+	return ret
+}
 
 // formatSlice はスライスを文字列に変換する
 func formatSlice[T any](slice []T, formatter func(T) string) {
@@ -211,40 +214,6 @@ func YesNoFunc(f func() bool) {
 	YesNo(f())
 }
 
-// All は配列のすべての要素が条件を満たすかどうかを判定する
-func All[T any](vals []T, f func(i int, v T) bool) bool {
-	for i, v := range vals {
-		if !f(i, v) {
-			return false
-		}
-	}
-	return true
-}
-
-// Any は配列のいずれかの要素が条件を満たすかどうかを判定する
-func Any[T any](vals []T, f func(i int, v T) bool) bool {
-	for i, v := range vals {
-		if f(i, v) {
-			return true
-		}
-	}
-	return false
-}
-
-// PopBack はO(1)で配列の末尾を削除して返す
-func PopBack[T any](a *[]T) T {
-	ret := (*a)[len(*a)-1]
-	*a = (*a)[:len(*a)-1]
-	return ret
-}
-
-// PopFront はO(1)で配列の先頭を削除して返す
-func PopFront[T any](a *[]T) T {
-	ret := (*a)[0]
-	*a = (*a)[1:]
-	return ret
-}
-
 func Reverse[T any](vals []T) []T {
 	ret := make([]T, len(vals))
 	for i := len(vals) - 1; i >= 0; i-- {
@@ -255,143 +224,6 @@ func Reverse[T any](vals []T) []T {
 
 func ReverseS(s string) string {
 	return string(Reverse([]byte(s)))
-}
-
-// UnFoldは初期値aから、f(a)によって計算される返り値と次の引数を計算し、返り値がなくなるまで繰り返す
-func UnFold[A, B any](a A, f func(A) (A, *B)) []B {
-	nextA, elem := f(a)
-	if elem == nil {
-		return nil
-	}
-	return append([]B{*elem}, UnFold(nextA, f)...)
-}
-
-func Fold[A any, B any](vals []A, f func(val A, acc B) B, acc B) B {
-	ret := acc
-	for _, v := range vals {
-		ret = f(v, ret)
-	}
-	return ret
-}
-func FoldR[A any, B any](vals []A, f func(val A, acc B) B, acc B) B {
-	ret := acc
-	for i := len(vals) - 1; i >= 0; i-- {
-		ret = f(vals[i], ret)
-	}
-	return ret
-}
-
-// Scanはinitを先頭に、valsを走査しながら、next = f(直前の累積値, 要素)を順に計算して返す累積列(len(vals)+1)を生成する。
-func Scan[A, B any](vals []A, init B, f func(prev B, val A) (next B)) []B {
-	acc := make([]B, 0, len(vals)+1)
-	acc = append(acc, init)
-	return Fold(vals, func(val A, acc []B) []B {
-		next := f(acc[len(acc)-1], val)
-		return append(acc, next)
-	}, acc)
-}
-
-func PrefixSum(vals []int) []int {
-	return Scan(vals, 0, func(prev int, val int) (next int) {
-		return prev + val
-	})
-}
-
-func Map[A any, B any](vals []A, f func(val A) B) []B {
-	return Fold(vals, func(val A, acc []B) []B {
-		return append(acc, f(val))
-	}, make([]B, 0, len(vals)))
-}
-
-// MapAccumLは状態Sを持った状態で、[]A -> []Bの写像作成し状態Sと[]Bを返す
-func MapAccumL[S, A, B any](vals []A, acc S, f func(S, A) (S, B)) (S, []B) {
-	type pair Pair[S, []B]
-	ret := Fold(vals, func(val A, acc pair) pair {
-		newS, y := f(acc.U, val)
-		return pair{newS, append(acc.V, y)}
-	}, pair{acc, nil})
-	return ret.U, ret.V
-}
-
-func MapAccumR[S, A, B any](vals []A, acc S, f func(S, A) (S, B)) (S, []B) {
-	type pair Pair[S, []B]
-	ret := FoldR(vals, func(val A, acc pair) pair {
-		newS, y := f(acc.U, val)
-		return pair{newS, append(acc.V, y)}
-	}, pair{acc, make([]B, 0, len(vals))})
-	return ret.U, Reverse(ret.V)
-}
-
-// IterateNはx := f(x)を0回~N回繰り返した結果を配列で返す関数
-func IterateN[T any](x0 T, n int, f func(T) T) []T {
-	_, ys := MapAccumL(Rep(n), x0, func(state T, _ struct{}) (T, T) {
-		cur := state
-		state = f(state)
-		return state, cur
-	})
-	return ys
-}
-
-// Rangeはnを引数で、[0, 1, 2, ..., n-1]の配列を返す
-func Range(n int) []int {
-	return IterateN(0, n, func(x int) int { return x + 1 })
-}
-
-// ZipWithは[]Aと[]Bから、(A, B) => Cの関数で[]Cを作る
-func ZipWith[A, B, C any](as []A, bs []B, f func(A, B) C) []C {
-	n := Min(len(as), len(bs))
-	_, ys := MapAccumL(Rep(n), 0, func(i int, _ struct{}) (int, C) {
-		return i + 1, f(as[i], bs[i])
-	})
-	return ys
-}
-
-// Pairwiseはvals []Aの隣り合った要素(v_i, v_i+1)からRを生成する関数で、[]Bを返す
-func Pairwise[A, B any](vals []A, f func(A, A) B) []B {
-	if len(vals) < 2 {
-		return nil
-	}
-	return ZipWith(vals[:len(vals)-1], vals[1:], f)
-}
-
-// Windowは[]Tの各要素で、幅kのウィンドウを生成する。
-// vals = [1,2,3,4,5], k=3 => [1,2,3], [2,3,4], [3,4,5]
-func Window[T any](vals []T, k int) [][]T {
-	if k <= 0 || len(vals) < k {
-		return nil
-	}
-	m := len(vals) - k + 1
-	init := make([][]T, 0, m)
-	return Fold(Range(m), func(i int, acc [][]T) [][]T {
-		return append(acc, vals[i:i+k])
-	}, init)
-}
-
-func Uniq[T Ordered](vals []T) []T {
-	return Fold(vals, func(val T, acc []T) []T {
-		if len(acc) == 0 || acc[len(acc)-1] != val {
-			acc = append(acc, val)
-		}
-		return acc
-	}, make([]T, 0, len(vals)))
-}
-
-func Filter[T any](vals []T, f func(val T) bool) []T {
-	return Fold(vals, func(val T, acc []T) []T {
-		if f(val) {
-			return append(acc, val)
-		}
-		return acc
-	}, make([]T, 0, len(vals)))
-}
-
-func Count[T any](vals []T, f func(val T) bool) int {
-	return Fold(vals, func(val T, acc int) int {
-		if f(val) {
-			return acc + 1
-		}
-		return acc
-	}, 0)
 }
 
 func RotateCW90[T any](src [][]T) [][]T {
@@ -423,6 +255,17 @@ func Bisect(ok, ng int, pred func(mid int) bool) int {
 		}
 	}
 	return ok
+}
+
+func Uniq[T Ordered](vals []T) []T {
+	ret := make([]T, 0, len(vals))
+	ret = append(ret, vals[0])
+	for _, v := range vals[1:] {
+		if ret[len(ret)-1] != v {
+			ret = append(ret, v)
+		}
+	}
+	return ret
 }
 
 type Compress[T Ordered] struct {
