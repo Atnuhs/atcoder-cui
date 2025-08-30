@@ -68,10 +68,7 @@ type SegmentTree[T any] struct {
 
 // NewSegmentTree はセグメント木を初期化する
 func NewSegmentTree[T any](arr []T, mo *Monoid[T]) *SegmentTree[T] {
-	n := 1
-	for n < len(arr) {
-		n *= 2
-	}
+	n := NextPow2(len(arr))
 
 	data := Make1D[T](2*n - 1)
 	for i := range data {
@@ -84,8 +81,7 @@ func NewSegmentTree[T any](arr []T, mo *Monoid[T]) *SegmentTree[T] {
 	}
 
 	for i := n - 2; i >= 0; i-- {
-		c1 := 2*i + 1
-		c2 := 2*i + 2
+		c1, c2 := (i<<1)+1, (i<<1)+2
 		data[i] = mo.Op(data[c1], data[c2])
 	}
 
@@ -100,8 +96,9 @@ func (st *SegmentTree[T]) Update(i int, x T) {
 	i += st.n - 1
 	st.data[i] = x
 	for i > 0 {
-		i = (i - 1) / 2
-		st.data[i] = st.mo.Op(st.data[2*i+1], st.data[2*i+2])
+		i = (i - 1) >> 1
+		c1, c2 := (i<<1)+1, (i<<1)+2
+		st.data[i] = st.mo.Op(st.data[c1], st.data[c2])
 	}
 }
 
@@ -122,7 +119,9 @@ func (st *SegmentTree[T]) querySub(a, b, n, l, r int) T {
 		return st.data[n]
 	}
 
-	vl := st.querySub(a, b, 2*n+1, l, (l+r)/2)
-	vr := st.querySub(a, b, 2*n+2, (l+r)/2, r)
+	c1, c2 := (n<<1)+1, (n<<1)+2
+	mid := (l + r) >> 1
+	vl := st.querySub(a, b, c1, l, mid)
+	vr := st.querySub(a, b, c2, mid, r)
 	return st.mo.Op(vl, vr)
 }

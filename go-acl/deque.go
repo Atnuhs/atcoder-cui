@@ -92,6 +92,13 @@ func (d *Deque[T]) At(i int) T {
 	return d.buf[(d.l+i)&(len(d.buf)-1)]
 }
 
+func (d *Deque[T]) Update(i int, v T) {
+	if i < 0 || i >= d.size() {
+		panic("deque: index out of range")
+	}
+	d.buf[(d.l+i)&(len(d.buf)-1)] = v
+}
+
 func (d *Deque[T]) Size() int {
 	return d.size()
 }

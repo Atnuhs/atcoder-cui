@@ -17,6 +17,15 @@ func NewWEdge(from, to, weight int) *WEdge {
 }
 
 // Kruskal はクラスカル法を用いて最小全域木を求める
+// 最小全域木 (MST: Minimum Spanning Tree) とは:
+//   - 無向・重み付きグラフの全ての頂点を結びつける木 (辺は n-1 本)
+//   - その中で「辺の重み合計」が最小になるもの
+//
+// 例:
+//   - 村を最小コストで道路で全部つなぐ
+//   - 島を橋で結んで総工費を最小化
+//   - グループをK個に分けたい → MSTを作って重い辺をK−1本切る
+//   - 2点間の「経路中の最大コスト」を最小化したい → MST上で見る
 func Kruskal(n int, edges []*WEdge) (int, []*WEdge) {
 	// はじめに辺を重みでソートする
 	sort.Slice(edges, func(i, j int) bool {

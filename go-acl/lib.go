@@ -56,9 +56,36 @@ func Make2D[T any](n1, n2 int) [][]T {
 func Make3D[T any](n1, n2, n3 int) [][][]T {
 	ret := make([][][]T, n1)
 	for i := range ret {
-		ret[i] = Make2D[T](n2, n3)
+		ret[i] = make([][]T, n2)
+		for j := range ret[i] {
+			ret[i][j] = make([]T, n3)
+		}
 	}
 	return ret
+}
+
+func Fill1D[T any](vals []T, fill T) {
+	for i := range vals {
+		vals[i] = fill
+	}
+}
+
+func Fill2D[T any](vals [][]T, fill T) {
+	for i := range vals {
+		for j := range vals[i] {
+			vals[i][j] = fill
+		}
+	}
+}
+
+func Fill3D[T any](vals [][][]T, fill T) {
+	for i := range vals {
+		for j := range vals[i] {
+			for k := range vals[i][j] {
+				vals[i][j][k] = fill
+			}
+		}
+	}
 }
 
 // MakeJag は長さNのJagged配列を生成する
@@ -257,8 +284,71 @@ func Bisect(ok, ng int, pred func(mid int) bool) int {
 	return ok
 }
 
+// Geは昇順ソート済みの配列aに対して、x以上の要素の左端Indexを返す
+// aのすべての要素がxより小さい場合、len(a)を返す
+func Ge[T Ordered](a []T, x T) int {
+	ok, ng := len(a), -1
+	for ok-ng > 1 {
+		m := (ok + ng) >> 1
+		if x <= a[m] {
+			ok = m
+		} else {
+			ng = m
+		}
+	}
+	return ok
+}
+
+// Gtは昇順ソート済みの配列aに対して、xより大きい要素の左端Indexを返す
+// aのすべての要素がx以下の場合、len(a)を返す
+func Gt[T Ordered](a []T, x T) int {
+	ok, ng := len(a), -1
+	for ok-ng > 1 {
+		m := (ok + ng) >> 1
+		if x < a[m] {
+			ok = m
+		} else {
+			ng = m
+		}
+	}
+	return ok
+}
+
+// Leは昇順ソート済みの配列aに対し、x以下の要素の右端Indexを返す
+// aのすべての要素がxより大きい場合、-1を返す
+func Le[T Ordered](a []T, x T) int {
+	ok, ng := -1, len(a)
+	for ng-ok > 1 {
+		m := (ok + ng) >> 1
+		if x >= a[m] {
+			ok = m
+		} else {
+			ng = m
+		}
+	}
+	return ok
+}
+
+// Ltは昇順ソート済みの配列aに対して、xより小さい要素の右端を返す
+// aのすべての要素がx以上の場合、-1を返す
+func Lt[T Ordered](a []T, x T) int {
+	ok, ng := -1, len(a)
+	for ng-ok > 1 {
+		m := (ok + ng) >> 1
+		if x > a[m] {
+			ok = m
+		} else {
+			ng = m
+		}
+	}
+	return ok
+}
+
 func Uniq[T Ordered](vals []T) []T {
 	ret := make([]T, 0, len(vals))
+	if len(vals) == 0 {
+		return ret
+	}
 	ret = append(ret, vals[0])
 	for _, v := range vals[1:] {
 		if ret[len(ret)-1] != v {

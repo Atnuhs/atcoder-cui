@@ -287,3 +287,12 @@ func CountDivisors(pairs []*Pair[int, int]) int {
 	}
 	return ans
 }
+
+// NextPow2はx以上の最小の2冪を返す
+func NextPow2(x int) int {
+	ret := 1
+	for ret < x {
+		ret <<= 1
+	}
+	return ret
+}

@@ -62,7 +62,7 @@ func (pq *PQ[T]) up(i int) {
 func (pq *PQ[T]) down(i int) {
 	n := len(pq.data)
 	for {
-		l, r := 2*i+1, 2*i+2
+		l, r := (i<<1)+1, (i<<1)+2
 		smallest := i
 		if l < n && pq.less(pq.data[l], pq.data[smallest]) {
 			smallest = l
