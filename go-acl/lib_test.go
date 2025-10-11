@@ -115,3 +115,84 @@ func BenchmarkOutputToDiscard(b *testing.B) {
 		fmt.Fprintln(Discard, text)
 	}
 }
+
+func TestKeyInts(t *testing.T) {
+	arr := []int{1, 2, 3, 4, 5}
+	want := "1 2 3 4 5"
+	got := KeyInts(arr)
+
+	if got != Key(want) {
+		t.Errorf("want %s but got %s", want, got)
+	}
+}
+
+func TestKey_ToInts(t *testing.T) {
+	arr := []int{1, 2, 3, 4, 5}
+	key := KeyInts(arr)
+	got := key.ToInts()
+	if len(got) != len(arr) {
+		t.Fatalf("length not match want %d but got %d", len(arr), len(got))
+	}
+	for i, wantV := range arr {
+		gotV := got[i]
+		if wantV != gotV {
+			t.Errorf("idx %d: want %d got %d", i, wantV, gotV)
+		}
+	}
+}
+
+func TestSort(t *testing.T) {
+	arr := []int{2, 3, 4, 5, 1}
+	want := []int{1, 2, 3, 4, 5}
+
+	got := Sort(arr)
+	if len(got) != len(want) {
+		t.Fatalf("length not match want %d but got %d", len(want), len(got))
+	}
+	for i, wantV := range want {
+		gotV := got[i]
+		if wantV != gotV {
+			t.Errorf("idx %d: want %d got %d", i, wantV, gotV)
+		}
+	}
+
+	idxs := SortIdx(arr)
+	if len(idxs) != len(want) {
+		t.Fatalf("length not match want %d but got %d", len(want), len(idxs))
+	}
+	for i, wantV := range want {
+		gotV := arr[idxs[i]]
+		if wantV != gotV {
+			t.Errorf("idx %d: want %d got %d", i, wantV, gotV)
+		}
+	}
+
+	type st struct{ v int }
+	arr2 := make([]st, len(arr))
+	less := LessFunc[st](func(a, b st) bool { return a.v < b.v })
+	for i := range arr2 {
+		arr2[i] = st{v: arr[i]}
+	}
+	got2 := SortF(arr2, less)
+
+	if len(got2) != len(want) {
+		t.Fatalf("length not match want %d but got %d", len(want), len(got2))
+	}
+	for i, wantV := range want {
+		gotV := got2[i].v
+		if wantV != gotV {
+			t.Errorf("idx %d: want %d got %d", i, wantV, gotV)
+		}
+	}
+
+	idxs2 := SortIdxF(arr2, less)
+	if len(idxs2) != len(want) {
+		t.Fatalf("length not match want %d but got %d", len(want), len(idxs))
+	}
+	for i, wantV := range want {
+		gotV := arr2[idxs2[i]].v
+		if wantV != gotV {
+			t.Errorf("idx %d: want %d got %d", i, wantV, gotV)
+		}
+	}
+}

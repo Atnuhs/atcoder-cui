@@ -70,7 +70,7 @@ type SegmentTree[T any] struct {
 func NewSegmentTree[T any](arr []T, mo *Monoid[T]) *SegmentTree[T] {
 	n := NextPow2(len(arr))
 
-	data := Make1D[T](2*n - 1)
+	data := L1[T](2*n - 1)
 	for i := range data {
 		data[i] = mo.E
 	}

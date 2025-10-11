@@ -3,8 +3,11 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"sort"
+	"strconv"
+	"strings"
 )
 
 const (
@@ -39,13 +42,13 @@ func InRange(x, l, r int) bool {
 	return l <= x && x < r
 }
 
-// Make1D は長さnの配列を、関数fで初期化する
-func Make1D[T any](n int) []T {
+// L1 は長さnの配列を、関数fで初期化する
+func L1[T any](n int) []T {
 	return make([]T, n)
 }
 
-// Make2D はh行w列の配列を、関数fで初期化する
-func Make2D[T any](n1, n2 int) [][]T {
+// L2 はh行w列の配列を、関数fで初期化する
+func L2[T any](n1, n2 int) [][]T {
 	ret := make([][]T, n1)
 	for i := range ret {
 		ret[i] = make([]T, n2)
@@ -53,7 +56,7 @@ func Make2D[T any](n1, n2 int) [][]T {
 	return ret
 }
 
-func Make3D[T any](n1, n2, n3 int) [][][]T {
+func L3[T any](n1, n2, n3 int) [][][]T {
 	ret := make([][][]T, n1)
 	for i := range ret {
 		ret[i] = make([][]T, n2)
@@ -64,13 +67,13 @@ func Make3D[T any](n1, n2, n3 int) [][][]T {
 	return ret
 }
 
-func Fill1D[T any](vals []T, fill T) {
+func F1[T any](vals []T, fill T) {
 	for i := range vals {
 		vals[i] = fill
 	}
 }
 
-func Fill2D[T any](vals [][]T, fill T) {
+func F2[T any](vals [][]T, fill T) {
 	for i := range vals {
 		for j := range vals[i] {
 			vals[i][j] = fill
@@ -78,7 +81,7 @@ func Fill2D[T any](vals [][]T, fill T) {
 	}
 }
 
-func Fill3D[T any](vals [][][]T, fill T) {
+func F3[T any](vals [][][]T, fill T) {
 	for i := range vals {
 		for j := range vals[i] {
 			for k := range vals[i][j] {
@@ -88,9 +91,9 @@ func Fill3D[T any](vals [][][]T, fill T) {
 	}
 }
 
-// MakeJag は長さNのJagged配列を生成する
-func MakeJag[T any](n int) [][]T {
-	return Make2D[T](n, 0)
+// Jag は長さNのJagged配列を生成する
+func Jag[T any](n int) [][]T {
+	return L2[T](n, 0)
 }
 
 // S は文字列を読み込む
@@ -150,7 +153,7 @@ func Is(n int) []int {
 
 // Iss は整数をh行w列の配列として読み込む
 func Iss(h, w int) [][]int {
-	ret := Make2D[int](h, w)
+	ret := L2[int](h, w)
 	for i := range ret {
 		for j := range ret[i] {
 			fmt.Fscan(In, &ret[i][j])
@@ -161,7 +164,7 @@ func Iss(h, w int) [][]int {
 
 // Sss は文字列をn個読み込む
 func Ss(n int) []string {
-	ret := Make1D[string](n)
+	ret := L1[string](n)
 	for i := range ret {
 		fmt.Fscan(In, &ret[i])
 	}
@@ -393,4 +396,68 @@ func (c *Compress[T]) Val(i int) T {
 
 func (c *Compress[T]) Size() int {
 	return len(c.toOrig)
+}
+
+type Key string
+
+func KeyInts(a []int) Key {
+	if len(a) == 0 {
+		return ""
+	}
+	var b strings.Builder
+
+	b.Grow(len(a) * 3)
+	b.WriteString(strconv.Itoa(a[0]))
+	for i := 1; i < len(a); i++ {
+		b.WriteByte(' ')
+		b.WriteString(strconv.Itoa(a[i]))
+	}
+	return Key(b.String())
+}
+
+func (k Key) ToInts() []int {
+	toks := strings.Fields(string(k))
+	ret := make([]int, 0, len(toks))
+	for _, s := range toks {
+		x, err := strconv.Atoi(s)
+		if err != nil {
+			panic(fmt.Errorf("failed to parse int %s: element of %v %w", s, k, err))
+		}
+		ret = append(ret, x)
+	}
+	return ret
+}
+
+func Sort[T Ordered](arr []T) []T {
+	ret := append([]T(nil), arr...)
+	sort.Slice(ret, func(i int, j int) bool { return ret[i] < ret[j] })
+	return ret
+}
+
+func SortIdx[T Ordered](arr []T) []int {
+	ret := make([]int, len(arr))
+	for i := range ret {
+		ret[i] = i
+	}
+	sort.SliceStable(ret, func(i, j int) bool { return arr[ret[i]] < arr[ret[j]] })
+	return ret
+}
+
+func SortF[T any](arr []T, less LessFunc[T]) []T {
+	ret := append([]T(nil), arr...)
+	sort.Slice(ret, func(i, j int) bool { return less(ret[i], ret[j]) })
+	return ret
+}
+
+func SortIdxF[T any](arr []T, less LessFunc[T]) []int {
+	ret := make([]int, len(arr))
+	for i := range ret {
+		ret[i] = i
+	}
+	sort.Slice(ret, func(i, j int) bool { return less(arr[ret[i]], arr[ret[j]]) })
+	return ret
+}
+
+func Pow(x, e int) int {
+	return int(math.Pow(float64(x), float64(e)))
 }

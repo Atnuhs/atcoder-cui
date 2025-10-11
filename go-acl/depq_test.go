@@ -354,7 +354,7 @@ func FuzzNewDEPQ(f *testing.F) {
 		if a <= 0 || 1_000_000 < a {
 			return
 		}
-		arr := Make1D[int](a)
+		arr := L1[int](a)
 		for i := range arr {
 			arr[i] = rand.Intn(INF)
 		}
@@ -370,7 +370,7 @@ func FuzzDEPQ(f *testing.F) {
 		if n <= 0 || 1_000 < n {
 			return
 		}
-		arr := Make1D[int](n)
+		arr := L1[int](n)
 		for i := range arr {
 			arr[i] = rand.Intn(1_000)
 		}
@@ -442,7 +442,7 @@ func BenchmarkDEPQ_PushPop(b *testing.B) {
 	b.ReportAllocs()
 	const m = 1_000_000
 	rng := rand.New(rand.NewSource(1))
-	vs := Make1D[int](m)
+	vs := L1[int](m)
 	for i := range vs {
 		vs[i] = rng.Int()
 	}
