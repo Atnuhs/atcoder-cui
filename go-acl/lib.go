@@ -38,6 +38,11 @@ type Ordered interface {
 		~string
 }
 
+type Entry[K Ordered, V any] struct {
+	K K
+	V V
+}
+
 func InRange(x, l, r int) bool {
 	return l <= x && x < r
 }
@@ -455,6 +460,21 @@ func SortIdxF[T any](arr []T, less LessFunc[T]) []int {
 		ret[i] = i
 	}
 	sort.Slice(ret, func(i, j int) bool { return less(arr[ret[i]], arr[ret[j]]) })
+	return ret
+}
+
+func SortE[K Ordered, V any](arr []Entry[K, V]) []Entry[K, V] {
+	ret := append([]Entry[K, V](nil), arr...)
+	sort.Slice(ret, func(i, j int) bool { return ret[i].K < ret[j].K })
+	return ret
+}
+
+func SortIdxE[K Ordered, V any](arr []Entry[K, V]) []int {
+	ret := make([]int, len(arr))
+	for i := range ret {
+		ret[i] = i
+	}
+	sort.Slice(ret, func(i, j int) bool { return arr[ret[i]].K < arr[ret[j]].K })
 	return ret
 }
 

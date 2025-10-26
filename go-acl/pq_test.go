@@ -6,13 +6,13 @@ import (
 )
 
 func TestPQ(t *testing.T) {
-	p := NewPQ[int]()
+	p := NewPriorityQueue[int]()
 
 	values := []int{3, 4, 1, 2, 5, 8, 7, 6, -121}
 	for _, v := range values {
 		p.Push(v)
 	}
-	got := make([]int, p.Len())
+	got := make([]int, p.Size())
 	for i := range got {
 		got[i] = p.Pop()
 	}

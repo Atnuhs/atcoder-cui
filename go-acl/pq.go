@@ -3,25 +3,25 @@ package main
 type LessFunc[T any] func(a, b T) bool
 
 // heaapImpl はヒープの実装
-type PQ[T any] struct {
+type PriorityQueue[T any] struct {
 	data []T
 	less LessFunc[T]
 }
 
-func NewPQF[T any](less LessFunc[T]) *PQ[T] {
-	return &PQ[T]{data: []T{}, less: less}
+func NewPriorityQueueWithLessFunc[T any](less LessFunc[T]) *PriorityQueue[T] {
+	return &PriorityQueue[T]{data: []T{}, less: less}
 }
 
-func NewPQ[T Ordered]() *PQ[T] {
-	return &PQ[T]{data: []T{}, less: func(a, b T) bool { return a < b }}
+func NewPriorityQueue[T Ordered]() *PriorityQueue[T] {
+	return &PriorityQueue[T]{data: []T{}, less: func(a, b T) bool { return a < b }}
 }
 
-func (pq *PQ[T]) Push(x T) {
+func (pq *PriorityQueue[T]) Push(x T) {
 	pq.data = append(pq.data, x)
 	pq.up(len(pq.data) - 1)
 }
 
-func (pq *PQ[T]) Pop() T {
+func (pq *PriorityQueue[T]) Pop() T {
 	n := len(pq.data)
 	if n == 0 {
 		panic(ErrEmptyContainer)
@@ -33,22 +33,22 @@ func (pq *PQ[T]) Pop() T {
 	return val
 }
 
-func (pq *PQ[T]) Peek() T {
+func (pq *PriorityQueue[T]) Peek() T {
 	if pq.IsEmpty() {
 		panic(ErrEmptyContainer)
 	}
 	return pq.data[0]
 }
 
-func (pq *PQ[T]) IsEmpty() bool {
+func (pq *PriorityQueue[T]) IsEmpty() bool {
 	return len(pq.data) == 0
 }
 
-func (pq *PQ[T]) Len() int {
+func (pq *PriorityQueue[T]) Size() int {
 	return len(pq.data)
 }
 
-func (pq *PQ[T]) up(i int) {
+func (pq *PriorityQueue[T]) up(i int) {
 	for {
 		p := (i - 1) / 2
 		if i == 0 || !pq.less(pq.data[i], pq.data[p]) {
@@ -59,7 +59,7 @@ func (pq *PQ[T]) up(i int) {
 	}
 }
 
-func (pq *PQ[T]) down(i int) {
+func (pq *PriorityQueue[T]) down(i int) {
 	n := len(pq.data)
 	for {
 		l, r := (i<<1)+1, (i<<1)+2
@@ -78,6 +78,6 @@ func (pq *PQ[T]) down(i int) {
 	}
 }
 
-func (pq *PQ[T]) swap(i, j int) {
+func (pq *PriorityQueue[T]) swap(i, j int) {
 	pq.data[i], pq.data[j] = pq.data[j], pq.data[i]
 }

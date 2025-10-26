@@ -50,6 +50,14 @@ func (d *Deque[T]) grow() {
 	d.r = size
 }
 
+func (d *Deque[T]) GetFront() T {
+	return d.buf[d.l]
+}
+
+func (d *Deque[T]) GetBack() T {
+	return d.buf[d.r]
+}
+
 func (d *Deque[T]) PushFront(v T) {
 	if d.isFull() {
 		d.grow()

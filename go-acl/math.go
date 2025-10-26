@@ -69,7 +69,20 @@ func Lcm(a, b int) int {
 
 // Sqrt return square root of x
 func Sqrt(x int) int {
-	return int(math.Sqrt(float64(x)))
+	if x < 0 {
+		panic("Sqrt negative input")
+	}
+	if x <= 1 {
+		return x
+	}
+	ret := int(math.Sqrt(float64(x)))
+	for ret > x/ret {
+		ret--
+	}
+	for (ret + 1) <= x/(ret+1) {
+		ret++
+	}
+	return ret
 }
 
 // NextPerm returns [1,2,3,4] => [1,2,4,3] ... [4,3,2,1]
@@ -288,8 +301,8 @@ func CountDivisors(pairs []*Pair[int, int]) int {
 	return ans
 }
 
-// NextPow2はx以上の最小の2冪を返す
-func NextPow2(x int) int {
+// CeilPow2はx以上の最小の2冪を返す
+func CeilPow2(x int) int {
 	ret := 1
 	for ret < x {
 		ret <<= 1

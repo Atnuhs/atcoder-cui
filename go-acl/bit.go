@@ -67,9 +67,9 @@ func (b *BIT) Set(i, val int) {
 	}
 }
 
-// Geはx <= Prefix(i)となるような最小のiを返す
+// GeAtはx <= Prefix(i)となるような最小のiを返す
 // データ内に負の値が含まれていると壊れる
-func (b *BIT) Ge(x int) int {
+func (b *BIT) GeAt(x int) int {
 	idx := 0
 	sum := 0
 	step := 1 << (bits.Len(uint(b.n)) - 1)
@@ -85,9 +85,9 @@ func (b *BIT) Ge(x int) int {
 	return Min(idx, b.n)
 }
 
-// Gtはx < Prefix(i)となるような最小のiを返す
+// GtAtはx < Prefix(i)となるような最小のiを返す
 // データ内に負の値が含まれていると壊れる
-func (b *BIT) Gt(x int) int {
+func (b *BIT) GtAt(x int) int {
 	idx := 0
 	sum := 0
 	step := 1 << (bits.Len(uint(b.n)) - 1)
@@ -103,10 +103,10 @@ func (b *BIT) Gt(x int) int {
 	return Min(idx, b.n)
 }
 
-func (b *BIT) Le(x int) int {
-	return b.Gt(x) - 1
+func (b *BIT) LeAt(x int) int {
+	return b.GtAt(x) - 1
 }
 
-func (b *BIT) Lt(x int) int {
-	return b.Ge(x) - 1
+func (b *BIT) LtAt(x int) int {
+	return b.GeAt(x) - 1
 }

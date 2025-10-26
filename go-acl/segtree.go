@@ -4,8 +4,8 @@ package main
 type (
 	Operator[T any] func(x1, x2 T) T
 	Monoid[T any]   struct {
-		Op Operator[T]
-		E  T
+		Op Operator[T] // データ同士の積演算
+		E  T           // データの単位元
 	}
 )
 
@@ -59,6 +59,13 @@ func MoMODMul(mod int) *Monoid[int] {
 	}
 }
 
+func MoCustom[T any](op Operator[T], e T) *Monoid[T] {
+	return &Monoid[T]{
+		Op: op,
+		E:  e,
+	}
+}
+
 // SegmentTree はセグメント木の実装
 type SegmentTree[T any] struct {
 	data []T
@@ -68,7 +75,7 @@ type SegmentTree[T any] struct {
 
 // NewSegmentTree はセグメント木を初期化する
 func NewSegmentTree[T any](arr []T, mo *Monoid[T]) *SegmentTree[T] {
-	n := NextPow2(len(arr))
+	n := CeilPow2(len(arr))
 
 	data := L1[T](2*n - 1)
 	for i := range data {
@@ -90,6 +97,10 @@ func NewSegmentTree[T any](arr []T, mo *Monoid[T]) *SegmentTree[T] {
 		n:    n,
 		mo:   mo,
 	}
+}
+
+func (st *SegmentTree[T]) Size() int {
+	return st.n
 }
 
 func (st *SegmentTree[T]) Update(i int, x T) {
