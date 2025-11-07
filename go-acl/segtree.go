@@ -1,5 +1,10 @@
 package main
 
+import (
+	"fmt"
+	"strings"
+)
+
 // Monoid
 type (
 	Operator[T any] func(x1, x2 T) T
@@ -59,7 +64,7 @@ func MoMODMul(mod int) *Monoid[int] {
 	}
 }
 
-func MoCustom[T any](op Operator[T], e T) *Monoid[T] {
+func NewMo[T any](op Operator[T], e T) *Monoid[T] {
 	return &Monoid[T]{
 		Op: op,
 		E:  e,
@@ -70,69 +75,118 @@ func MoCustom[T any](op Operator[T], e T) *Monoid[T] {
 type SegmentTree[T any] struct {
 	data []T
 	n    int
+	size int
 	mo   *Monoid[T]
 }
 
 // NewSegmentTree はセグメント木を初期化する
 func NewSegmentTree[T any](arr []T, mo *Monoid[T]) *SegmentTree[T] {
-	n := CeilPow2(len(arr))
+	n := len(arr)
+	size := CeilPow2(n)
 
-	data := L1[T](2*n - 1)
-	for i := range data {
-		data[i] = mo.E
-	}
+	data := L1[T](2 * size)
+	F1(data, mo.E)
 
 	for i := range arr {
-		j := i + n - 1
-		data[j] = arr[i]
+		data[i+size] = arr[i]
 	}
 
-	for i := n - 2; i >= 0; i-- {
-		c1, c2 := (i<<1)+1, (i<<1)+2
-		data[i] = mo.Op(data[c1], data[c2])
+	for i := size - 1; i >= 1; i-- {
+		data[i] = mo.Op(data[i<<1], data[i<<1|1])
 	}
 
 	return &SegmentTree[T]{
 		data: data,
 		n:    n,
+		size: size,
 		mo:   mo,
 	}
 }
 
-func (st *SegmentTree[T]) Size() int {
-	return st.n
+func (t *SegmentTree[T]) Size() int {
+	return t.n
 }
 
-func (st *SegmentTree[T]) Update(i int, x T) {
-	i += st.n - 1
-	st.data[i] = x
+func (t *SegmentTree[T]) Update(i int, x T) {
+	i += t.size
+	t.data[i] = x
 	for i > 0 {
-		i = (i - 1) >> 1
-		c1, c2 := (i<<1)+1, (i<<1)+2
-		st.data[i] = st.mo.Op(st.data[c1], st.data[c2])
+		i >>= 1
+		t.data[i] = t.mo.Op(t.data[i<<1], t.data[i<<1|1])
 	}
 }
 
-func (st *SegmentTree[T]) At(i int) T {
-	return st.Query(i, i+1)
+func (t *SegmentTree[T]) At(i int) T {
+	return t.Query(i, i+1)
 }
 
-func (st *SegmentTree[T]) Query(a, b int) T {
-	return st.querySub(a, b, 0, 0, st.n)
+// Queryは[l, r)の範囲でクエリ処理をする
+func (t *SegmentTree[T]) Query(l, r int) T {
+	l += t.size
+	r += t.size
+	lv, rv := t.mo.E, t.mo.E
+	for l < r {
+		if l&1 == 1 {
+			lv = t.mo.Op(lv, t.data[l])
+			l++
+		}
+		if r&1 == 1 {
+			r--
+			rv = t.mo.Op(t.data[r], rv)
+		}
+		l >>= 1
+		r >>= 1
+	}
+	return t.mo.Op(lv, rv)
 }
 
-func (st *SegmentTree[T]) querySub(a, b, n, l, r int) T {
-	if r <= a || b <= l {
-		return st.mo.E
+func (t *SegmentTree[T]) dump() string {
+	ret := strings.Builder{}
+	l := 1 << 1
+	for i, v := range t.data[1:] {
+		ret.WriteString(fmt.Sprintf("%d:%v ", i+1, v))
+		if i+2 == l {
+			ret.WriteString("\n")
+			l <<= 1
+		}
+	}
+	return ret.String()
+}
+
+// MaxRightは[l, r)に対して、Query(l, r)がTrueとなるような最大のrを求める
+// ok(E)がTrueを返すことを要求する
+func (t *SegmentTree[T]) MaxRight(l int, ok Ok[T]) int {
+	if l < 0 || l >= t.n {
+		panic("MaxRight(l) l must be [0 <= l < t.Size()]")
+	}
+	if !ok(t.mo.E) {
+		return l
+	}
+	if ok(t.Query(l, t.n)) {
+		return t.n
 	}
 
-	if a <= l && r <= b {
-		return st.data[n]
+	l += t.size
+	lv := t.mo.E
+	for {
+		nlv := t.mo.Op(lv, t.data[l])
+		if !ok(nlv) {
+			break
+		}
+		if (l & 1) == 1 {
+			lv = nlv
+			l++
+		}
+		l >>= 1
 	}
 
-	c1, c2 := (n<<1)+1, (n<<1)+2
-	mid := (l + r) >> 1
-	vl := st.querySub(a, b, c1, l, mid)
-	vr := st.querySub(a, b, c2, mid, r)
-	return st.mo.Op(vl, vr)
+	for l < t.size {
+		nlv := t.mo.Op(lv, t.data[l<<1])
+		l <<= 1
+		if ok(nlv) {
+			lv = nlv
+			l |= 1
+		}
+	}
+	return l - t.size
 }

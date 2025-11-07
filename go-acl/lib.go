@@ -481,3 +481,5 @@ func SortIdxE[K Ordered, V any](arr []Entry[K, V]) []int {
 func Pow(x, e int) int {
 	return int(math.Pow(float64(x), float64(e)))
 }
+
+type Ok[T any] func(x T) bool

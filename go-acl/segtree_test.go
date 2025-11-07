@@ -50,9 +50,13 @@ func TestNewSegmentTree(t *testing.T) {
 			arr:    []int{1, 2, 3, 4, 5},
 			monoid: MoSum[int](),
 			testFunc: func(t *testing.T, st *SegmentTree[int]) {
+				t.Log(st.dump())
 				testlib.AclAssert(t, 15, st.Query(0, 5)) // Sum of all
-				testlib.AclAssert(t, 5, st.Query(1, 3))  // Sum of [2, 3]
-				testlib.AclAssert(t, 1, st.Query(0, 1))  // Sum of [1]
+				t.Log(st.dump())
+				testlib.AclAssert(t, 5, st.Query(1, 3)) // Sum of [2, 3]
+				t.Log(st.dump())
+				testlib.AclAssert(t, 1, st.Query(0, 1)) // Sum of [1]
+				t.Log(st.dump())
 			},
 		},
 		"max tree": {
@@ -113,4 +117,223 @@ func TestSegmentTree_QueryEdgeCases(t *testing.T) {
 	testlib.AclAssert(t, 1, st.Query(0, 1))
 	testlib.AclAssert(t, 2, st.Query(1, 2))
 	testlib.AclAssert(t, 3, st.Query(2, 3))
+}
+
+func TestMaxRight_BasicSum(t *testing.T) {
+	seg := NewSegmentTree([]int{1, 2, 3, 4, 5}, MoSum[int]())
+
+	tests := []struct {
+		name  string
+		l     int
+		limit int
+		want  int
+	}{
+		{"sum <= 10 from 0", 0, 10, 4},   // 1+2+3+4=10
+		{"sum <= 6 from 0", 0, 6, 3},     // 1+2+3=6
+		{"sum <= 1 from 0", 0, 1, 1},     // 1
+		{"sum <= 100 from 0", 0, 100, 5}, // 全体
+		{"sum <= 9 from 2", 2, 9, 4},     // 3+4=7 (< 9)
+		{"sum <= 0 from 0", 0, 0, 0},     // 空区間
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := seg.MaxRight(tt.l, func(v int) bool {
+				return v <= tt.limit
+			})
+			if got != tt.want {
+				t.Errorf("MaxRight(%d, sum <= %d) = %d, want %d",
+					tt.l, tt.limit, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMaxRight_Max(t *testing.T) {
+	seg := NewSegmentTree([]int{3, 1, 4, 1, 5, 9, 2}, MoMax())
+
+	tests := []struct {
+		name  string
+		l     int
+		limit int
+		want  int
+	}{
+		{"max <= 4 from 0", 0, 4, 4},     // max(3,1,4)=4
+		{"max <= 3 from 0", 0, 3, 2},     // max(3,1)=3
+		{"max <= 1 from 1", 1, 1, 2},     // max(1,1,1)=1
+		{"max <= 100 from 0", 0, 100, 7}, // 全体
+		{"max <= 5 from 3", 3, 5, 5},     // max(1,5)=5
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := seg.MaxRight(tt.l, func(v int) bool {
+				return v <= tt.limit
+			})
+			t.Logf("\n%s", seg.dump())
+			if got != tt.want {
+				t.Errorf("MaxRight(%d, max <= %d) = %d, want %d",
+					tt.l, tt.limit, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMaxRight_EdgeCases(t *testing.T) {
+	seg := NewSegmentTree([]int{1, 2, 3, 4, 5}, MoSum[int]())
+
+	t.Run("start from last element", func(t *testing.T) {
+		got := seg.MaxRight(4, func(v int) bool { return v <= 10 })
+		if got != 5 {
+			t.Errorf("MaxRight(4) = %d, want 5", got)
+		}
+	})
+
+	t.Run("always true predicate", func(t *testing.T) {
+		got := seg.MaxRight(0, func(v int) bool { return true })
+		if got != 5 {
+			t.Errorf("MaxRight with always true = %d, want 5", got)
+		}
+	})
+
+	t.Run("immediately false (except E)", func(t *testing.T) {
+		got := seg.MaxRight(0, func(v int) bool { return v == 0 })
+		if got != 0 {
+			t.Errorf("MaxRight with immediately false = %d, want 0", got)
+		}
+	})
+}
+
+func TestMaxRight_SingleElement(t *testing.T) {
+	seg := NewSegmentTree([]int{42}, MoSum[int]())
+
+	tests := []struct {
+		name  string
+		limit int
+		want  int
+	}{
+		{"below threshold", 41, 0},
+		{"at threshold", 42, 1},
+		{"above threshold", 100, 1},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := seg.MaxRight(0, func(v int) bool { return v <= tt.limit })
+			if got != tt.want {
+				t.Errorf("MaxRight(0, <= %d) = %d, want %d",
+					tt.limit, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMaxRight_Panic(t *testing.T) {
+	seg := NewSegmentTree([]int{1, 2, 3}, MoSum[int]())
+
+	t.Run("negative index", func(t *testing.T) {
+		defer func() {
+			if r := recover(); r == nil {
+				t.Error("Expected panic for negative index")
+			}
+		}()
+		seg.MaxRight(-1, func(v int) bool { return true })
+	})
+
+	t.Run("out of bounds index", func(t *testing.T) {
+		defer func() {
+			if r := recover(); r == nil {
+				t.Error("Expected panic for out of bounds index")
+			}
+		}()
+		seg.MaxRight(3, func(v int) bool { return true })
+	})
+}
+
+func TestMaxRight_VerifyWithQuery(t *testing.T) {
+	// MaxRightの結果が正しいか、Queryを使って検証
+	seg := NewSegmentTree([]int{1, 2, 3, 4, 5, 6, 7, 8}, MoSum[int]())
+
+	for l := 0; l < 8; l++ {
+		for limit := 0; limit <= 40; limit += 5 {
+			r := seg.MaxRight(l, func(v int) bool { return v <= limit })
+
+			// rが正しい位置にあることを確認
+			if r > l {
+				sum := seg.Query(l, r)
+				if sum > limit {
+					t.Errorf("MaxRight(%d, <=%d)=%d but Query(%d,%d)=%d > %d",
+						l, limit, r, l, r, sum, limit)
+				}
+			}
+
+			// r+1が条件を満たさないことを確認（範囲内の場合）
+			if r < 8 {
+				sum := seg.Query(l, r+1)
+				if sum <= limit {
+					t.Errorf("MaxRight(%d, <=%d)=%d but Query(%d,%d)=%d <= %d (should be larger)",
+						l, limit, r, l, r+1, sum, limit)
+				}
+			}
+		}
+	}
+}
+
+func TestMaxRight_LargeArray(t *testing.T) {
+	// 大きな配列でのテスト
+	n := 1000
+	data := make([]int, n)
+	for i := 0; i < n; i++ {
+		data[i] = 1
+	}
+	seg := NewSegmentTree(data, MoSum[int]())
+
+	tests := []struct {
+		l     int
+		limit int
+		want  int
+	}{
+		{0, 100, 100},
+		{0, 500, 500},
+		{100, 200, 300},
+		{999, 1, 1000},
+	}
+
+	for _, tt := range tests {
+		got := seg.MaxRight(tt.l, func(v int) bool { return v <= tt.limit })
+		if got != tt.want {
+			t.Errorf("MaxRight(%d, <=%d) = %d, want %d",
+				tt.l, tt.limit, got, tt.want)
+		}
+	}
+}
+
+func TestMaxRight_Detailed(t *testing.T) {
+	// すべての l と様々な閾値で徹底的にテスト
+	data := []int{1, 2, 3, 4, 5}
+	seg := NewSegmentTree(data, MoSum[int]())
+
+	// 期待値を愚直に計算
+	for l := 0; l < 5; l++ {
+		for limit := 0; limit <= 15; limit++ {
+			got := seg.MaxRight(l, func(v int) bool { return v <= limit })
+
+			// 愚直に正解を求める
+			want := l
+			sum := 0
+			for r := l; r < 5; r++ {
+				sum += data[r]
+				if sum <= limit {
+					want = r + 1
+				} else {
+					break
+				}
+			}
+
+			if got != want {
+				t.Errorf("data=%v, MaxRight(%d, <=%d) = %d, want %d",
+					data, l, limit, got, want)
+			}
+		}
+	}
 }

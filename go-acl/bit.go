@@ -67,46 +67,17 @@ func (b *BIT) Set(i, val int) {
 	}
 }
 
-// GeAtはx <= Prefix(i)となるような最小のiを返す
-// データ内に負の値が含まれていると壊れる
-func (b *BIT) GeAt(x int) int {
-	idx := 0
-	sum := 0
+// FirstTrueAtはf(a[i])がTrueとなるような最小のiを返す
+func (b *BIT) FirstTrueAt(f func(v int) bool) int {
+	idx, sum := 0, 0
 	step := 1 << (bits.Len(uint(b.n)) - 1)
-
 	for step > 0 {
 		next := idx + step
-		if next <= b.n && x > sum+b.data[next] {
+		if next <= b.n && !f(sum+b.data[next]) {
 			sum += b.data[next]
 			idx = next
 		}
 		step >>= 1
 	}
-	return Min(idx, b.n)
-}
-
-// GtAtはx < Prefix(i)となるような最小のiを返す
-// データ内に負の値が含まれていると壊れる
-func (b *BIT) GtAt(x int) int {
-	idx := 0
-	sum := 0
-	step := 1 << (bits.Len(uint(b.n)) - 1)
-
-	for step > 0 {
-		next := idx + step
-		if next <= b.n && x >= sum+b.data[next] {
-			sum += b.data[next]
-			idx = next
-		}
-		step >>= 1
-	}
-	return Min(idx, b.n)
-}
-
-func (b *BIT) LeAt(x int) int {
-	return b.GtAt(x) - 1
-}
-
-func (b *BIT) LtAt(x int) int {
-	return b.GeAt(x) - 1
+	return idx
 }
