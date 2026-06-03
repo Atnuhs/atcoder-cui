@@ -77,6 +77,46 @@ func (st *Splaymap[K, V]) Delete(key K) (deleted bool) {
 	return
 }
 
+// Minは最小キーの要素を返す。空ならok=false。
+func (st *Splaymap[K, V]) Min() (key K, value V, ok bool) {
+	if st.root == nil {
+		return
+	}
+	st.root = st.root.splayMin()
+	return st.root.key, st.root.value, true
+}
+
+// Maxは最大キーの要素を返す。空ならok=false。
+func (st *Splaymap[K, V]) Max() (key K, value V, ok bool) {
+	if st.root == nil {
+		return
+	}
+	st.root = st.root.splayMax()
+	return st.root.key, st.root.value, true
+}
+
+// PopMinは最小キーの要素を取り出して削除する。空ならok=false。
+func (st *Splaymap[K, V]) PopMin() (key K, value V, ok bool) {
+	if st.root == nil {
+		return
+	}
+	st.root = st.root.splayMin()
+	key, value, ok = st.root.key, st.root.value, true
+	_, st.root = st.root.cutRight()
+	return
+}
+
+// PopMaxは最大キーの要素を取り出して削除する。空ならok=false。
+func (st *Splaymap[K, V]) PopMax() (key K, value V, ok bool) {
+	if st.root == nil {
+		return
+	}
+	st.root = st.root.splayMax()
+	key, value, ok = st.root.key, st.root.value, true
+	st.root, _ = st.root.cutLeft()
+	return
+}
+
 // Atは昇順でk番目(0-indexed)の要素を返す。
 // 範囲外ならok=false。
 func (st *Splaymap[K, V]) At(k int) (key K, value V, ok bool) {
@@ -92,23 +132,9 @@ func (st *Splaymap[K, V]) At(k int) (key K, value V, ok bool) {
 	return st.root.key, st.root.value, true
 }
 
-// FirstGtはkeyより大きい最小要素のindexを返す。
-// 存在しなければSize()を返す。要素はAt(FirstGt(key))で取得。
-func (st *Splaymap[K, V]) FirstGt(key K) (idx int) {
-	if st.root == nil {
-		return
-	}
-	L, R := split(st.root, key, SplitLE_GT)
-	if L != nil {
-		idx = L.size
-	}
-	st.root = merge(L, R)
-	return
-}
-
-// FirstGeはkey以上の最小要素のindexを返す。
-// 存在しなければSize()を返す。要素はAt(FirstGe(key))で取得。
-func (st *Splaymap[K, V]) FirstGe(key K) (idx int) {
+// LowerBoundはkey以上の最小要素のindexを返す (std::lower_bound 相当)。
+// 存在しなければSize()を返す。要素はAt(LowerBound(key))で取得。
+func (st *Splaymap[K, V]) LowerBound(key K) (idx int) {
 	if st.root == nil {
 		return
 	}
@@ -120,16 +146,18 @@ func (st *Splaymap[K, V]) FirstGe(key K) (idx int) {
 	return
 }
 
-// LastLtはkeyより小さい最大要素のindexを返す。
-// 存在しなければ-1を返す。要素はAt(LastLt(key))で取得。
-func (st *Splaymap[K, V]) LastLt(key K) (idx int) {
-	return st.FirstGe(key) - 1
-}
-
-// LastLeはkey以下の最大要素のindexを返す。
-// 存在しなければ-1を返す。要素はAt(LastLe(key))で取得。
-func (st *Splaymap[K, V]) LastLe(key K) (idx int) {
-	return st.FirstGt(key) - 1
+// UpperBoundはkeyより大きい最小要素のindexを返す (std::upper_bound 相当)。
+// 存在しなければSize()を返す。要素はAt(UpperBound(key))で取得。
+func (st *Splaymap[K, V]) UpperBound(key K) (idx int) {
+	if st.root == nil {
+		return
+	}
+	L, R := split(st.root, key, SplitLE_GT)
+	if L != nil {
+		idx = L.size
+	}
+	st.root = merge(L, R)
+	return
 }
 
 // InOrderは昇順でキーと値のペアを列挙して返す

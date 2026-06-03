@@ -15,26 +15,64 @@ var (
 	Out = bufio.NewWriterSize(os.Stdout, BufferSize)
 	Dbg = bufio.NewWriterSize(os.Stderr, BufferSize)
 
-	in = bufio.NewReaderSize(os.Stdin, BufferSize)
+	rdBuf = make([]byte, BufferSize)
+	inBuf []byte
+	inPos int
 )
+
+// fillBuf は inBuf に未読バイトが残っていなければ os.Stdin から1チャンク読み足す。
+// Read は入力が来るまでブロックするが、EOF まで読み切らないため
+// インタラクティブ問題でも応答待ちのデッドロックにならない。
+// EOF または読めなかった場合は false。
+func fillBuf() bool {
+	if inPos < len(inBuf) {
+		return true
+	}
+	n, err := os.Stdin.Read(rdBuf)
+	if n > 0 {
+		inBuf = rdBuf[:n]
+		inPos = 0
+		return true
+	}
+	_ = err
+	return false
+}
 
 // --- Input ---
 
-// readToken は空白をスキップして次のトークンのバイト列を返す
+// readToken は空白をスキップして次のトークンのバイト列を返す。
+// 1チャンクに収まる場合は inBuf のサブスライス（次の入力呼び出しまで有効）。
+// チャンクをまたぐ場合のみアロケーションして連結。
 func readToken() []byte {
-	c, err := in.ReadByte()
-	for err == nil && c <= ' ' {
-		c, err = in.ReadByte()
+	for {
+		if !fillBuf() {
+			return nil
+		}
+		for inPos < len(inBuf) && inBuf[inPos] <= ' ' {
+			inPos++
+		}
+		if inPos < len(inBuf) {
+			break
+		}
 	}
-	if err != nil {
-		return nil
+	var buf []byte
+	start := inPos
+	for {
+		for inPos < len(inBuf) && inBuf[inPos] > ' ' {
+			inPos++
+		}
+		if inPos < len(inBuf) {
+			if buf == nil {
+				return inBuf[start:inPos]
+			}
+			return append(buf, inBuf[start:inPos]...)
+		}
+		buf = append(buf, inBuf[start:]...)
+		if !fillBuf() {
+			return buf
+		}
+		start = 0
 	}
-	buf := make([]byte, 0, 16)
-	for err == nil && c > ' ' {
-		buf = append(buf, c)
-		c, err = in.ReadByte()
-	}
-	return buf
 }
 
 // S は文字列を読み込む
@@ -44,7 +82,10 @@ func S() string {
 
 // B は文字列を[]byteとして読み込む
 func B() []byte {
-	return readToken()
+	t := readToken()
+	b := make([]byte, len(t))
+	copy(b, t)
+	return b
 }
 
 func F() float64 {
@@ -54,21 +95,33 @@ func F() float64 {
 
 // I は整数を読み込む
 func I() int {
-	c, err := in.ReadByte()
-	for err == nil && c <= ' ' {
-		c, err = in.ReadByte()
+	for {
+		if !fillBuf() {
+			return 0
+		}
+		for inPos < len(inBuf) && inBuf[inPos] <= ' ' {
+			inPos++
+		}
+		if inPos < len(inBuf) {
+			break
+		}
 	}
-	if err != nil {
-		return 0
-	}
-	neg := c == '-'
+	neg := inBuf[inPos] == '-'
 	if neg {
-		c, err = in.ReadByte()
+		inPos++
 	}
 	n := 0
-	for err == nil && '0' <= c && c <= '9' {
-		n = n*10 + int(c-'0')
-		c, err = in.ReadByte()
+	for {
+		for inPos < len(inBuf) && '0' <= inBuf[inPos] && inBuf[inPos] <= '9' {
+			n = n*10 + int(inBuf[inPos]-'0')
+			inPos++
+		}
+		if inPos < len(inBuf) {
+			break
+		}
+		if !fillBuf() {
+			break
+		}
 	}
 	if neg {
 		return -n
@@ -259,6 +312,14 @@ func Ans(args ...any) {
 		writeOne(arg)
 	}
 	_ = Out.WriteByte('\n')
+}
+
+// IAns はインタラクティブ問題用に出力直後に Flush する。
+// 通常の Ans は main の defer Out.Flush() でまとめて書き出すため、
+// 応答待ちの judge とのやり取りでデッドロックする。
+func IAns(args ...any) {
+	Ans(args...)
+	_ = Out.Flush()
 }
 
 // Yes は"Yes"を出力する
