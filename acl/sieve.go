@@ -2,10 +2,10 @@ package acl
 
 import "math"
 
-// Sieve はiが素数かをboolで持つテーブル
+// Sieve は0..n の各整数が素数かどうかを保持するテーブル
 type Sieve []bool
 
-// NewSieve はエラトステネスの篩の実装でテーブルを生成する
+// NewSieve は O(N loglog N) でエラトステネスの篩によりテーブルを生成する
 func NewSieve(n int) Sieve {
 	isPrime := L1[bool](n + 1)
 	for i := range isPrime {
@@ -14,7 +14,6 @@ func NewSieve(n int) Sieve {
 
 	isPrime[0] = false
 	isPrime[1] = false
-	// sieve
 	for i := 2; i*i <= n; i++ {
 		if !isPrime[i] {
 			continue
@@ -26,10 +25,13 @@ func NewSieve(n int) Sieve {
 	return Sieve(isPrime)
 }
 
+// IsPrime は x が素数かどうかを O(1) で返す
 func (sv Sieve) IsPrime(x int) bool {
 	return sv[x]
 }
 
+// Primes はテーブル中の素数を昇順で列挙する
+// 容量は素数定理に基づく上界で確保している
 func (sv Sieve) Primes() []int {
 	n := len(sv) - 1
 	m := func() int {
@@ -47,17 +49,17 @@ func (sv Sieve) Primes() []int {
 	return ret
 }
 
-// MinFactorTable はある値xについてその最小の素因数を返すテーブル
+// MinFactorTable は各値 x に対しその最小素因数を保持するテーブル
 type MinFactorTable []int
 
-// NewMinFactor はO(N loglog N)でエラトステネスの篩の仕組みでminFactorテーブルを生成する
+// NewMinFactor は O(N loglog N) でエラトステネスの篩によりテーブルを生成する
 func NewMinFactor(n int) MinFactorTable {
 	mf := make(MinFactorTable, n+1)
 	mf[1] = 1
 	for p := 2; p <= n; p++ {
 		if mf[p] == 0 {
 			mf[p] = p
-			// p*pがオーバーフローする場合…あんまなさそう？
+			// p*p のオーバーフロー回避のため除算で比較する
 			if p > n/p {
 				continue
 			}
@@ -72,7 +74,7 @@ func NewMinFactor(n int) MinFactorTable {
 
 }
 
-// IsPrime はO(1)で素数かどうかを判定する
+// IsPrime は x が素数かどうかを O(1) で返す
 func (mf MinFactorTable) IsPrime(x int) bool {
 	if x == 1 {
 		return false
@@ -80,10 +82,9 @@ func (mf MinFactorTable) IsPrime(x int) bool {
 	return mf[x] == x
 }
 
-// Factorize は O(log x)で素因数分解を行う
-// 返り値は素因数とその指数のPairのスライス
-// 例）got, ret
-// 6, []Pair{{2,1}, {3.1}}
+// Factorize は O(log x) で素因数分解を行う
+// 返り値は (素因数, 指数) のペアの昇順スライス
+// 例) 6 => []Pair{{2,1}, {3,1}}
 func (mf MinFactorTable) Factorize(x int) []Pair[int, int] {
 	ret := make([]Pair[int, int], 0)
 	n := x
@@ -100,9 +101,12 @@ func (mf MinFactorTable) Factorize(x int) []Pair[int, int] {
 	return ret
 }
 
-// Divisors is O(log x) returns
-// 2 => 1, 2
-// 10 => 1, 2, 5, 10
+// Divisors は x の約数を列挙する (O(log x + d(x)))
+// 例) 2 => [1, 2]
+//
+//	10 => [1, 2, 5, 10]
+//
+// 返り値の順序は約数の昇順ではない点に注意
 func (mf *MinFactorTable) Divisors(x int) []int {
 	ret := []int{1}
 
@@ -120,25 +124,26 @@ func (mf *MinFactorTable) Divisors(x int) []int {
 	return ret
 }
 
-// CountDivisors is O(log x + len(sv.Divisors(x))) returns len(sv.Divisors(x))
-// 1 => 1
-// 2 => 2
-// 10 => 4
+// CountDivisors は x の約数の個数を O(log x) で返す
+// 例) 1 => 1
+//
+//	2 => 2
+//	10 => 4
 func (mf *MinFactorTable) CountDivisors(x int) int {
 	return CountDivisors(mf.Factorize(x))
 }
 
-// MobiusTable はメビウス関数μ(x)の値を持つテーブル
-// メビウス関数は、整数nに対して以下のように定義される
-// 0 <= n: nが平方数で割り切れる場合
-// 1 or -1 <= (-1)^k: nがk個の異なる素因数を持つ場合
-// 具体的には以下のような値となる
-// 0 <= 4, 12, 18, 50: 平方数で割り切れる
-// 1 <= 1, 6, 210: 偶数個の素因数を持つ
-// -1 <= 2, 30, 140729 : 奇数個の素因数を持つ
-// 約数系包除原理で使う
+// MobiusTable はメビウス関数 μ(x) の値を保持するテーブル
+// μ(n) は次のように定義される
+//
+//	μ(n) =  0  : n が平方因子をもつ場合 (例: 4, 12, 18, 50)
+//	μ(n) = +1  : n が偶数個の相異なる素因数の積の場合 (例: 1, 6, 210)
+//	μ(n) = -1  : n が奇数個の相異なる素因数の積の場合 (例: 2, 30, 140729)
+//
+// 約数系の包除原理で用いる
 type MobiusTable []int
 
+// NewMobiusTable は MinFactorTable 経由で μ(0..n) を O(N loglog N) で構築する
 func NewMobiusTable(n int) MobiusTable {
 	mf := NewMinFactor(n)
 	mu := L1[int](n + 1)
@@ -159,18 +164,20 @@ func NewMobiusTable(n int) MobiusTable {
 	return MobiusTable(mu)
 }
 
+// Mobius は μ(x) を O(1) で返す
 func (mu MobiusTable) Mobius(x int) int {
 	return mu[x]
 }
 
-// SegmentedSieveは
+// SegmentedSieve は区間 [lo, hi] に含まれる整数が素数かどうかを保持する区間篩
 type SegmentedSieve struct {
 	start   int
 	isPrime Sieve
 }
 
-// 幅の狭い区間[L, R]に対して、D=R-Lとしたとき、
-// 構築 O(Sqrt(R) log log R + D loglog R)で篩を生成することができる
+// NewSegmentedSieve は区間 [lo, hi] の区間篩を構築する
+// D = hi - lo として、構築は O(sqrt(hi) loglog hi + D loglog hi)
+// hi が大きく D が比較的小さい場合に有効
 func NewSegmentedSieve(lo, hi int) *SegmentedSieve {
 	if lo >= hi {
 		return nil
@@ -204,6 +211,7 @@ func NewSegmentedSieve(lo, hi int) *SegmentedSieve {
 	}
 }
 
+// IsPrime は x が素数かどうかを O(1) で返す (x は構築時の区間 [lo, hi] に含まれること)
 func (sv *SegmentedSieve) IsPrime(x int) bool {
 	i := x - sv.start
 	return sv.isPrime[i]
